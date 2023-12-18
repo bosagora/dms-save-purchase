@@ -11,7 +11,7 @@
 import * as assert from "assert";
 import { BigNumber } from "ethers";
 import path from "path";
-import { Transaction, Utils } from "rollup-pm-sdk";
+import { Transaction, Utils } from "dms-store-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { TransactionPool } from "../../src/service/scheduler/TransactionPool";
 import { DBTransaction, RollupStorage } from "../../src/service/storage/RollupStorage";

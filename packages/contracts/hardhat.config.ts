@@ -1,6 +1,5 @@
 import "@nomiclabs/hardhat-ethers";
 import "@nomiclabs/hardhat-waffle";
-import "@nomiclabs/hardhat-web3";
 import "@openzeppelin/hardhat-upgrades";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
@@ -73,29 +72,37 @@ const config = {
     solidity: {
         compilers: [
             {
-                version: "0.8.0",
+                version: "0.8.2",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 2000,
+                    },
+                },
             },
         ],
     },
+    defaultNetwork: "hardhat",
     networks: {
         hardhat: {
             accounts: getTestAccounts(),
-            gas: 2100000,
+            gas: 8000000,
             gasPrice: 8000000000,
+            blockGasLimit: 8000000,
         },
-        main_net: {
+        bosagora_mainnet: {
             url: process.env.MAIN_NET_URL || "",
             chainId: 2151,
             accounts: getAccounts(),
         },
-        test_net: {
+        bosagora_testnet: {
             url: process.env.TEST_NET_URL || "",
             chainId: 2019,
             accounts: getAccounts(),
         },
-        production_net: {
-            url: process.env.PRODUCTION_NET_URL || "",
-            chainId: Number(process.env.PRODUCTION_CHAIN_ID || "2151"),
+        bosagora_devnet: {
+            url: "http://localhost:8545",
+            chainId: 24680,
             accounts: getAccounts(),
         },
     },

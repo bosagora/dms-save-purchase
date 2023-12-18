@@ -13,7 +13,7 @@ import extend from "extend";
 import fs from "fs";
 import ip from "ip";
 import path from "path";
-import { Utils } from "rollup-pm-sdk";
+import { Utils } from "dms-store-purchase-sdk";
 import { readYamlEnvSync } from "yaml-env-defaults";
 
 /**

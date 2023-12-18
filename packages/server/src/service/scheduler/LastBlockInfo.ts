@@ -9,7 +9,7 @@
  */
 
 import { ethers } from "hardhat";
-import { Hash } from "rollup-pm-sdk";
+import { Hash } from "dms-store-purchase-sdk";
 import { RollUp } from "../../../typechain-types";
 import { Config } from "../common/Config";
 import { uint64max } from "../common/Utils";

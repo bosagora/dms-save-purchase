@@ -1,10 +1,10 @@
 import * as assert from "assert";
 import chai, { expect } from "chai";
+import { Block, BlockHeader, Hash, hashFull, Utils } from "dms-store-purchase-sdk";
 import { solidity } from "ethereum-waffle";
 import { BigNumber } from "ethers";
 import { ethers, waffle } from "hardhat";
-import { Block, BlockHeader, Hash, hashFull, Utils } from "rollup-pm-sdk";
-import { RollUp } from "../../typechain-types";
+import { RollUp } from "../typechain-types";
 
 chai.use(solidity);
 
@@ -111,7 +111,7 @@ describe("Test of RollUp Contract", () => {
 
     it("Test of Get by FromHeight", async () => {
         const admin_contract = contract.connect(admin_signer);
-        let last_height = await admin_contract.getLastHeight();
+        const last_height = await admin_contract.getLastHeight();
         assert.deepStrictEqual(last_height, BigNumber.from(1));
 
         let res_hash = await admin_contract.getByFromHeight(0, 2);
@@ -139,8 +139,8 @@ describe("Test of RollUp Contract", () => {
         const cid = "CID";
         for (let i: number = 0; i < 32; i++) {
             const block = Block.createBlock(prev_hash, prev_height, []);
-            let header: BlockHeader = block.header;
-            let cur_hash = hashFull(header);
+            const header: BlockHeader = block.header;
+            const cur_hash = hashFull(header);
             await admin_contract.add(
                 BigNumber.from(header.height),
                 Utils.readFromString(cur_hash.toString()),
@@ -152,10 +152,10 @@ describe("Test of RollUp Contract", () => {
             prev_hash = cur_hash;
             prev_height++;
         }
-        let last_height = await admin_contract.getLastHeight();
+        const last_height = await admin_contract.getLastHeight();
         assert.deepStrictEqual(last_height, BigNumber.from(31));
 
-        let blocks = await admin_contract.getByFromHeight(0, 32);
+        const blocks = await admin_contract.getByFromHeight(0, 32);
         assert.deepStrictEqual(blocks.length, 32);
         assert.deepStrictEqual(blocks[31].height, BigNumber.from(31));
     });

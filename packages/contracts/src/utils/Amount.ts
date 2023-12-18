@@ -1,16 +1,3 @@
-/**
- *  Includes classes that provide the ability to store and
- *  convert the amount of an account
- *
- *  Copyright:
- *      Copyright (c) 2022 BOSAGORA Foundation All rights reserved.
- *
- *  License:
- *       MIT License. See LICENSE for details.
- */
-
-import { iota } from "dms-store-purchase-sdk";
-
 import { BigNumber } from "ethers";
 
 /**
@@ -50,11 +37,12 @@ export class Amount {
     /**
      * If entered an amount that is BOA, save it as BigNumber considering the decimal point
      */
-    public static make(boa: string | number, decimal: number): Amount {
+    public static make(boa: string | number, decimal: number = 18): Amount {
         if (decimal < 0) throw new Error("Invalid decimal");
         const amount = boa.toString();
         if (amount === "") return new Amount(BigNumber.from("0"), decimal);
-        const ZeroString = iota(decimal).reduce<string>((p, v) => p + "0", "");
+        let ZeroString = "";
+        for (let idx = 0; idx < decimal; idx++) ZeroString += "0";
         const numbers = amount.replace(/[,_]/gi, "").split(".");
         if (numbers.length === 1) return new Amount(BigNumber.from(numbers[0] + ZeroString), decimal);
         let tx_decimal = numbers[1];

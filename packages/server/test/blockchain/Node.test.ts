@@ -11,7 +11,7 @@
 import { BigNumber, Wallet } from "ethers";
 import { waffle } from "hardhat";
 
-import { Block, Hash, Transaction, Utils } from "rollup-pm-sdk";
+import { Block, Hash, Transaction, Utils } from "dms-store-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { IBlockExternalizer, Node } from "../../src/service/scheduler/Node";
 import { HardhatUtils } from "../../src/service/utils";

@@ -11,7 +11,7 @@
 import { NonceManager } from "@ethersproject/experimental";
 import { Signer, Wallet } from "ethers";
 import { ethers } from "hardhat";
-import { Utils } from "rollup-pm-sdk";
+import { Utils } from "dms-store-purchase-sdk";
 import { RollUp } from "../../../typechain-types";
 import { Scheduler } from "../../modules";
 import { Config } from "../common/Config";

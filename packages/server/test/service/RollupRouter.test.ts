@@ -4,9 +4,9 @@ import chai, { expect } from "chai";
 import chaiHttp from "chai-http";
 
 import * as assert from "assert";
+import { ITransaction, Transaction } from "dms-store-purchase-sdk";
 import { BigNumber, Wallet } from "ethers";
 import * as path from "path";
-import { ITransaction, Transaction } from "rollup-pm-sdk";
 import { URL } from "url";
 import { RollupServer } from "../../src/service/RollupServer";
 import { DBTransaction, RollupStorage } from "../../src/service/storage/RollupStorage";

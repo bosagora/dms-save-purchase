@@ -1,9 +1,9 @@
 import { Config } from "../../src/service/common/Config";
 
 import * as assert from "assert";
+import { Transaction, Utils } from "dms-store-purchase-sdk";
 import { BigNumber, Wallet } from "ethers";
 import * as path from "path";
-import { Transaction, Utils } from "rollup-pm-sdk";
 import URI from "urijs";
 import { URL } from "url";
 import { Scheduler } from "../../src/modules";

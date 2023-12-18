@@ -9,7 +9,7 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { Utils } from "rollup-pm-sdk";
+import { Utils } from "dms-store-purchase-sdk";
 
 import { BigNumber } from "ethers";
 

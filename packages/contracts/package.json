@@ -1,0 +1,73 @@
+{
+    "name": "dms-store-purchase-contracts",
+    "version": "1.0.0",
+    "description": "Smart contracts that stores purchase history for decentralized point systems",
+    "files": [
+        "**/*.sol"
+    ],
+    "scripts": {
+        "test": "hardhat test",
+        "clean": "hardhat clean",
+        "build": "hardhat compile",
+        "deploy:hardhat": "hardhat deploy",
+        "deploy:mainnet": "hardhat run deploy/bosagora_devnet/deploy.ts --network bosagora_mainnet",
+        "deploy:testnet": "hardhat run deploy/bosagora_devnet/deploy.ts --network bosagora_testnet",
+        "deploy:devnet": "hardhat run deploy/bosagora_devnet/deploy.ts --network bosagora_devnet",
+        "lint": "tslint --config tslint.json \\\"{src,test}/**/*.ts\\\"",
+        "lint-fix": "tslint --fix --config tslint.json \\\"{src,test}/**/*.ts\\\"",
+        "formatting:check": "prettier '**/*.{json,sol,ts,js,md}' -c",
+        "formatting:write": "prettier '**/*.{json,sol,ts,js,md}' --write",
+        "docgen": "hardhat docgen",
+        "test:Validator": "hardhat test test/00-Validator.test.ts",
+        "test:CurrencyRate": "hardhat test test/01-CurrencyRate.test.ts",
+        "test:Certifier": "hardhat test test/02-Certifier.test.ts",
+        "test:Shop": "hardhat test test/03-Shop.test.ts",
+        "test:Ledger": "hardhat test test/04-Ledger.test.ts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/bosagora/dms-osx.git"
+    },
+    "author": "BOSagora Foundation",
+    "license": "AGPL-3.0-or-later",
+    "bugs": {
+        "url": "https://github.com/bosagora/dms-osx/issues"
+    },
+    "homepage": "https://github.com/bosagora/dms-osx#readme",
+    "devDependencies": {
+        "@ethersproject/constants": "^5.7.0",
+        "@nomiclabs/hardhat-ethers": "^2.2.3",
+        "@nomiclabs/hardhat-waffle": "^2.0.2",
+        "@openzeppelin/contracts": "^4.9.5",
+        "@openzeppelin/contracts-upgradeable": "^4.9.5",
+        "@openzeppelin/hardhat-upgrades": "^1.28.0",
+        "@rollup/plugin-json": "^4.1.0",
+        "@rollup/plugin-typescript": "^8.3.1",
+        "@typechain/ethers-v5": "^10.1.0",
+        "@typechain/hardhat": "^6.1.2",
+        "@types/chai": "^4.3.5",
+        "@types/mocha": "^10.0.0",
+        "@types/node": "^12.20.43",
+        "assert": "^2.0.0",
+        "chai": "^4.3.7",
+        "chai-http": "^4.3.7",
+        "dms-store-purchase-sdk": "^1.0.0",
+        "dotenv": "^10.0.0",
+        "ethereum-waffle": "^4.0.10",
+        "ethers": "npm:boa-ethers2@^5.7.9",
+        "hardhat": "^2.12.7",
+        "hardhat-gas-reporter": "^1.0.7",
+        "mocha": "10.1.0",
+        "prettier": "^2.5.1",
+        "prettier-plugin-solidity": "^1.1.1",
+        "rollup": "^2.70.1",
+        "rollup-plugin-dts": "^4.2.0",
+        "solhint": "^3.3.6",
+        "solidity-coverage": "^0.8.2",
+        "ts-node": "^10.5.0",
+        "tslint": "^6.1.3",
+        "tslint-config-prettier": "^1.18.0",
+        "typechain": "^8.1.0",
+        "typescript": "^4.5.5"
+    }
+}

@@ -8,8 +8,8 @@
  *       MIT License. See LICENSE for details.
  */
 
+import { Block, BlockHeader, Hash, hashFull, Transaction } from "dms-store-purchase-sdk";
 import { BigNumber } from "ethers";
-import { Block, BlockHeader, Hash, hashFull, Transaction } from "rollup-pm-sdk";
 import { Storage } from "../../modules/storage/Storage";
 import { IDatabaseConfig } from "../common/Config";
 import {
@@ -144,7 +144,7 @@ export class RollupStorage extends Storage {
 
     public selectTxsLength(): Promise<number> {
         return new Promise<number>((resolve, reject) => {
-            this.database.all(selectTxsLength, [], (err: Error | null, row) => {
+            this.database.all(selectTxsLength, [], (err: Error | null, row: any) => {
                 if (err) reject(err);
                 else resolve(row?.length ? row[0].count : null);
             });
@@ -153,7 +153,7 @@ export class RollupStorage extends Storage {
 
     public selectLastHeight(): Promise<bigint | null> {
         return new Promise((resolve, reject) => {
-            this.database.all(selectBlockLastHeight, [], (err: Error | null, row) => {
+            this.database.all(selectBlockLastHeight, [], (err: Error | null, row: any) => {
                 if (err) reject(err);
                 if (row?.length) {
                     if (row[0].height !== null) resolve(BigInt(row[0].height));

@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import { BigNumber } from "ethers";
 import path from "path";
-import { Block, Hash, Transaction } from "rollup-pm-sdk";
+import { Block, Hash, Transaction } from "dms-store-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { DBTransaction, RollupStorage } from "../../src/service/storage/RollupStorage";
 

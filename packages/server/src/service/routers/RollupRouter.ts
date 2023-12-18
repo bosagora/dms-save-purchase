@@ -12,7 +12,7 @@ import express from "express";
 import { body, validationResult } from "express-validator";
 
 import { BigNumber } from "ethers";
-import { Transaction } from "rollup-pm-sdk";
+import { Transaction } from "dms-store-purchase-sdk";
 import { WebService } from "../../modules/service/WebService";
 import { Config } from "../common/Config";
 import { logger } from "../common/Logger";

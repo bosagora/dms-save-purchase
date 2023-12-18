@@ -1,7 +1,7 @@
 // @ts-ignore
 import crypto from "crypto";
 import { Wallet } from "ethers";
-import { Transaction, Utils } from "rollup-pm-sdk";
+import { Transaction, Utils } from "dms-store-purchase-sdk";
 import { Scheduler } from "../modules";
 import { Amount } from "../service/common/Amount";
 import { logger } from "../service/common/Logger";

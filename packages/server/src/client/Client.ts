@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { Transaction } from "rollup-pm-sdk";
+import { Transaction } from "dms-store-purchase-sdk";
 // @ts-ignore
 import URI from "urijs";
 import { handleNetworkError } from "../modules/network/ErrorTypes";

@@ -13,7 +13,7 @@ import { Config } from "../common/Config";
 import { logger } from "../common/Logger";
 import { TransactionPool } from "./TransactionPool";
 
-import { Block, Hash, hashFull, Transaction, Utils } from "rollup-pm-sdk";
+import { Block, Hash, hashFull, Transaction, Utils } from "dms-store-purchase-sdk";
 import { DBTransaction, RollupStorage } from "../storage/RollupStorage";
 import { LastBlockInfo } from "./LastBlockInfo";
 
