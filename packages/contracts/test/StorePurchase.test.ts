@@ -3,13 +3,13 @@ import chai, { expect } from "chai";
 import { Block, BlockHeader, Hash, hashFull, Utils } from "dms-store-purchase-sdk";
 import { solidity } from "ethereum-waffle";
 import { BigNumber } from "ethers";
-import { ethers, waffle } from "hardhat";
-import { RollUp } from "../typechain-types";
+import { ethers, upgrades, waffle } from "hardhat";
+import { StorePurchase } from "../typechain-types";
 
 chai.use(solidity);
 
-describe("Test of RollUp Contract", () => {
-    let contract: RollUp;
+describe("Test of StorePurchase Contract", () => {
+    let contract: StorePurchase;
 
     const provider = waffle.provider;
     const [admin] = provider.getWallets();
@@ -17,13 +17,20 @@ describe("Test of RollUp Contract", () => {
     const admin_signer = provider.getSigner(admin.address);
 
     before(async () => {
-        const RollUpFactory = await ethers.getContractFactory("RollUp");
-
-        contract = (await RollUpFactory.connect(admin_signer).deploy()) as RollUp;
+        const StorePurchaseFactory = await ethers.getContractFactory("StorePurchase");
+        contract = (await upgrades.deployProxy(
+            StorePurchaseFactory.connect(admin_signer),
+            [],
+            {
+                initializer: "initialize",
+                kind: "uups",
+            }
+        )) as StorePurchase;
         await contract.deployed();
+        await contract.deployTransaction.wait();
     });
 
-    it("Test of Add BlockHeader to RollUp", async () => {
+    it("Test of Add BlockHeader to StorePurchase", async () => {
         const admin_contract = contract.connect(admin_signer);
         await expect(
             await admin_contract.add(
@@ -129,9 +136,17 @@ describe("Test of RollUp Contract", () => {
     });
 
     it("Test of Get 32 blocks", async () => {
-        const RollUpFactory = await ethers.getContractFactory("RollUp");
-        contract = (await RollUpFactory.connect(admin_signer).deploy()) as RollUp;
+        const StorePurchaseFactory = await ethers.getContractFactory("StorePurchase");
+        contract = (await upgrades.deployProxy(
+            StorePurchaseFactory.connect(admin_signer),
+            [],
+            {
+                initializer: "initialize",
+                kind: "uups",
+            }
+        )) as StorePurchase;
         await contract.deployed();
+        await contract.deployTransaction.wait();
         const admin_contract = contract.connect(admin_signer);
 
         let prev_hash = Hash.Null;
@@ -145,7 +160,7 @@ describe("Test of RollUp Contract", () => {
                 BigNumber.from(header.height),
                 Utils.readFromString(cur_hash.toString()),
                 Utils.readFromString(prev_hash.toString()),
-                Utils.readFromString(header.merkle_root.toString()),
+                Utils.readFromString(header.merkleRoot.toString()),
                 header.timestamp,
                 cid
             );
