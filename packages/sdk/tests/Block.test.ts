@@ -8,12 +8,15 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { Block, Hash, hashFull, Transaction } from "../src";
+import { Block, Hash, hashFull, Transaction, Utils } from "../dist";
 
 import * as assert from "assert";
-import { BigNumber, Wallet } from "ethers";
+
+import { BigNumber } from "@ethersproject/bignumber";
+import { Wallet } from "@ethersproject/wallet";
 
 describe("Test of Block", () => {
+    const phoneHash = Utils.getPhoneHash("8201012341234");
     it("Test buildMerkleTree", () => {
         const txs = [];
         const txs_hash = [];
@@ -22,12 +25,13 @@ describe("Test of Block", () => {
                 new Transaction(
                     0,
                     (12345670 + idx).toString(),
-                    "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-                    "0",
-                    BigNumber.from(idx + 1),
                     1668044556,
-                    "997DE626B2D417F0361D61C09EB907A57226DB5B",
-                    "a5c19fed89739383"
+                    BigNumber.from(idx + 1),
+                    "krw",
+                    "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+                    0,
+                    "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
+                    phoneHash
                 )
             );
             txs_hash.push(hashFull(txs[idx]));
@@ -42,57 +46,62 @@ describe("Test of Block", () => {
             new Transaction(
                 0,
                 "00000000",
-                "0x0000000000000000000000000000000000000000",
-                "0",
-                BigNumber.from(1000000000),
                 1668044556,
-                "997DE626B2D417F0361D61C09EB907A57226DB5B",
-                "a5c19fed89739383"
+                BigNumber.from(1000000000),
+                "krw",
+                "0x0000000000000000000000000000000000000000",
+                0,
+                "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
+                phoneHash
             ),
             new Transaction(
                 1,
                 "00000001",
-                "0x0000000000000000000000000000000000000000",
-                "0",
-                BigNumber.from(1000000000),
                 1668044556,
-                "997DE626B2D417F0361D61C09EB907A57226DB5B",
-                "a5c19fed89739383"
+                BigNumber.from(1000000000),
+                "krw",
+                "0x0000000000000000000000000000000000000000",
+                0,
+                "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
+                phoneHash
             ),
             new Transaction(
                 2,
                 "00000002",
-                "0x0000000000000000000000000000000000000000",
-                "0",
-                BigNumber.from(1000000000),
                 1668044556,
-                "997DE626B2D417F0361D61C09EB907A57226DB5B",
-                "a5c19fed89739383"
+                BigNumber.from(1000000000),
+                "krw",
+                "0x0000000000000000000000000000000000000000",
+                0,
+                "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
+                phoneHash
             ),
             new Transaction(
                 3,
                 "00000003",
-                "0x0000000000000000000000000000000000000000",
-                "0",
-                BigNumber.from(1000000000),
                 1668044556,
-                "997DE626B2D417F0361D61C09EB907A57226DB5B",
-                "a5c19fed89739383"
+                BigNumber.from(1000000000),
+                "krw",
+                "0x0000000000000000000000000000000000000000",
+                0,
+                "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
+                phoneHash
             ),
             new Transaction(
                 4,
                 "00000004",
-                "0x0000000000000000000000000000000000000000",
-                "0",
-                BigNumber.from(1000000000),
                 1668044556,
-                "997DE626B2D417F0361D61C09EB907A57226DB5B",
-                "a5c19fed89739383"
+                BigNumber.from(1000000000),
+                "krw",
+                "0x0000000000000000000000000000000000000000",
+                0,
+                "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
+                phoneHash
             ),
         ];
         const signer = new Wallet("0xf6dda8e03f9dce37c081e5d178c1fda2ebdb90b5b099de1a555a658270d8c47d");
         const prev_hash = Hash.Null;
-        const prev_height = 0n;
+        const prev_height = BigInt(0);
 
         const block = Block.createBlock(prev_hash, prev_height, txs);
         const block_string = JSON.stringify(block);

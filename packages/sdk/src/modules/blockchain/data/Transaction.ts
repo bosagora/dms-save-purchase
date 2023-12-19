@@ -8,20 +8,24 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { BigNumber, Signer, utils } from "ethers";
 import { SmartBuffer } from "smart-buffer";
 import { JSONValidator } from "../../utils/JSONValidator";
 import { hashFull, hashPart } from "../common/Hash";
 
+import { Signer } from "@ethersproject/abstract-signer";
+import { BigNumber } from "@ethersproject/bignumber";
+import { verifyMessage } from "@ethersproject/wallet";
+
 export interface ITransaction {
     sequence: number;
-    trade_id: string;
-    user_id: string;
-    state: string;
-    amount: BigNumber;
+    purchaseId: string;
     timestamp: number;
-    exchange_user_id: string;
-    exchange_id: string;
+    amount: BigNumber;
+    currency: string;
+    shopId: string;
+    method: number;
+    userAccount: string;
+    userPhoneHash: string;
     signer: string;
     signature: string;
 }
@@ -32,54 +36,16 @@ export interface ITransaction {
  * An exception occurs if the required property is not present.
  */
 export class Transaction implements ITransaction {
-    /**
-     * Of all transactions, it starts at zero and increases by one in a unique sequence
-     */
     public sequence: number;
-
-    /**
-     * ID of the trade
-     */
-    public trade_id: string;
-
-    /**
-     * The ID of User
-     */
-    public user_id: string;
-
-    /**
-     * The type of transaction
-     */
-    public state: string;
-
-    /**
-     * The amount of sending
-     */
-    public amount: BigNumber;
-
-    /**
-     * The time stamp
-     */
+    public purchaseId: string;
     public timestamp: number;
-
-    /**
-     * The exchange user id
-     */
-    public exchange_user_id: string;
-
-    /**
-     * The exchange id
-     */
-    public exchange_id: string;
-
-    /**
-     * The signer
-     */
+    public amount: BigNumber;
+    public currency: string;
+    public shopId: string;
+    public method: number;
+    public userAccount: string;
+    public userPhoneHash: string;
     public signer: string;
-
-    /**
-     * The signature
-     */
     public signature: string;
 
     /**
@@ -87,24 +53,26 @@ export class Transaction implements ITransaction {
      */
     constructor(
         sequence: number,
-        trade_id: string,
-        user_id: string,
-        state: string,
-        amount: BigNumber,
+        purchaseId: string,
         timestamp: number,
-        exchange_user_id: string,
-        exchange_id: string,
+        amount: BigNumber,
+        currency: string,
+        shopId: string,
+        method: number,
+        userAccount: string,
+        userPhoneHash: string,
         signer?: string,
         signature?: string
     ) {
         this.sequence = sequence;
-        this.trade_id = trade_id;
-        this.user_id = user_id;
-        this.state = state;
-        this.amount = amount;
+        this.purchaseId = purchaseId;
         this.timestamp = timestamp;
-        this.exchange_user_id = exchange_user_id;
-        this.exchange_id = exchange_id;
+        this.amount = amount;
+        this.currency = currency;
+        this.shopId = shopId;
+        this.method = method;
+        this.userAccount = userAccount;
+        this.userPhoneHash = userPhoneHash;
         if (signer !== undefined) this.signer = signer;
         else this.signer = "";
         if (signature !== undefined) this.signature = signature;
@@ -128,13 +96,14 @@ export class Transaction implements ITransaction {
 
         return new Transaction(
             value.sequence,
-            value.trade_id,
-            value.user_id,
-            value.state,
-            BigNumber.from(value.amount),
+            value.purchaseId,
             value.timestamp,
-            value.exchange_user_id,
-            value.exchange_id,
+            BigNumber.from(value.amount),
+            value.currency,
+            value.shopId,
+            value.method,
+            value.userAccount,
+            value.userPhoneHash,
             value.signer,
             value.signature
         );
@@ -146,13 +115,14 @@ export class Transaction implements ITransaction {
      */
     public computeHash(buffer: SmartBuffer) {
         hashPart(this.sequence, buffer);
-        hashPart(this.trade_id, buffer);
-        hashPart(this.user_id, buffer);
-        hashPart(this.state, buffer);
-        hashPart(this.amount, buffer);
+        hashPart(this.purchaseId, buffer);
         hashPart(this.timestamp, buffer);
-        hashPart(this.exchange_user_id, buffer);
-        hashPart(this.exchange_id, buffer);
+        hashPart(this.amount, buffer);
+        hashPart(this.currency, buffer);
+        hashPart(this.shopId, buffer);
+        hashPart(this.method, buffer);
+        hashPart(this.userAccount, buffer);
+        hashPart(this.userPhoneHash, buffer);
         hashPart(this.signer, buffer);
     }
 
@@ -162,13 +132,14 @@ export class Transaction implements ITransaction {
     public toJSON(): any {
         return {
             sequence: this.sequence,
-            trade_id: this.trade_id,
-            user_id: this.user_id,
-            state: this.state,
-            amount: this.amount.toString(),
+            purchaseId: this.purchaseId,
             timestamp: this.timestamp,
-            exchange_user_id: this.exchange_user_id,
-            exchange_id: this.exchange_id,
+            amount: this.amount.toString(),
+            currency: this.currency,
+            shopId: this.shopId,
+            method: this.method,
+            userAccount: this.userAccount,
+            userPhoneHash: this.userPhoneHash,
             signer: this.signer,
             signature: this.signature,
         };
@@ -180,13 +151,14 @@ export class Transaction implements ITransaction {
     public clone(): Transaction {
         return new Transaction(
             this.sequence,
-            this.trade_id,
-            this.user_id,
-            this.state,
-            this.amount,
+            this.purchaseId,
             this.timestamp,
-            this.exchange_user_id,
-            this.exchange_id,
+            this.amount,
+            this.currency,
+            this.shopId,
+            this.method,
+            this.userAccount,
+            this.userPhoneHash,
             this.signer,
             this.signature
         );
@@ -210,7 +182,7 @@ export class Transaction implements ITransaction {
         const h = hashFull(this);
         let res: string;
         try {
-            res = utils.verifyMessage(h.data, this.signature);
+            res = verifyMessage(h.data, this.signature);
         } catch (error) {
             return false;
         }

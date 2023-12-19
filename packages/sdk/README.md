@@ -1,2 +1,3 @@
-# rollup-sdk
-The Typescript SDK for Rollup
+# dms-store-purchase-sdk
+
+The Typescript SDK for DMS Store Purchase

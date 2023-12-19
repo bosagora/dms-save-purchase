@@ -9,9 +9,10 @@
  */
 
 import crypto from "crypto";
-import { BigNumber } from "ethers";
 import { SmartBuffer } from "smart-buffer";
 import { Utils } from "../../utils/Utils";
+
+import { BigNumber } from "@ethersproject/bignumber";
 
 /**
  * The Class for creating hash

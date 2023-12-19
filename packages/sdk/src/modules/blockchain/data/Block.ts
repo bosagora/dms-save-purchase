@@ -34,18 +34,18 @@ export class Block {
     /**
      * The merkle tree
      */
-    public merkle_tree: Hash[];
+    public merkleTree: Hash[];
 
     /**
      * Constructor
      * @param header      The header of the block
      * @param txs         The array of the transaction
-     * @param merkle_tree The merkle tree
+     * @param merkleTree The merkle tree
      */
-    constructor(header: BlockHeader, txs: Transaction[], merkle_tree: Hash[]) {
+    constructor(header: BlockHeader, txs: Transaction[], merkleTree: Hash[]) {
         this.header = header;
         this.txs = txs;
-        this.merkle_tree = merkle_tree;
+        this.merkleTree = merkleTree;
     }
 
     /**
@@ -66,48 +66,48 @@ export class Block {
         const transactions: Transaction[] = [];
         for (const elem of value.txs) transactions.push(Transaction.reviver("", elem));
 
-        const merkle_tree: Hash[] = [];
-        for (const elem of value.merkle_tree) merkle_tree.push(new Hash(elem));
+        const merkleTree: Hash[] = [];
+        for (const elem of value.merkleTree) merkleTree.push(new Hash(elem));
 
-        return new Block(BlockHeader.reviver("", value.header), transactions, merkle_tree);
+        return new Block(BlockHeader.reviver("", value.header), transactions, merkleTree);
     }
 
-    public static buildMerkleTree(tx_hash_list: Hash[]): Hash[] {
-        const merkle_tree: Hash[] = [];
-        merkle_tree.push(...tx_hash_list);
+    public static buildMerkleTree(txHashList: Hash[]): Hash[] {
+        const merkleTree: Hash[] = [];
+        merkleTree.push(...txHashList);
 
-        if (merkle_tree.length < 1) {
+        if (merkleTree.length < 1) {
             return [Hash.Null];
         }
-        if (merkle_tree.length === 1) {
-            merkle_tree.push(hashMulti(merkle_tree[0], merkle_tree[0]));
-            return merkle_tree;
+        if (merkleTree.length === 1) {
+            merkleTree.push(hashMulti(merkleTree[0], merkleTree[0]));
+            return merkleTree;
         }
 
         let offset = 0;
-        for (let length = merkle_tree.length; length > 1; length = Math.floor((length + 1) / 2)) {
+        for (let length = merkleTree.length; length > 1; length = Math.floor((length + 1) / 2)) {
             for (let left = 0; left < length; left += 2) {
                 const right = Math.min(left + 1, length - 1);
-                merkle_tree.push(hashMulti(merkle_tree[offset + left], merkle_tree[offset + right]));
+                merkleTree.push(hashMulti(merkleTree[offset + left], merkleTree[offset + right]));
             }
             offset += length;
         }
-        return merkle_tree;
+        return merkleTree;
     }
 
     /**
      * Create Block
-     * @param prev_hash The previous block hash
-     * @param prev_height The previous block height
+     * @param prevHash The previous block hash
+     * @param prevHeight The previous block height
      * @param txs The array of the transactions
      */
-    public static createBlock(prev_hash: Hash, prev_height: bigint, txs: Transaction[]): Block {
-        const tx_hash_list = txs.map((tx) => hashFull(tx));
-        const merkle_tree = Block.buildMerkleTree(tx_hash_list);
-        const merkle_root = merkle_tree.length > 0 ? merkle_tree[merkle_tree.length - 1] : Hash.Null;
-        const block_header = new BlockHeader(prev_hash, merkle_root, BigInt(prev_height) + 1n, Utils.getTimeStamp());
+    public static createBlock(prevHash: Hash, prevHeight: bigint, txs: Transaction[]): Block {
+        const txHashList = txs.map((tx) => hashFull(tx));
+        const merkleTree = Block.buildMerkleTree(txHashList);
+        const merkleRoot = merkleTree.length > 0 ? merkleTree[merkleTree.length - 1] : Hash.Null;
+        const blockHeader = new BlockHeader(prevHash, merkleRoot, BigInt(prevHeight) + 1n, Utils.getTimeStamp());
 
-        return new Block(block_header, txs, merkle_tree);
+        return new Block(blockHeader, txs, merkleTree);
     }
 
     /**

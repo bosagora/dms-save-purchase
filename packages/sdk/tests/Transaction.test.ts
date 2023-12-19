@@ -8,8 +8,10 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { BigNumber, Wallet } from "ethers";
-import { hashFull, Transaction } from "../src";
+import { hashFull, Transaction, Utils } from "../dist";
+
+import { BigNumber } from "@ethersproject/bignumber";
+import { Wallet } from "@ethersproject/wallet";
 
 import * as assert from "assert";
 
@@ -17,23 +19,25 @@ describe("Transaction", () => {
     const signer1 = new Wallet("0xf6dda8e03f9dce37c081e5d178c1fda2ebdb90b5b099de1a555a658270d8c47d");
     const signer2 = new Wallet("0x023beec95e3e47cb5b56bb8b5e4357db4b8565aef61eaa661c11ebbac6a6c4e8");
 
+    const phoneHash = Utils.getPhoneHash("8201012341234");
     // The test codes below compare with the values calculated in Agora.
     it("Test for hash value of transaction data", async () => {
         const tx = new Transaction(
             0,
             "12345678",
-            "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-            "0",
-            BigNumber.from(123),
             1668044556,
-            "997DE626B2D417F0361D61C09EB907A57226DB5B",
-            "a5c19fed89739383"
+            BigNumber.from(123),
+            "krw",
+            "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+            0,
+            "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
+            phoneHash
         );
         await tx.sign(signer1);
 
         assert.strictEqual(
             hashFull(tx).toString(),
-            "0x107d8f927dd6e97d9956ac9084b26d31863f2e9616eff58b4446c17ecd4887d9"
+            "0xa1108f176e3abeb39f6c364900e86ddae1021a49590f664f842254beab183385"
         );
     });
 
@@ -41,12 +45,13 @@ describe("Transaction", () => {
         const tx = new Transaction(
             0,
             "12345678",
-            "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-            "0",
-            BigNumber.from(123),
             1668044556,
-            "997DE626B2D417F0361D61C09EB907A57226DB5B",
-            "a5c19fed89739383"
+            BigNumber.from(123),
+            "krw",
+            "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+            0,
+            "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
+            phoneHash
         );
         await tx.sign(signer1);
 
@@ -58,18 +63,19 @@ describe("Transaction", () => {
         const tx = new Transaction(
             0,
             "12345678",
-            "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-            "0",
-            BigNumber.from(123),
             1668044556,
-            "997DE626B2D417F0361D61C09EB907A57226DB5B",
-            "a5c19fed89739383"
+            BigNumber.from(123),
+            "krw",
+            "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+            0,
+            "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
+            phoneHash
         );
 
         await tx.sign(signer1);
         assert.strictEqual(
             tx.signature,
-            "0xaf88593fa8cea1ae157b30990840ee07a6f3c140971c109f8cbaa698891002bb58775821da126ef10fdd1013a833505f54ca1155d163b177bb490665d0b7af051b"
+            "0x492dcb82a785e8e88e08be4f3e1987d2f38f658b6c5d5c84eb3e0ab929ae265f018ace6c4c0411987c7a2a094df968e9d10ea51bf49a1c31680dd1c7565b18b41b"
         );
         assert.ok(!tx.verify(signer2.address));
         assert.ok(tx.verify(signer1.address));
@@ -78,7 +84,7 @@ describe("Transaction", () => {
         await tx.sign(signer2);
         assert.strictEqual(
             tx.signature,
-            "0x336674a6e4be13c074908c33ab48cbf8460ea08319e5eea09a32dd7f64f4ed757761b6045485dec0dabf99bfe04da62af3bc2de5e67b0ad8417b05e14b72714e1b"
+            "0xb50251841eda1ccdac90426d956db7d6e6b542d4b21416096a68fbdc011d2bb774c89603b4d64046542bb35e3b8969c9210d2cfb8e3bcb29a42a843007173ce21b"
         );
         assert.ok(!tx.verify(signer1.address));
         assert.ok(tx.verify(signer2.address));

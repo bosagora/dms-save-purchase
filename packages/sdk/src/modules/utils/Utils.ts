@@ -11,6 +11,9 @@
 import process from "process";
 import { SmartBuffer } from "smart-buffer";
 
+import { defaultAbiCoder } from "@ethersproject/abi";
+import { keccak256 } from "@ethersproject/keccak256";
+
 export class Utils {
     /**
      * Check whether the string is a integer.
@@ -126,6 +129,11 @@ export class Utils {
 
     public static getTimeStamp(): number {
         return Math.floor(new Date().getTime() / 1000);
+    }
+
+    public static getPhoneHash(phone: string): string {
+        const encodedResult = defaultAbiCoder.encode(["string", "string"], ["BOSagora Phone Number", phone]);
+        return keccak256(encodedResult);
     }
 }
 

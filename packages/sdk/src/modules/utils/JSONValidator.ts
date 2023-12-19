@@ -38,7 +38,7 @@ export class JSONValidator {
                         },
                         type: "array",
                     },
-                    merkle_tree: {
+                    merkleTree: {
                         items: {
                             type: "string",
                         },
@@ -46,7 +46,7 @@ export class JSONValidator {
                     },
                 },
                 additionalProperties: false,
-                required: ["header", "txs", "merkle_tree"],
+                required: ["header", "txs", "merkleTree"],
             },
         ],
         [
@@ -55,10 +55,10 @@ export class JSONValidator {
                 title: "BlockHeader",
                 type: "object",
                 properties: {
-                    prev_block: {
+                    prevBlock: {
                         type: "string",
                     },
-                    merkle_root: {
+                    merkleRoot: {
                         type: "string",
                     },
                     height: {
@@ -69,7 +69,7 @@ export class JSONValidator {
                     },
                 },
                 additionalProperties: false,
-                required: ["prev_block", "merkle_root", "height", "timestamp"],
+                required: ["prevBlock", "merkleRoot", "height", "timestamp"],
             },
         ],
         [
@@ -81,25 +81,28 @@ export class JSONValidator {
                     sequence: {
                         type: "number",
                     },
-                    trade_id: {
-                        type: "string",
-                    },
-                    user_id: {
-                        type: "string",
-                    },
-                    state: {
-                        type: "string",
-                    },
-                    amount: {
+                    purchaseId: {
                         type: "string",
                     },
                     timestamp: {
                         type: "number",
                     },
-                    exchange_user_id: {
+                    amount: {
                         type: "string",
                     },
-                    exchange_id: {
+                    currency: {
+                        type: "string",
+                    },
+                    shopId: {
+                        type: "string",
+                    },
+                    method: {
+                        type: "number",
+                    },
+                    userAccount: {
+                        type: "string",
+                    },
+                    userPhoneHash: {
                         type: "string",
                     },
                     signer: {
@@ -111,14 +114,14 @@ export class JSONValidator {
                 },
                 additionalProperties: false,
                 required: [
-                    "sequence",
-                    "trade_id",
-                    "user_id",
-                    "state",
-                    "amount",
+                    "purchaseId",
                     "timestamp",
-                    "exchange_user_id",
-                    "exchange_id",
+                    "amount",
+                    "currency",
+                    "shopId",
+                    "method",
+                    "userAccount",
+                    "userPhoneHash",
                     "signer",
                     "signature",
                 ],

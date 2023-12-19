@@ -8,11 +8,12 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { BigNumber } from "ethers";
 import { Hash, hash, hashMulti, iota } from "../src";
 
 import * as assert from "assert";
-import { hashFull } from "../lib";
+import { hashFull } from "../dist";
+
+import { BigNumber } from "@ethersproject/bignumber";
 
 describe("Hash", () => {
     // Buffer has the same content. However, when printed with hex strings,

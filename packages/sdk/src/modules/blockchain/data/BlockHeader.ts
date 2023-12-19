@@ -21,12 +21,12 @@ export class BlockHeader {
     /**
      * The hash of the previous block in the chain of blocks
      */
-    public prev_block: Hash;
+    public prevBlock: Hash;
 
     /**
      * The hash of the merkle root of the transactions
      */
-    public merkle_root: Hash;
+    public merkleRoot: Hash;
 
     /**
      * The block height (genesis is #0)
@@ -40,14 +40,14 @@ export class BlockHeader {
 
     /**
      * Constructor
-     * @param prev_block  The Hash of the previous block in the chain of blocks
-     * @param merkle_root The hash of the merkle root of the transactions
+     * @param prevBlock  The Hash of the previous block in the chain of blocks
+     * @param merkleRoot The hash of the merkle root of the transactions
      * @param height      The block height
      * @param timestamp
      */
-    constructor(prev_block: Hash, merkle_root: Hash, height: bigint, timestamp: number) {
-        this.prev_block = prev_block;
-        this.merkle_root = merkle_root;
+    constructor(prevBlock: Hash, merkleRoot: Hash, height: bigint, timestamp: number) {
+        this.prevBlock = prevBlock;
+        this.merkleRoot = merkleRoot;
         this.height = height;
         this.timestamp = timestamp;
     }
@@ -68,8 +68,8 @@ export class BlockHeader {
         JSONValidator.isValidOtherwiseThrow("BlockHeader", value);
 
         return new BlockHeader(
-            new Hash(value.prev_block),
-            new Hash(value.merkle_root),
+            new Hash(value.prevBlock),
+            new Hash(value.merkleRoot),
             BigInt(value.height),
             value.timestamp
         );
@@ -80,8 +80,8 @@ export class BlockHeader {
      */
     public toJSON(): any {
         return {
-            prev_block: this.prev_block,
-            merkle_root: this.merkle_root,
+            prevBlock: this.prevBlock,
+            merkleRoot: this.merkleRoot,
             height: this.height.toString(),
             timestamp: this.timestamp,
         };
@@ -92,8 +92,8 @@ export class BlockHeader {
      * @param buffer The buffer where collected data is stored
      */
     public computeHash(buffer: SmartBuffer) {
-        this.prev_block.computeHash(buffer);
-        this.merkle_root.computeHash(buffer);
+        this.prevBlock.computeHash(buffer);
+        this.merkleRoot.computeHash(buffer);
         buffer.writeBigUInt64LE(this.height);
         buffer.writeBigUInt64LE(BigInt(this.timestamp));
     }
