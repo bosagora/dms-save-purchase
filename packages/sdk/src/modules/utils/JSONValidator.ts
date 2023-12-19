@@ -73,11 +73,14 @@ export class JSONValidator {
             },
         ],
         [
-            "Transaction",
+            "NewTransaction",
             {
-                title: "Transaction",
+                title: "NewTransaction",
                 type: "object",
                 properties: {
+                    type: {
+                        type: "number",
+                    },
                     sequence: {
                         type: "number",
                     },
@@ -114,6 +117,8 @@ export class JSONValidator {
                 },
                 additionalProperties: false,
                 required: [
+                    "type",
+                    "sequence",
                     "purchaseId",
                     "timestamp",
                     "amount",
@@ -125,6 +130,35 @@ export class JSONValidator {
                     "signer",
                     "signature",
                 ],
+            },
+        ],
+        [
+            "CancelTransaction",
+            {
+                title: "CancelTransaction",
+                type: "object",
+                properties: {
+                    type: {
+                        type: "number",
+                    },
+                    sequence: {
+                        type: "number",
+                    },
+                    purchaseId: {
+                        type: "string",
+                    },
+                    timestamp: {
+                        type: "number",
+                    },
+                    signer: {
+                        type: "string",
+                    },
+                    signature: {
+                        type: "string",
+                    },
+                },
+                additionalProperties: false,
+                required: ["type", "sequence", "purchaseId", "timestamp", "signer", "signature"],
             },
         ],
     ]);

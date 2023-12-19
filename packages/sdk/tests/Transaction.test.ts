@@ -1,5 +1,5 @@
 /**
- *  Test of Transaction
+ *  Test of NewTransaction
  *
  *  Copyright:
  *      Copyright (c) 2022 BOSAGORA Foundation All rights reserved.
@@ -8,21 +8,21 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { hashFull, Transaction, Utils } from "../dist";
+import { hashFull, NewTransaction, Utils } from "../src";
 
 import { BigNumber } from "@ethersproject/bignumber";
 import { Wallet } from "@ethersproject/wallet";
 
 import * as assert from "assert";
 
-describe("Transaction", () => {
+describe("NewTransaction", () => {
     const signer1 = new Wallet("0xf6dda8e03f9dce37c081e5d178c1fda2ebdb90b5b099de1a555a658270d8c47d");
     const signer2 = new Wallet("0x023beec95e3e47cb5b56bb8b5e4357db4b8565aef61eaa661c11ebbac6a6c4e8");
 
     const phoneHash = Utils.getPhoneHash("8201012341234");
     // The test codes below compare with the values calculated in Agora.
-    it("Test for hash value of transaction data", async () => {
-        const tx = new Transaction(
+    it("Test for hash value of NewTransaction data", async () => {
+        const tx = new NewTransaction(
             0,
             "12345678",
             1668044556,
@@ -37,12 +37,12 @@ describe("Transaction", () => {
 
         assert.strictEqual(
             hashFull(tx).toString(),
-            "0xa1108f176e3abeb39f6c364900e86ddae1021a49590f664f842254beab183385"
+            "0xb8221e814dfe74506cbcff156996d7587ddc2feb524b2f123f201e025c858729"
         );
     });
 
-    it("Test for Transaction.clone()", async () => {
-        const tx = new Transaction(
+    it("Test for NewTransaction.clone()", async () => {
+        const tx = new NewTransaction(
             0,
             "12345678",
             1668044556,
@@ -59,8 +59,8 @@ describe("Transaction", () => {
         assert.deepStrictEqual(tx, clone_tx);
     });
 
-    it("Test for Transaction.sign() & verify", async () => {
-        const tx = new Transaction(
+    it("Test for NewTransaction.sign() & verify", async () => {
+        const tx = new NewTransaction(
             0,
             "12345678",
             1668044556,
@@ -75,7 +75,7 @@ describe("Transaction", () => {
         await tx.sign(signer1);
         assert.strictEqual(
             tx.signature,
-            "0x492dcb82a785e8e88e08be4f3e1987d2f38f658b6c5d5c84eb3e0ab929ae265f018ace6c4c0411987c7a2a094df968e9d10ea51bf49a1c31680dd1c7565b18b41b"
+            "0x0a6a4cf59d1c1a94f700789a5f92d227baa281d606e8531110806741f7d2b1c62e22c7fb4ae8208bc9566e5c505bfbf50b7cc65349885aefa4cad04f01c15a491b"
         );
         assert.ok(!tx.verify(signer2.address));
         assert.ok(tx.verify(signer1.address));
@@ -84,7 +84,7 @@ describe("Transaction", () => {
         await tx.sign(signer2);
         assert.strictEqual(
             tx.signature,
-            "0xb50251841eda1ccdac90426d956db7d6e6b542d4b21416096a68fbdc011d2bb774c89603b4d64046542bb35e3b8969c9210d2cfb8e3bcb29a42a843007173ce21b"
+            "0x76f214210a7df440cdbe09a3345464fa526b42915cd12c70b36fee6004a3de6776cae0ce42e0c9bfc08a5ffe9ad706c854d32ab186420587578260ab39ceab491c"
         );
         assert.ok(!tx.verify(signer1.address));
         assert.ok(tx.verify(signer2.address));

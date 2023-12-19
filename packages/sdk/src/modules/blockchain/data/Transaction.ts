@@ -16,7 +16,13 @@ import { Signer } from "@ethersproject/abstract-signer";
 import { BigNumber } from "@ethersproject/bignumber";
 import { verifyMessage } from "@ethersproject/wallet";
 
-export interface ITransaction {
+export enum TransactionType {
+    NEW = 0,
+    CANCEL = 1,
+}
+
+export interface INewTransaction {
+    type: TransactionType;
     sequence: number;
     purchaseId: string;
     timestamp: number;
@@ -30,12 +36,22 @@ export interface ITransaction {
     signature: string;
 }
 
+export interface ICancelTransaction {
+    type: TransactionType;
+    sequence: number;
+    purchaseId: string;
+    timestamp: number;
+    signer: string;
+    signature: string;
+}
+
 /**
  * The class that defines the transaction of a block.
  * Convert JSON object to TypeScript's instance.
  * An exception occurs if the required property is not present.
  */
-export class Transaction implements ITransaction {
+export class NewTransaction implements INewTransaction {
+    public type: TransactionType;
     public sequence: number;
     public purchaseId: string;
     public timestamp: number;
@@ -64,6 +80,7 @@ export class Transaction implements ITransaction {
         signer?: string,
         signature?: string
     ) {
+        this.type = TransactionType.NEW;
         this.sequence = sequence;
         this.purchaseId = purchaseId;
         this.timestamp = timestamp;
@@ -92,9 +109,9 @@ export class Transaction implements ITransaction {
     public static reviver(key: string, value: any): any {
         if (key !== "") return value;
 
-        JSONValidator.isValidOtherwiseThrow("Transaction", value);
+        JSONValidator.isValidOtherwiseThrow("NewTransaction", value);
 
-        return new Transaction(
+        return new NewTransaction(
             value.sequence,
             value.purchaseId,
             value.timestamp,
@@ -114,6 +131,7 @@ export class Transaction implements ITransaction {
      * @param buffer The buffer where collected data is stored
      */
     public computeHash(buffer: SmartBuffer) {
+        hashPart(this.type, buffer);
         hashPart(this.sequence, buffer);
         hashPart(this.purchaseId, buffer);
         hashPart(this.timestamp, buffer);
@@ -131,6 +149,7 @@ export class Transaction implements ITransaction {
      */
     public toJSON(): any {
         return {
+            type: this.type,
             sequence: this.sequence,
             purchaseId: this.purchaseId,
             timestamp: this.timestamp,
@@ -148,8 +167,8 @@ export class Transaction implements ITransaction {
     /**
      * Creates and returns a copy of this object.
      */
-    public clone(): Transaction {
-        return new Transaction(
+    public clone(): NewTransaction {
+        return new NewTransaction(
             this.sequence,
             this.purchaseId,
             this.timestamp,
@@ -190,3 +209,105 @@ export class Transaction implements ITransaction {
         return res.toLowerCase() === this.signer.toLowerCase();
     }
 }
+
+export class CancelTransaction implements ICancelTransaction {
+    public type: TransactionType;
+    public sequence: number;
+    public purchaseId: string;
+    public timestamp: number;
+    public signer: string;
+    public signature: string;
+
+    /**
+     * Constructor
+     */
+    constructor(sequence: number, purchaseId: string, timestamp: number, signer?: string, signature?: string) {
+        this.type = TransactionType.CANCEL;
+        this.sequence = sequence;
+        this.purchaseId = purchaseId;
+        this.timestamp = timestamp;
+        if (signer !== undefined) this.signer = signer;
+        else this.signer = "";
+        if (signature !== undefined) this.signature = signature;
+        else this.signature = "";
+    }
+
+    /**
+     * The reviver parameter to give to `JSON.parse`
+     *
+     * This function allows to perform any necessary conversion,
+     * as well as validation of the final object.
+     *
+     * @param key   Name of the field being parsed
+     * @param value The value associated with `key`
+     * @returns A new instance of `Transaction` if `key == ""`, `value` otherwise.
+     */
+    public static reviver(key: string, value: any): any {
+        if (key !== "") return value;
+
+        JSONValidator.isValidOtherwiseThrow("CancelTransaction", value);
+
+        return new CancelTransaction(value.sequence, value.purchaseId, value.timestamp, value.signer, value.signature);
+    }
+
+    /**
+     * Collects data to create a hash.
+     * @param buffer The buffer where collected data is stored
+     */
+    public computeHash(buffer: SmartBuffer) {
+        hashPart(this.type, buffer);
+        hashPart(this.sequence, buffer);
+        hashPart(this.purchaseId, buffer);
+        hashPart(this.timestamp, buffer);
+        hashPart(this.signer, buffer);
+    }
+
+    /**
+     * Converts this object to its JSON representation
+     */
+    public toJSON(): any {
+        return {
+            type: this.type,
+            sequence: this.sequence,
+            purchaseId: this.purchaseId,
+            timestamp: this.timestamp,
+            signer: this.signer,
+            signature: this.signature,
+        };
+    }
+
+    /**
+     * Creates and returns a copy of this object.
+     */
+    public clone(): CancelTransaction {
+        return new CancelTransaction(this.sequence, this.purchaseId, this.timestamp, this.signer, this.signature);
+    }
+
+    /**
+     * Sign with the wallet entered the parameters
+     * @param signer Instances that can be signed
+     */
+    public async sign(signer: Signer) {
+        this.signer = await signer.getAddress();
+        const h = hashFull(this);
+        this.signature = await signer.signMessage(h.data);
+    }
+
+    /**
+     * Verifying the signature
+     * @param address Signatory's wallet address
+     */
+    public verify(address?: string): boolean {
+        const h = hashFull(this);
+        let res: string;
+        try {
+            res = verifyMessage(h.data, this.signature);
+        } catch (error) {
+            return false;
+        }
+        if (address !== undefined) return res.toLowerCase() === address.toLowerCase();
+        return res.toLowerCase() === this.signer.toLowerCase();
+    }
+}
+
+export type Transaction = NewTransaction | CancelTransaction;

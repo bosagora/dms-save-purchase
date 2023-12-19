@@ -13,7 +13,7 @@ import { JSONValidator } from "../../utils/JSONValidator";
 import { Utils } from "../../utils/Utils";
 import { Hash, hashFull, hashMulti } from "../common/Hash";
 import { BlockHeader } from "./BlockHeader";
-import { Transaction } from "./Transaction";
+import { CancelTransaction, NewTransaction, Transaction, TransactionType } from "./Transaction";
 
 /**
  * The class that defines the block.
@@ -64,7 +64,10 @@ export class Block {
         JSONValidator.isValidOtherwiseThrow("Block", value);
 
         const transactions: Transaction[] = [];
-        for (const elem of value.txs) transactions.push(Transaction.reviver("", elem));
+        for (const elem of value.txs) {
+            if (elem.type === TransactionType.NEW) transactions.push(NewTransaction.reviver("", elem));
+            else if (elem.type === TransactionType.CANCEL) transactions.push(CancelTransaction.reviver("", elem));
+        }
 
         const merkleTree: Hash[] = [];
         for (const elem of value.merkleTree) merkleTree.push(new Hash(elem));

@@ -8,10 +8,9 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { Hash, hash, hashMulti, iota } from "../src";
+import { Hash, hash, hashFull, hashMulti, iota } from "../src";
 
 import * as assert from "assert";
-import { hashFull } from "../dist";
 
 import { BigNumber } from "@ethersproject/bignumber";
 

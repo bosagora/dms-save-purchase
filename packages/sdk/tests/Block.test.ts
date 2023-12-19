@@ -8,7 +8,7 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { Block, Hash, hashFull, Transaction, Utils } from "../dist";
+import { Block, CancelTransaction, Hash, hashFull, NewTransaction, Utils } from "../src";
 
 import * as assert from "assert";
 
@@ -22,7 +22,7 @@ describe("Test of Block", () => {
         const txs_hash = [];
         for (let idx = 0; idx < 7; idx++) {
             txs.push(
-                new Transaction(
+                new NewTransaction(
                     0,
                     (12345670 + idx).toString(),
                     1668044556,
@@ -43,7 +43,7 @@ describe("Test of Block", () => {
 
     it("Test createBlock", () => {
         const txs = [
-            new Transaction(
+            new NewTransaction(
                 0,
                 "00000000",
                 1668044556,
@@ -54,7 +54,7 @@ describe("Test of Block", () => {
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash
             ),
-            new Transaction(
+            new NewTransaction(
                 1,
                 "00000001",
                 1668044556,
@@ -65,7 +65,7 @@ describe("Test of Block", () => {
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash
             ),
-            new Transaction(
+            new NewTransaction(
                 2,
                 "00000002",
                 1668044556,
@@ -76,7 +76,7 @@ describe("Test of Block", () => {
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash
             ),
-            new Transaction(
+            new NewTransaction(
                 3,
                 "00000003",
                 1668044556,
@@ -87,7 +87,7 @@ describe("Test of Block", () => {
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash
             ),
-            new Transaction(
+            new NewTransaction(
                 4,
                 "00000004",
                 1668044556,
@@ -98,6 +98,7 @@ describe("Test of Block", () => {
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash
             ),
+            new CancelTransaction(4, "00000004", 1668044556),
         ];
         const signer = new Wallet("0xf6dda8e03f9dce37c081e5d178c1fda2ebdb90b5b099de1a555a658270d8c47d");
         const prev_hash = Hash.Null;
