@@ -9,19 +9,19 @@
  */
 
 import { logger } from "../common/Logger";
-import { DBTransaction, RollupStorage } from "../storage/RollupStorage";
+import { DBTransaction, StorePurchaseStorage } from "../storage/StorePurchaseStorage";
 
 export class TransactionPool {
     /**
      * The object needed to access the database
      */
-    private _storage: RollupStorage | undefined;
+    private _storage: StorePurchaseStorage | undefined;
 
     /**
      * Returns the value if this._storage is defined.
      * Otherwise, exit the process.
      */
-    get storage(): RollupStorage {
+    get storage(): StorePurchaseStorage {
         if (this._storage !== undefined) return this._storage;
         else {
             logger.error("Storage is not ready yet.");

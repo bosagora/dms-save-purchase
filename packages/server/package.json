@@ -24,8 +24,8 @@
         "debug:TransactionPool": "NODE_ENV=test node_modules/.bin/hardhat test test/blockchain/TransactionPool.test.ts",
         "debug:Node": "NODE_ENV=test node_modules/.bin/hardhat test test/blockchain/Node.test.ts",
         "debug:SendBlock": "NODE_ENV=test node_modules/.bin/hardhat test test/blockchain/SendBlock.test.ts",
-        "debug:Router": "NODE_ENV=test node_modules/.bin/hardhat test test/service/RollupRouter.test.ts",
-        "debug:Server": "NODE_ENV=test node_modules/.bin/hardhat test test/service/RollupServer.test.ts"
+        "debug:Router": "NODE_ENV=test node_modules/.bin/hardhat test test/service/StorePurchaseRouter.test.ts",
+        "debug:Server": "NODE_ENV=test node_modules/.bin/hardhat test test/service/StorePurchaseServer.test.ts"
     },
     "repository": {
         "type": "git",

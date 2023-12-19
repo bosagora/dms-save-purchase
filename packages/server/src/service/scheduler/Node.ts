@@ -14,7 +14,7 @@ import { logger } from "../common/Logger";
 import { TransactionPool } from "./TransactionPool";
 
 import { Block, Hash, hashFull, Transaction, Utils } from "dms-store-purchase-sdk";
-import { DBTransaction, RollupStorage } from "../storage/RollupStorage";
+import { DBTransaction, StorePurchaseStorage } from "../storage/StorePurchaseStorage";
 import { LastBlockInfo } from "./LastBlockInfo";
 
 /**
@@ -41,7 +41,7 @@ export class Node extends Scheduler {
     /**
      * The object needed to access the database
      */
-    private _storage: RollupStorage | undefined;
+    private _storage: StorePurchaseStorage | undefined;
 
     /**
      * The object needed to temporarily store transactions.
@@ -105,7 +105,7 @@ export class Node extends Scheduler {
      * Returns the value if this._storage is defined.
      * Otherwise, exit the process.
      */
-    private get storage(): RollupStorage {
+    private get storage(): StorePurchaseStorage {
         if (this._storage !== undefined) return this._storage;
         else {
             logger.error("Storage is not ready yet.");
@@ -132,7 +132,7 @@ export class Node extends Scheduler {
     public setOption(options: any) {
         if (options) {
             if (options.config && options.config instanceof Config) this._config = options.config;
-            if (options.storage && options.storage instanceof RollupStorage) {
+            if (options.storage && options.storage instanceof StorePurchaseStorage) {
                 this._storage = options.storage;
             }
             if (options.pool && options.pool instanceof TransactionPool) {

@@ -15,26 +15,26 @@ import { Block, Hash, hashFull } from "dms-store-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { SendBlock } from "../../src/service/scheduler/SendBlock";
 import { HardhatUtils } from "../../src/service/utils";
-import { RollUp } from "../../typechain-types";
+import { StorePurchase } from "../../typechain-types";
 import { delay } from "../Utility";
 
 import * as assert from "assert";
 import path from "path";
-import { RollupStorage } from "../../src/service/storage/RollupStorage";
+import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 
 describe("Test of SendBlock", () => {
     let sendBlock: SendBlock;
-    let rollUp: RollUp;
+    let rollUp: StorePurchase;
     const config = new Config();
-    let storage: RollupStorage;
+    let storage: StorePurchaseStorage;
 
     const provider = waffle.provider;
     config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
-    const admin = new Wallet(config.contracts.rollup_manager_key || "");
+    const admin = new Wallet(config.contracts.managerKey || "");
     const admin_signer = provider.getSigner(admin.address);
 
     before("Deploy Rollup Contract", async () => {
-        rollUp = await HardhatUtils.deployRollupContract(config, admin);
+        rollUp = await HardhatUtils.deployStorePurchaseContract(config, admin);
     });
 
     after(() => {
@@ -43,8 +43,8 @@ describe("Test of SendBlock", () => {
 
     before("Create SendBlock", async () => {
         storage = await (() => {
-            return new Promise<RollupStorage>((resolve, reject) => {
-                const res = new RollupStorage(config.database, (err) => {
+            return new Promise<StorePurchaseStorage>((resolve, reject) => {
+                const res = new StorePurchaseStorage(config.database, (err) => {
                     if (err !== null) reject(err);
                     else resolve(res);
                 });
@@ -78,8 +78,8 @@ describe("Test of SendBlock", () => {
         const db_block_0 = await storage.selectBlockByHeight(0n);
         assert.deepStrictEqual(sc_block_0[0], BigNumber.from(db_block_0.height));
         assert.deepStrictEqual(sc_block_0[1], db_block_0.cur_block);
-        assert.deepStrictEqual(sc_block_0[2], db_block_0.prev_block);
-        assert.deepStrictEqual(sc_block_0[3], db_block_0.merkle_root);
+        assert.deepStrictEqual(sc_block_0[2], db_block_0.prevBlock);
+        assert.deepStrictEqual(sc_block_0[3], db_block_0.merkleRoot);
         assert.deepStrictEqual(sc_block_0[4], BigNumber.from(db_block_0.timestamp));
         assert.deepStrictEqual(sc_block_0[5], db_block_0.CID);
         // Test Block height 1
@@ -91,8 +91,8 @@ describe("Test of SendBlock", () => {
         const db_block_1 = await storage.selectBlockByHeight(1n);
         assert.deepStrictEqual(sc_block_1[0], BigNumber.from(db_block_1.height));
         assert.deepStrictEqual(sc_block_1[1], db_block_1.cur_block);
-        assert.deepStrictEqual(sc_block_1[2], db_block_1.prev_block);
-        assert.deepStrictEqual(sc_block_1[3], db_block_1.merkle_root);
+        assert.deepStrictEqual(sc_block_1[2], db_block_1.prevBlock);
+        assert.deepStrictEqual(sc_block_1[3], db_block_1.merkleRoot);
         assert.deepStrictEqual(sc_block_1[4], BigNumber.from(db_block_1.timestamp));
         assert.deepStrictEqual(sc_block_1[5], db_block_1.CID);
     });

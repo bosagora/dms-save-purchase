@@ -7,24 +7,24 @@ import * as path from "path";
 import URI from "urijs";
 import { URL } from "url";
 import { Scheduler } from "../../src/modules";
-import { RollupServer } from "../../src/service/RollupServer";
 import { LastBlockInfo } from "../../src/service/scheduler/LastBlockInfo";
 import { Node } from "../../src/service/scheduler/Node";
 import { SendBlock } from "../../src/service/scheduler/SendBlock";
-import { RollupStorage } from "../../src/service/storage/RollupStorage";
+import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
+import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
 import { HardhatUtils } from "../../src/service/utils";
-import { RollUp } from "../../typechain-types";
+import { StorePurchase } from "../../typechain-types";
 import { delay, TestClient } from "../Utility";
 
-describe("Test of Rollup Server", function () {
+describe("Test of StorePurchase Server", function () {
     this.timeout(1000 * 60);
 
     const config = new Config();
-    let rollupServer: RollupServer;
-    let storage: RollupStorage;
+    let rollupServer: StorePurchaseServer;
+    let storage: StorePurchaseStorage;
     let serverURL: string;
     let manager: Wallet;
-    let contract: RollUp;
+    let contract: StorePurchase;
     const schedulers: Scheduler[] = [];
     let token: string;
 
@@ -42,17 +42,17 @@ describe("Test of Rollup Server", function () {
     });
 
     before("Create Manager's Wallet", () => {
-        manager = new Wallet(config.contracts.rollup_manager_key);
+        manager = new Wallet(config.contracts.managerKey);
     });
 
     before("Deploy Contract", async () => {
-        contract = await HardhatUtils.deployRollupContract(config, manager);
+        contract = await HardhatUtils.deployStorePurchaseContract(config, manager);
     });
 
     before("Create Storage", async () => {
         storage = await (() => {
-            return new Promise<RollupStorage>((resolve, reject) => {
-                const res = new RollupStorage(config.database, (err) => {
+            return new Promise<StorePurchaseStorage>((resolve, reject) => {
+                const res = new StorePurchaseStorage(config.database, (err) => {
                     if (err !== null) reject(err);
                     else resolve(res);
                 });
@@ -66,7 +66,7 @@ describe("Test of Rollup Server", function () {
         config.node.ipfs_test = true;
         config.node.send_interval = SEND_INTERVAL;
 
-        token = config.authorization.api_access_token;
+        token = config.authorization.accessKey;
     });
 
     before("Create Schedulers", () => {
@@ -75,7 +75,7 @@ describe("Test of Rollup Server", function () {
     });
 
     before("Create Test Server", () => {
-        rollupServer = new RollupServer(config, storage, schedulers);
+        rollupServer = new StorePurchaseServer(config, storage, schedulers);
     });
 
     before("Start Test Server", async () => {
@@ -87,7 +87,7 @@ describe("Test of Rollup Server", function () {
     });
 
     before("Create Client", async () => {
-        sendURL = URI(serverURL).directory("tx/record").toString();
+        sendURL = URI(serverURL).directory("v1/tx/record").toString();
         client = new TestClient({ headers: { Authorization: token } });
     });
 
@@ -102,12 +102,13 @@ describe("Test of Rollup Server", function () {
             const tx = new Transaction(
                 numTx,
                 "TX" + numTx.toString().padStart(10, "0"),
-                signer.address,
-                "0",
-                BigNumber.from(10000),
                 Utils.getTimeStamp(),
-                exchange_user_id,
-                exchange_id
+                BigNumber.from(10000),
+                "krw",
+                "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+                0,
+                signer.address,
+                "0"
             );
             await tx.sign(signer);
             txs.push(tx);
@@ -173,7 +174,7 @@ describe("Test of Rollup Server", function () {
         });
 
         it("Create Test Server", async () => {
-            rollupServer = new RollupServer(config, storage, schedulers);
+            rollupServer = new StorePurchaseServer(config, storage, schedulers);
         });
 
         it("Start Test Server", async () => {
@@ -251,7 +252,7 @@ describe("Test of Rollup Server", function () {
         });
 
         it("GET /tx/sequence", async () => {
-            const url = URI(serverURL).directory("tx/sequence").toString();
+            const url = URI(serverURL).directory("v1/tx/sequence").toString();
             const res = await client.get(url);
             assert.strictEqual(res.data.code, 200);
             assert.strictEqual(res.data.data.sequence, 25);

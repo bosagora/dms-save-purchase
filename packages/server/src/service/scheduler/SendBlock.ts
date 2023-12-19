@@ -9,16 +9,16 @@
  */
 
 import { NonceManager } from "@ethersproject/experimental";
+import { Utils } from "dms-store-purchase-sdk";
 import { Signer, Wallet } from "ethers";
 import { ethers } from "hardhat";
-import { Utils } from "dms-store-purchase-sdk";
-import { RollUp } from "../../../typechain-types";
+import { StorePurchase } from "../../../typechain-types";
 import { Scheduler } from "../../modules";
 import { Config } from "../common/Config";
 import { logger } from "../common/Logger";
 import { uint64max } from "../common/Utils";
 import { GasPriceManager } from "../contract/GasPriceManager";
-import { RollupStorage } from "../storage/RollupStorage";
+import { StorePurchaseStorage } from "../storage/StorePurchaseStorage";
 
 /**
  * Store the headers of blocks in a smart contract at regular intervals.
@@ -33,12 +33,12 @@ export class SendBlock extends Scheduler {
     /**
      * The object needed to access the database
      */
-    private _storage: RollupStorage | undefined;
+    private _storage: StorePurchaseStorage | undefined;
 
     /**
      * The contract object needed to save the block information
      */
-    private _rollup: RollUp | undefined;
+    private _rollup: StorePurchase | undefined;
 
     /**
      * The signer needed to save the block information
@@ -77,7 +77,7 @@ export class SendBlock extends Scheduler {
      */
     private get managerSigner(): Signer {
         if (this._managerSigner === undefined) {
-            const manager = new Wallet(this.config.contracts.rollup_manager_key);
+            const manager = new Wallet(this.config.contracts.managerKey);
             this._managerSigner = new NonceManager(new GasPriceManager(ethers.provider.getSigner(manager.address)));
         }
         return this._managerSigner;
@@ -87,7 +87,7 @@ export class SendBlock extends Scheduler {
      * Returns the value if this._storage is defined.
      * Otherwise, exit the process.
      */
-    private get storage(): RollupStorage {
+    private get storage(): StorePurchaseStorage {
         if (this._storage !== undefined) return this._storage;
         else {
             logger.error("Storage is not ready yet.");
@@ -102,14 +102,14 @@ export class SendBlock extends Scheduler {
     public setOption(options: any) {
         if (options) {
             if (options.config && options.config instanceof Config) this._config = options.config;
-            if (options.storage && options.storage instanceof RollupStorage) {
+            if (options.storage && options.storage instanceof StorePurchaseStorage) {
                 this._storage = options.storage;
             }
         }
     }
 
     /**
-     * Look up the new block in the DB and add the block to the rollup contract.
+     * Look up the new block in the DB and add the block to the StorePurchase contract.
      * @protected
      */
     protected override async work() {
@@ -123,8 +123,8 @@ export class SendBlock extends Scheduler {
             this.old_time_stamp = new_time_stamp;
 
             if (this._rollup === undefined) {
-                const contractFactory = await ethers.getContractFactory("RollUp");
-                this._rollup = contractFactory.attach(this.config.contracts.rollup_address) as RollUp;
+                const contractFactory = await ethers.getContractFactory("StorePurchase");
+                this._rollup = contractFactory.attach(this.config.contracts.purchaseAddress) as StorePurchase;
             }
 
             const last_height_org = await this._rollup.getLastHeight();
@@ -154,7 +154,7 @@ export class SendBlock extends Scheduler {
                 try {
                     await this._rollup
                         .connect(this.managerSigner)
-                        .add(data.height, data.cur_block, data.prev_block, data.merkle_root, data.timestamp, data.CID)
+                        .add(data.height, data.cur_block, data.prevBlock, data.merkleRoot, data.timestamp, data.CID)
                         .then(() => {
                             logger.info(`Successful in adding blocks to the blockchain. Height: ${data.height}`);
                         });

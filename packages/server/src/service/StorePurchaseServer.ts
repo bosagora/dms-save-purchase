@@ -14,11 +14,11 @@ import { Scheduler } from "../modules/scheduler/Scheduler";
 import { WebService } from "../modules/service/WebService";
 import { Config } from "./common/Config";
 import { cors_options } from "./option/cors";
-import { RollupRouter } from "./routers/RollupRouter";
+import { StorePurchaseRouter } from "./routers/StorePurchaseRouter";
 import { TransactionPool } from "./scheduler/TransactionPool";
-import { RollupStorage } from "./storage/RollupStorage";
+import { StorePurchaseStorage } from "./storage/StorePurchaseStorage";
 
-export class RollupServer extends WebService {
+export class StorePurchaseServer extends WebService {
     /**
      * The collection of schedulers
      * @protected
@@ -31,9 +31,9 @@ export class RollupServer extends WebService {
      */
     private readonly config: Config;
 
-    public readonly rollupRouter: RollupRouter;
+    public readonly rollupRouter: StorePurchaseRouter;
 
-    private readonly storage: RollupStorage;
+    private readonly storage: StorePurchaseStorage;
 
     public readonly pool: TransactionPool;
 
@@ -43,7 +43,7 @@ export class RollupServer extends WebService {
      * @param storage Rollup Storage
      * @param schedules Array of IScheduler
      */
-    constructor(config: Config, storage: RollupStorage, schedules?: Scheduler[]) {
+    constructor(config: Config, storage: StorePurchaseStorage, schedules?: Scheduler[]) {
         super(config.server.port, config.server.address);
 
         this.config = config;
@@ -51,7 +51,7 @@ export class RollupServer extends WebService {
         this.pool = new TransactionPool();
         this.pool.storage = storage;
 
-        this.rollupRouter = new RollupRouter(this, config, this.pool, this.storage);
+        this.rollupRouter = new StorePurchaseRouter(this, config, this.pool, this.storage);
 
         if (schedules) {
             schedules.forEach((m) => this.schedules.push(m));

@@ -50,7 +50,7 @@ export class RollupClient {
     }
 
     public getSequence(): Promise<number> {
-        const url = URI(this.serverURL).directory("tx/sequence").toString();
+        const url = URI(this.serverURL).directory("v1/tx/sequence").toString();
         return new Promise<number>((resolve, reject) => {
             this.client
                 .get(url)
@@ -68,7 +68,7 @@ export class RollupClient {
     }
 
     public sendTransaction(tx: Transaction): Promise<number> {
-        const url = URI(this.serverURL).directory("tx/record").toString();
+        const url = URI(this.serverURL).directory("v1/tx/record").toString();
         const sendTx = tx.toJSON();
         return new Promise<number>((resolve, reject) => {
             this.client

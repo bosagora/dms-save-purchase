@@ -1,20 +1,21 @@
 import * as assert from "assert";
+import { Block, Hash, Transaction } from "dms-store-purchase-sdk";
 import { BigNumber } from "ethers";
 import path from "path";
-import { Block, Hash, Transaction } from "dms-store-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
-import { DBTransaction, RollupStorage } from "../../src/service/storage/RollupStorage";
+import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 
 describe("Test of Storage", () => {
-    let storage: RollupStorage;
+    let storage: StorePurchaseStorage;
     const tx1 = DBTransaction.make(
         new Transaction(
             0,
             "123456789",
-            "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-            "0",
-            BigNumber.from(123),
             1668044556,
+            BigNumber.from(123),
+            "krw",
+            "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
+            0,
             "997DE626B2D417F0361D61C09EB907A57226DB5B",
             "a5c19fed89739383",
             "0x19dCAc1131Dfa2fdBbf992261d54c03dDE616D75",
@@ -25,10 +26,11 @@ describe("Test of Storage", () => {
         new Transaction(
             1,
             "987654321",
-            "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-            "0",
-            BigNumber.from(321),
             1313456756,
+            BigNumber.from(321),
+            "krw",
+            "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
+            0,
             "997DE626B2D417F0361D61C09EB907A57226DB5B",
             "a5c19fed89739383",
             "0xc2DfB49ad9BF96b541939EDABdDeBd63d85e8d70",
@@ -41,8 +43,8 @@ describe("Test of Storage", () => {
         config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
 
         storage = await (() => {
-            return new Promise<RollupStorage>((resolve, reject) => {
-                const res = new RollupStorage(config.database, (err) => {
+            return new Promise<StorePurchaseStorage>((resolve, reject) => {
+                const res = new StorePurchaseStorage(config.database, (err) => {
                     if (err !== null) reject(err);
                     else resolve(res);
                 });
@@ -78,25 +80,28 @@ describe("Test of Storage", () => {
             const res1 = await storage.selectTxByHash(tx1?.hash);
             assert.notStrictEqual(res1, null);
             if (res1) {
-                assert.strictEqual(res1.user_id, tx1.user_id);
-                assert.strictEqual(res1.state, tx1.state);
-                assert.strictEqual(res1.amount, tx1.amount?.toString());
+                assert.strictEqual(res1.purchaseId, tx1.purchaseId);
                 assert.strictEqual(res1.timestamp, tx1.timestamp);
-                assert.strictEqual(res1.exchange_user_id, tx1.exchange_user_id);
-                assert.strictEqual(res1.exchange_id, tx1.exchange_id);
+                assert.strictEqual(res1.amount, tx1.amount?.toString());
+                assert.strictEqual(res1.currency, tx1.currency);
+                assert.strictEqual(res1.method, tx1.method);
+                assert.strictEqual(res1.shopId, tx1.shopId);
+                assert.strictEqual(res1.userAccount, tx1.userAccount);
+                assert.strictEqual(res1.userPhoneHash, tx1.userPhoneHash);
                 assert.strictEqual(res1.signer, tx1.signer);
                 assert.strictEqual(res1.signature, tx1.signature);
             }
             const res2 = await storage.selectTxByHash(tx2.hash);
             assert.notStrictEqual(res2, null);
             if (res2) {
-                assert.strictEqual(res2.trade_id, tx2.trade_id);
-                assert.strictEqual(res2.user_id, tx2.user_id);
-                assert.strictEqual(res2.state, tx2.state);
-                assert.strictEqual(res2.amount, tx2.amount.toString());
+                assert.strictEqual(res2.purchaseId, tx2.purchaseId);
                 assert.strictEqual(res2.timestamp, tx2.timestamp);
-                assert.strictEqual(res2.exchange_user_id, tx2.exchange_user_id);
-                assert.strictEqual(res2.exchange_id, tx2.exchange_id);
+                assert.strictEqual(res2.amount, tx2.amount?.toString());
+                assert.strictEqual(res2.currency, tx2.currency);
+                assert.strictEqual(res2.method, tx2.method);
+                assert.strictEqual(res2.shopId, tx2.shopId);
+                assert.strictEqual(res2.userAccount, tx2.userAccount);
+                assert.strictEqual(res2.userPhoneHash, tx2.userPhoneHash);
                 assert.strictEqual(res2.signer, tx2.signer);
                 assert.strictEqual(res2.signature, tx2.signature);
             }

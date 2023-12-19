@@ -9,12 +9,12 @@
  */
 
 import * as assert from "assert";
+import { Transaction, Utils } from "dms-store-purchase-sdk";
 import { BigNumber } from "ethers";
 import path from "path";
-import { Transaction, Utils } from "dms-store-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { TransactionPool } from "../../src/service/scheduler/TransactionPool";
-import { DBTransaction, RollupStorage } from "../../src/service/storage/RollupStorage";
+import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 
 describe("TransactionPool", () => {
     const addresses = [
@@ -49,8 +49,8 @@ describe("TransactionPool", () => {
         config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
 
         const storage = await (() => {
-            return new Promise<RollupStorage>((resolve, reject) => {
-                const res = new RollupStorage(config.database, (err) => {
+            return new Promise<StorePurchaseStorage>((resolve, reject) => {
+                const res = new StorePurchaseStorage(config.database, (err) => {
                     if (err !== null) reject(err);
                     else resolve(res);
                 });
@@ -66,11 +66,12 @@ describe("TransactionPool", () => {
                 new Transaction(
                     index,
                     "transaction_" + index,
-                    "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-                    m,
-                    BigNumber.from(10000),
                     Utils.getTimeStamp(),
-                    "",
+                    BigNumber.from(10000),
+                    "krw",
+                    "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+                    0,
+                    m,
                     ""
                 )
             )
@@ -91,13 +92,14 @@ describe("TransactionPool", () => {
         for (let idx = 0; idx < length; idx++) {
             const tx: DBTransaction[] = await tx_pool.get(1);
 
-            assert.strictEqual(tx[0].trade_id, txs[idx].trade_id);
-            assert.strictEqual(tx[0].user_id, txs[idx].user_id);
-            assert.strictEqual(tx[0].state, txs[idx].state);
-            assert.strictEqual(tx[0].amount.toString(), txs[idx].amount.toString());
+            assert.strictEqual(tx[0].purchaseId, txs[idx].purchaseId);
             assert.strictEqual(tx[0].timestamp, txs[idx].timestamp);
-            assert.strictEqual(tx[0].exchange_user_id, txs[idx].exchange_user_id);
-            assert.strictEqual(tx[0].exchange_id, txs[idx].exchange_id);
+            assert.strictEqual(tx[0].amount.toString(), txs[idx].amount.toString());
+            assert.strictEqual(tx[0].currency, txs[idx].currency);
+            assert.strictEqual(tx[0].method, txs[idx].method);
+            assert.strictEqual(tx[0].shopId, txs[idx].shopId);
+            assert.strictEqual(tx[0].userAccount, txs[idx].userAccount);
+            assert.strictEqual(tx[0].userPhoneHash, txs[idx].userPhoneHash);
             assert.strictEqual(tx[0].signer, txs[idx].signer);
             assert.strictEqual(tx[0].signature, txs[idx].signature);
 

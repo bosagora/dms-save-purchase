@@ -20,7 +20,7 @@ import { delay } from "../Utility";
 import * as assert from "assert";
 import path from "path";
 import { TransactionPool } from "../../src/service/scheduler/TransactionPool";
-import { RollupStorage } from "../../src/service/storage/RollupStorage";
+import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 
 class BlockExternalizer implements IBlockExternalizer {
     public block: Block | undefined;
@@ -37,20 +37,20 @@ describe("Test of Node", function () {
     let node: Node;
     let externalizer: BlockExternalizer;
     const config = new Config();
-    let storage: RollupStorage;
+    let storage: StorePurchaseStorage;
     const provider = waffle.provider;
     config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
-    const manager = new Wallet(config.contracts.rollup_manager_key || "");
+    const manager = new Wallet(config.contracts.managerKey || "");
     const signer = provider.getSigner(manager.address);
 
     before("Deploy Rollup Contract", async () => {
-        await HardhatUtils.deployRollupContract(config, manager);
+        await HardhatUtils.deployStorePurchaseContract(config, manager);
     });
 
     before("Create Node", async () => {
         storage = await (() => {
-            return new Promise<RollupStorage>((resolve, reject) => {
-                const res = new RollupStorage(config.database, (err) => {
+            return new Promise<StorePurchaseStorage>((resolve, reject) => {
+                const res = new StorePurchaseStorage(config.database, (err) => {
                     if (err !== null) reject(err);
                     else resolve(res);
                 });
@@ -76,11 +76,12 @@ describe("Test of Node", function () {
                 new Transaction(
                     idx,
                     (12345670 + idx).toString(),
-                    "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-                    "0",
-                    BigNumber.from(idx + 1),
                     Utils.getTimeStamp(),
-                    "997DE626B2D417F0361D61C09EB907A57226DB5B",
+                    BigNumber.from(idx + 1),
+                    "krw",
+                    "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+                    0,
+                    "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                     "a5c19fed89739383"
                 )
             );

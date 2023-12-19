@@ -1,5 +1,5 @@
 /**
- *  The router of Rollup Server
+ *  The router of dms-store-purchase-server
  *
  *  Copyright:
  *      Copyright (c) 2022 BOSAGORA Foundation All rights reserved.
@@ -11,16 +11,16 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 
-import { BigNumber } from "ethers";
 import { Transaction } from "dms-store-purchase-sdk";
+import { BigNumber } from "ethers";
 import { WebService } from "../../modules/service/WebService";
 import { Config } from "../common/Config";
 import { logger } from "../common/Logger";
 import { TransactionPool } from "../scheduler/TransactionPool";
-import { DBTransaction, RollupStorage } from "../storage/RollupStorage";
+import { DBTransaction, StorePurchaseStorage } from "../storage/StorePurchaseStorage";
 import { Validation } from "../validation";
 
-export class RollupRouter {
+export class StorePurchaseRouter {
     /**
      *
      * @private
@@ -43,12 +43,12 @@ export class RollupRouter {
      * The storage instance
      * @private
      */
-    private readonly storage: RollupStorage;
+    private readonly storage: StorePurchaseStorage;
     /**
      * Authorization pass key
      * @private
      */
-    private static api_access_token: string;
+    private static accessKey: string;
 
     /**
      * Sequence of the last received transaction
@@ -63,13 +63,13 @@ export class RollupRouter {
      * @param pool TransactionPool
      * @param storage RollupStorage
      */
-    constructor(service: WebService, config: Config, pool: TransactionPool, storage: RollupStorage) {
+    constructor(service: WebService, config: Config, pool: TransactionPool, storage: StorePurchaseStorage) {
         this._web_service = service;
         this._config = config;
         this.pool = pool;
         this.storage = storage;
 
-        RollupRouter.api_access_token = config.authorization.api_access_token;
+        StorePurchaseRouter.accessKey = config.authorization.accessKey;
         this.lastReceiveSequence = -1;
     }
 
@@ -94,9 +94,9 @@ export class RollupRouter {
 
     private isAuth(req: express.Request, res: express.Response, next: any) {
         const authHeader = req.get("Authorization");
-        if (!authHeader && RollupRouter.api_access_token !== authHeader) {
+        if (!authHeader && StorePurchaseRouter.accessKey !== authHeader) {
             return res.status(401).json(
-                RollupRouter.makeResponseData(401, undefined, {
+                StorePurchaseRouter.makeResponseData(401, undefined, {
                     msg: "Authentication Error",
                 })
             );
@@ -109,10 +109,10 @@ export class RollupRouter {
         if (!errors.isEmpty()) {
             const e = errors.array({ onlyFirstError: true });
             if (e.length) {
-                return res.status(400).json(RollupRouter.makeResponseData(400, undefined, e[0]));
+                return res.status(400).json(StorePurchaseRouter.makeResponseData(400, undefined, e[0]));
             } else {
                 return res.status(400).json(
-                    RollupRouter.makeResponseData(400, undefined, {
+                    StorePurchaseRouter.makeResponseData(400, undefined, {
                         validation: errors.array(),
                         msg: "Failed to check the validity of parameters.",
                     })
@@ -123,10 +123,10 @@ export class RollupRouter {
     }
 
     public registerRoutes() {
-        this.app.get("/", [], RollupRouter.getHealthStatus.bind(this));
-        this.app.get("/tx/sequence", [], this.getSequence.bind(this));
+        this.app.get("/", [], StorePurchaseRouter.getHealthStatus.bind(this));
+        this.app.get("/v1/tx/sequence", [], this.getSequence.bind(this));
         this.app.post(
-            "/tx/record",
+            "/v1/tx/record",
             [
                 this.isAuth,
                 body("sequence")
@@ -138,37 +138,12 @@ export class RollupRouter {
                     .isNumeric()
                     .withMessage("sequence can only be numbers")
                     .bail(),
-                body("trade_id")
+                body("purchaseId")
                     .exists()
-                    .withMessage("trade_id is a required value")
+                    .withMessage("purchaseId is a required value")
                     .not()
                     .isEmpty()
-                    .withMessage("trade_id is a required value")
-                    .bail(),
-                body("user_id")
-                    .exists()
-                    .withMessage("user_id is a required value")
-                    .not()
-                    .isEmpty()
-                    .withMessage("user_id is a required value")
-                    .bail(),
-                body("state")
-                    .exists()
-                    .withMessage("state is a required value")
-                    .not()
-                    .isEmpty()
-                    .withMessage("state is a required value")
-                    .isIn(["0", "1"])
-                    .withMessage(`state input type error ,Enter "0" for charge or "1" for discharge`)
-                    .bail(),
-                body("amount")
-                    .exists()
-                    .withMessage("amount is a required value")
-                    .not()
-                    .isEmpty()
-                    .withMessage("amount is a required value")
-                    .custom(Validation.isAmount)
-                    .withMessage("amount can only be numbers type string")
+                    .withMessage("purchaseId is a required value")
                     .bail(),
                 body("timestamp")
                     .exists()
@@ -179,19 +154,51 @@ export class RollupRouter {
                     .isNumeric()
                     .withMessage("timestamp can only be numbers")
                     .bail(),
-                body("exchange_user_id")
+                body("amount")
                     .exists()
-                    .withMessage("exchange_user_id is a required value")
+                    .withMessage("amount is a required value")
                     .not()
                     .isEmpty()
-                    .withMessage("exchange_user_id is a required value")
+                    .withMessage("amount is a required value")
+                    .custom(Validation.isAmount)
+                    .withMessage("amount can only be numbers type string")
                     .bail(),
-                body("exchange_id")
+                body("currency")
                     .exists()
-                    .withMessage("exchange_id is a required value")
+                    .withMessage("currency is a required value")
                     .not()
                     .isEmpty()
-                    .withMessage("exchange_id is a required value")
+                    .withMessage("currency is a required value")
+                    .bail(),
+                body("shopId")
+                    .exists()
+                    .withMessage("shopId is a required value")
+                    .not()
+                    .isEmpty()
+                    .withMessage("shopId is a required value")
+                    .bail(),
+                body("method")
+                    .exists()
+                    .withMessage("method is a required value")
+                    .not()
+                    .isEmpty()
+                    .withMessage("method is a required value")
+                    .isIn(["0", "1"])
+                    .withMessage(`method input type error ,Enter "0" for charge or "1" for discharge`)
+                    .bail(),
+                body("userAccount")
+                    .exists()
+                    .withMessage("userAccount is a required value")
+                    .not()
+                    .isEmpty()
+                    .withMessage("userAccount is a required value")
+                    .bail(),
+                body("userPhone")
+                    .exists()
+                    .withMessage("userPhone is a required value")
+                    .not()
+                    .isEmpty()
+                    .withMessage("userPhone is a required value")
                     .bail(),
                 body("signer")
                     .exists()
@@ -226,11 +233,11 @@ export class RollupRouter {
 
         try {
             const sequence = await this.storage.getLastReceiveSequence();
-            return res.json(RollupRouter.makeResponseData(200, { sequence }));
+            return res.json(StorePurchaseRouter.makeResponseData(200, { sequence }));
         } catch (error) {
             logger.error("GET /tx/sequence , " + error);
             return res.status(500).json(
-                RollupRouter.makeResponseData(500, undefined, {
+                StorePurchaseRouter.makeResponseData(500, undefined, {
                     msg: "Failed to transaction record.",
                 })
             );
@@ -247,20 +254,21 @@ export class RollupRouter {
         try {
             const tx: Transaction = new Transaction(
                 Number(req.body.sequence),
-                req.body.trade_id,
-                req.body.user_id,
-                req.body.state,
-                BigNumber.from(req.body.amount),
+                req.body.purchaseId,
                 Number(req.body.timestamp),
-                req.body.exchange_user_id,
-                req.body.exchange_id,
+                BigNumber.from(req.body.amount),
+                req.body.currency,
+                req.body.shopId,
+                Number(req.body.method),
+                req.body.userAccount,
+                req.body.userPhoneHash,
                 req.body.signer,
                 req.body.signature
             );
 
             if (!tx.verify(tx.signer)) {
                 return res.status(400).json(
-                    RollupRouter.makeResponseData(400, undefined, {
+                    StorePurchaseRouter.makeResponseData(400, undefined, {
                         param: "signature",
                         msg: "The signature value entered is not valid.",
                     })
@@ -273,7 +281,7 @@ export class RollupRouter {
 
             if (this.lastReceiveSequence + 1 !== tx.sequence) {
                 return res.status(417).json(
-                    RollupRouter.makeResponseData(417, undefined, {
+                    StorePurchaseRouter.makeResponseData(417, undefined, {
                         param: "sequence",
                         expected: this.lastReceiveSequence + 1,
                         actual: tx.sequence,
@@ -285,11 +293,11 @@ export class RollupRouter {
             await this.pool.add(DBTransaction.make(tx));
             await this.storage.setLastReceiveSequence(tx.sequence);
             this.lastReceiveSequence = tx.sequence;
-            return res.json(RollupRouter.makeResponseData(200, "SUCCESS"));
+            return res.json(StorePurchaseRouter.makeResponseData(200, "SUCCESS"));
         } catch (error) {
             logger.error("POST /tx/record , " + error);
             return res.status(500).json(
-                RollupRouter.makeResponseData(500, undefined, {
+                StorePurchaseRouter.makeResponseData(500, undefined, {
                     msg: "Failed to transaction record.",
                 })
             );

@@ -6,17 +6,25 @@
 
 import { NonceManager } from "@ethersproject/experimental";
 import { Wallet } from "ethers";
-import { ethers } from "hardhat";
+import {ethers, upgrades} from "hardhat";
 import { GasPriceManager } from "../src/service/contract/GasPriceManager";
-import { RollUp } from "../typechain-types";
+import { StorePurchase } from "../typechain-types";
 
 async function main() {
-    const contractFactory = await ethers.getContractFactory("RollUp");
+    const contractFactory = await ethers.getContractFactory("StorePurchase");
     const provider = ethers.provider;
     const manager = new Wallet(process.env.MANAGER_KEY || "");
     const managerSigner = new NonceManager(new GasPriceManager(provider.getSigner(manager.address)));
-    const contract = (await contractFactory.connect(managerSigner).deploy()) as RollUp;
+    const contract = (await upgrades.deployProxy(
+        contractFactory.connect(managerSigner),
+        [],
+        {
+            initializer: "initialize",
+            kind: "uups",
+        }
+    )) as StorePurchase;
     await contract.deployed();
+    await contract.deployTransaction.wait();
 
     console.log("deployed to (address) :", contract.address);
 }

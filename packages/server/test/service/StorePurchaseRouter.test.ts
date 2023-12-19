@@ -8,46 +8,46 @@ import { ITransaction, Transaction } from "dms-store-purchase-sdk";
 import { BigNumber, Wallet } from "ethers";
 import * as path from "path";
 import { URL } from "url";
-import { RollupServer } from "../../src/service/RollupServer";
-import { DBTransaction, RollupStorage } from "../../src/service/storage/RollupStorage";
+import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
+import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
 import { HardhatUtils } from "../../src/service/utils";
 
 chai.use(chaiHttp);
 
-describe("Test of Rollup Router", () => {
+describe("Test of StorePurchase Router", () => {
     const config = new Config();
-    let storage: RollupStorage;
+    let storage: StorePurchaseStorage;
     let serverURL: string;
-    let rollupServer: RollupServer;
+    let rollupServer: StorePurchaseServer;
 
     before("Create Test SwapServer", async () => {
         config.readFromFile(path.resolve("config", "config_test.yaml"));
 
-        const manager = new Wallet(config.contracts.rollup_manager_key || "");
-        await HardhatUtils.deployRollupContract(config, manager);
+        const manager = new Wallet(config.contracts.managerKey || "");
+        await HardhatUtils.deployStorePurchaseContract(config, manager);
 
         serverURL = new URL(`http://127.0.0.1:${config.server.port}`).toString();
         storage = await (() => {
-            return new Promise<RollupStorage>((resolve, reject) => {
-                const res = new RollupStorage(config.database, (err) => {
+            return new Promise<StorePurchaseStorage>((resolve, reject) => {
+                const res = new StorePurchaseStorage(config.database, (err) => {
                     if (err !== null) reject(err);
                     else resolve(res);
                 });
             });
         })();
 
-        rollupServer = new RollupServer(config, storage);
+        rollupServer = new StorePurchaseServer(config, storage);
     });
 
-    before("Start Test RollupServer", async () => {
+    before("Start Test StorePurchaseServer", async () => {
         await rollupServer.start();
     });
 
-    after("Stop Test RollupServer", async () => {
+    after("Stop Test StorePurchaseServer", async () => {
         await rollupServer.stop();
     });
 
-    context("Rollup API Call Test", async () => {
+    context("StorePurchase API Call Test", async () => {
         const token: string = "9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54";
         let tx: ITransaction;
 
@@ -56,10 +56,11 @@ describe("Test of Rollup Router", () => {
             const txObj = new Transaction(
                 0,
                 "123456789",
-                "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-                "0",
-                BigNumber.from("12300"),
                 1668044556,
+                BigNumber.from("12300"),
+                "krw",
+                "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+                0,
                 "997DE626B2D417F0361D61C09EB907A57226DB5B",
                 "a5c19fed89739383"
             );
@@ -69,7 +70,7 @@ describe("Test of Rollup Router", () => {
 
         it("Send transaction data to api server", async () => {
             chai.request(serverURL)
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(tx)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -79,7 +80,7 @@ describe("Test of Rollup Router", () => {
 
         it("Test calls without authorization settings", async () => {
             chai.request(serverURL)
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(tx)
                 .end((err, res) => {
                     expect(res).to.have.status(401);
@@ -92,12 +93,14 @@ describe("Test of Rollup Router", () => {
             const dbRes: DBTransaction[] = await storage.selectTxByLength(1);
             const dbTx: Transaction[] = DBTransaction.converterTxArray(dbRes);
             assert.strictEqual(dbTx.length, 1);
-            assert.strictEqual(dbTx[0].user_id, tx.user_id);
-            assert.strictEqual(dbTx[0].state, tx.state);
-            assert.strictEqual(dbTx[0].amount.toString(), tx.amount);
+            assert.strictEqual(dbTx[0].purchaseId, tx.purchaseId);
             assert.strictEqual(dbTx[0].timestamp, tx.timestamp);
-            assert.strictEqual(dbTx[0].exchange_user_id, tx.exchange_user_id);
-            assert.strictEqual(dbTx[0].exchange_id, tx.exchange_id);
+            assert.strictEqual(dbTx[0].amount, tx.amount?.toString());
+            assert.strictEqual(dbTx[0].currency, tx.currency);
+            assert.strictEqual(dbTx[0].method, tx.method);
+            assert.strictEqual(dbTx[0].shopId, tx.shopId);
+            assert.strictEqual(dbTx[0].userAccount, tx.userAccount);
+            assert.strictEqual(dbTx[0].userPhoneHash, tx.userPhoneHash);
             assert.strictEqual(dbTx[0].signer, tx.signer);
             assert.strictEqual(dbTx[0].signature, tx.signature);
         });
@@ -105,7 +108,7 @@ describe("Test of Rollup Router", () => {
         it("Invalid parameter validation test of trade_id", async () => {
             const params = { ...tx, trade_id: "" };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -119,7 +122,7 @@ describe("Test of Rollup Router", () => {
         it("Invalid parameter validation test of user_id", async () => {
             const params = { ...tx, user_id: "" };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -133,7 +136,7 @@ describe("Test of Rollup Router", () => {
         it("Invalid parameter validation test of state", async () => {
             const params = { ...tx, state: "charge" };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -145,7 +148,7 @@ describe("Test of Rollup Router", () => {
 
             const params1 = { ...tx, state: undefined };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params1)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -159,7 +162,7 @@ describe("Test of Rollup Router", () => {
         it("Invalid parameter validation test of amount", async () => {
             const params = { ...tx, amount: undefined };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -171,7 +174,7 @@ describe("Test of Rollup Router", () => {
 
             const params1 = { ...tx, amount: "1,234.10" };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params1)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -185,7 +188,7 @@ describe("Test of Rollup Router", () => {
         it("Invalid parameter validation test of timestamp", async () => {
             const params = { ...tx, timestamp: undefined };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -197,7 +200,7 @@ describe("Test of Rollup Router", () => {
 
             const params1 = { ...tx, timestamp: "Thu Dec 08 2022 09:39:19 GMT+0900" };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params1)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -211,7 +214,7 @@ describe("Test of Rollup Router", () => {
         it("Invalid parameter validation test of exchange_user_id", async () => {
             const params = { ...tx, exchange_user_id: "" };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -225,7 +228,7 @@ describe("Test of Rollup Router", () => {
         it("Invalid parameter validation test of exchange_id", async () => {
             const params = { ...tx, exchange_id: "" };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -239,7 +242,7 @@ describe("Test of Rollup Router", () => {
         it("Invalid parameter validation test of signer", async () => {
             const params = { ...tx, signer: "" };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -253,7 +256,7 @@ describe("Test of Rollup Router", () => {
         it("Invalid parameter validation test of signature", async () => {
             const params = { ...tx, signature: "" };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params)
                 .set("Authorization", token)
                 .end((err, res) => {
@@ -268,7 +271,7 @@ describe("Test of Rollup Router", () => {
                     "0x64ca000fe0fbb7ca96274dc836e3b286863b24fc47576748f0945ce3d07f58ed47f2dda151cbc218d05de2d2363cef6444ab628670d2bc9cf7674862e6dc51c81b",
             };
             chai.request(serverURL.toString())
-                .post("tx/record")
+                .post("v1/tx/record")
                 .send(params1)
                 .set("Authorization", token)
                 .end((err, res) => {

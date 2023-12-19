@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: AGPL-3.0-or-later
 
-import "dms-store-purchase-contracts/contracts/RollUp.sol";
+pragma solidity ^0.8.2;
+
+import "dms-store-purchase-contracts/contracts/StorePurchase.sol";

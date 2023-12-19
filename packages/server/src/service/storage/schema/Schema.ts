@@ -1,5 +1,5 @@
 /**
- *  The Schema of Rollup Storage
+ *  The Schema of StorePurchase Storage
  *
  *  Copyright:
  *      Copyright (c) 2022 BOSAGORA Foundation All rights reserved.
@@ -15,27 +15,28 @@ export const dropTablesQuery = `
 
 export const createTablesQuery = `
   CREATE TABLE IF NOT EXISTS blocks(
-    height INTEGER PRIMARY KEY,
-    cur_block TEXT,
-    prev_block TEXT,
-    merkle_root TEXT,
+    "height" INTEGER PRIMARY KEY,
+    "curBlock" TEXT,
+    "prevBlock" TEXT,
+    "merkleRoot" TEXT,
     "timestamp" INTEGER,
     CID TEXT
   );
-  CREATE INDEX IF NOT EXISTS curBlockHashIndex on blocks (cur_block);
+  CREATE INDEX IF NOT EXISTS curBlockHashIndex on blocks (curBlock);
 
   CREATE TABLE IF NOT EXISTS tx(
-    sequence INTEGER PRIMARY KEY,
-    trade_id TEXT,
-    user_id TEXT,
-    "state" TEXT,
-    amount TEXT,
+    "sequence" INTEGER PRIMARY KEY,
+    "purchaseId" TEXT,
     "timestamp" INTEGER,
-    exchange_user_id TEXT,
-    exchange_id TEXT,
-    signer TEXT,
-    signature TEXT,
-    hash TEXT
+    "amount" TEXT,
+    "currency" TEXT,
+    "shopId" TEXT,
+    "method" TEXT,
+    "userAccount" TEXT,
+    "userPhoneHash" TEXT,
+    "signer" TEXT,
+    "signature" TEXT,
+    "hash" TEXT
   );
   CREATE INDEX IF NOT EXISTS txHashIndex on tx (hash);
 
@@ -47,10 +48,10 @@ export const createTablesQuery = `
 
 export const insertBlockQuery = `
   INSERT INTO blocks(
-      height,
-      cur_block,
-      prev_block,
-      merkle_root,
+      "height",
+      "curBlock",
+      "prevBlock",
+      "merkleRoot",
       "timestamp",
       CID
     ) VALUES (?,?,?,?,?,?)
@@ -58,18 +59,19 @@ export const insertBlockQuery = `
 
 export const insertTxQuery = `
   INSERT OR REPLACE INTO tx(
-    sequence,
-    trade_id,
-    user_id,
-    "state",
-    amount,
+    "sequence",
+    "purchaseId",
     "timestamp",
-    exchange_user_id,
-    exchange_id,
-    signer,
-    signature,
-    hash
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?)
+    "amount",
+    "currency",
+    "shopId",
+    "method",
+    "userAccount",
+    "userPhoneHash",
+    "signer",
+    "signature",
+    "hash"
+    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
 `;
 
 export const selectBlockByHeightQuery = `
@@ -81,7 +83,7 @@ export const selectBlockLastHeight = `
 `;
 
 export const selectBlockByHashQuery = `
-    SELECT * FROM blocks WHERE cur_block = ?
+    SELECT * FROM blocks WHERE curBlock = ?
 `;
 
 export const deleteBlockByHeightQuery = `

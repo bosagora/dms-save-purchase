@@ -40,8 +40,8 @@ database:
   path: ${DB_PATH}
 
 contracts:
-  rollup_manager_key: ${MANAGER_KEY}
-  rollup_address: ${ROLLUP_ADDRESS}
+  managerKey: ${MANAGER_KEY}
+  purchaseAddress: ${STORE_PURCHASE_CONTRACT_ADDRESS}
 
 authorization:
-  api_access_token: ${ACCESS_SECRET}
+  accessKey: ${ACCESS_SECRET}

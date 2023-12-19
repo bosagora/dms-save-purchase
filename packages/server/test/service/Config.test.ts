@@ -28,10 +28,10 @@ describe("Test of Config", () => {
 
         assert.strictEqual(config.database.path, ":memory:");
 
-        assert.strictEqual(config.contracts.rollup_address, "0x0000000000000000000000000000000000000000");
+        assert.strictEqual(config.contracts.purchaseAddress, "0x0000000000000000000000000000000000000000");
 
         assert.strictEqual(
-            config.authorization.api_access_token,
+            config.authorization.accessKey,
             "9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54"
         );
     });

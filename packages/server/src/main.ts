@@ -12,13 +12,13 @@ import { Wallet } from "ethers";
 import { Scheduler } from "./modules/scheduler/Scheduler";
 import { Config } from "./service/common/Config";
 import { logger, Logger } from "./service/common/Logger";
-import { RollupServer } from "./service/RollupServer";
 import { Node } from "./service/scheduler/Node";
 import { SendBlock } from "./service/scheduler/SendBlock";
-import { RollupStorage } from "./service/storage/RollupStorage";
+import { StorePurchaseStorage } from "./service/storage/StorePurchaseStorage";
+import { StorePurchaseServer } from "./service/StorePurchaseServer";
 import { HardhatUtils } from "./service/utils";
 
-let server: RollupServer;
+let server: StorePurchaseServer;
 
 async function main() {
     // Create with the arguments and read from file
@@ -61,13 +61,13 @@ async function main() {
         }
     }
 
-    RollupStorage.make(config.database)
-        .then(async (storage: RollupStorage) => {
+    StorePurchaseStorage.make(config.database)
+        .then(async (storage: StorePurchaseStorage) => {
             if (process.env.NODE_ENV !== "production") {
-                const manager = new Wallet(config.contracts.rollup_manager_key);
-                await HardhatUtils.deployRollupContract(config, manager);
+                const manager = new Wallet(config.contracts.managerKey);
+                await HardhatUtils.deployStorePurchaseContract(config, manager);
             }
-            server = new RollupServer(config, storage, schedulers);
+            server = new StorePurchaseServer(config, storage, schedulers);
             return server.start().catch((error: any) => {
                 // handle specific listen errors with friendly messages
                 switch (error.code) {

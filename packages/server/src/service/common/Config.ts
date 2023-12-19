@@ -483,59 +483,59 @@ export class DatabaseConfig implements IDatabaseConfig {
 }
 
 export interface IContractsConfig {
-    rollup_manager_key: string;
-    rollup_address: string;
+    managerKey: string;
+    purchaseAddress: string;
 }
 
 export class ContractConfig implements IContractsConfig {
-    public rollup_manager_key: string;
-    public rollup_address: string;
+    public managerKey: string;
+    public purchaseAddress: string;
 
     /**
      * Constructor
      */
     constructor() {
         const defaults = ContractConfig.defaultValue();
-        this.rollup_manager_key = defaults.rollup_manager_key;
-        this.rollup_address = defaults.rollup_address;
+        this.managerKey = defaults.managerKey;
+        this.purchaseAddress = defaults.purchaseAddress;
     }
     public readFromObject(config: IContractsConfig) {
-        if (config.rollup_manager_key !== undefined) this.rollup_manager_key = config.rollup_manager_key;
-        if (config.rollup_address !== undefined) this.rollup_address = config.rollup_address;
+        if (config.managerKey !== undefined) this.managerKey = config.managerKey;
+        if (config.purchaseAddress !== undefined) this.purchaseAddress = config.purchaseAddress;
     }
     /**
      * Returns default value
      */
     public static defaultValue(): IContractsConfig {
         return {
-            rollup_manager_key: "0x94bf5604b9eb7990985dfabbfd1298a16a3c94cb79a5fa39638279ba9ca48a80",
-            rollup_address: "0x0000000000000000000000000000000000000000",
+            managerKey: "0x94bf5604b9eb7990985dfabbfd1298a16a3c94cb79a5fa39638279ba9ca48a80",
+            purchaseAddress: "0x0000000000000000000000000000000000000000",
         };
     }
 }
 
 export interface IAuthorizationConfig {
-    api_access_token: string;
+    accessKey: string;
 }
 export class AuthorizationConfig implements IAuthorizationConfig {
-    public api_access_token: string;
+    public accessKey: string;
 
     /**
      * Constructor
      */
     constructor() {
         const defaults = AuthorizationConfig.defaultValue();
-        this.api_access_token = defaults.api_access_token;
+        this.accessKey = defaults.accessKey;
     }
     public readFromObject(config: IAuthorizationConfig) {
-        if (config.api_access_token !== undefined) this.api_access_token = config.api_access_token;
+        if (config.accessKey !== undefined) this.accessKey = config.accessKey;
     }
     /**
      * Returns default value
      */
     public static defaultValue(): IAuthorizationConfig {
         return {
-            api_access_token: "9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54",
+            accessKey: "9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54",
         } as unknown as IAuthorizationConfig;
     }
 }

@@ -16,23 +16,6 @@ import { HardhatAccount } from "./src/HardhatAccount";
 function getAccounts() {
     const accounts: string[] = [];
     const reg_bytes64: RegExp = /^(0x)[0-9a-f]{64}$/i;
-    if (
-        process.env.DEPLOYER !== undefined &&
-        process.env.DEPLOYER.trim() !== "" &&
-        reg_bytes64.test(process.env.DEPLOYER)
-    ) {
-        accounts.push(process.env.DEPLOYER);
-    } else {
-        process.env.DEPLOYER = Wallet.createRandom().privateKey;
-        accounts.push(process.env.DEPLOYER);
-    }
-
-    if (process.env.OWNER !== undefined && process.env.OWNER.trim() !== "" && reg_bytes64.test(process.env.OWNER)) {
-        accounts.push(process.env.OWNER);
-    } else {
-        process.env.OWNER = Wallet.createRandom().privateKey;
-        accounts.push(process.env.OWNER);
-    }
 
     if (
         process.env.MANAGER_KEY !== undefined &&
@@ -73,7 +56,13 @@ const config = {
     solidity: {
         compilers: [
             {
-                version: "0.8.0",
+                version: "0.8.2",
+                settings: {
+                    optimizer: {
+                        enabled: true,
+                        runs: 2000,
+                    },
+                },
             },
         ],
     },

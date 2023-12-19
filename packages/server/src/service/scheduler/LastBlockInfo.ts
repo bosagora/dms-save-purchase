@@ -8,12 +8,12 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { ethers } from "hardhat";
 import { Hash } from "dms-store-purchase-sdk";
-import { RollUp } from "../../../typechain-types";
+import { ethers } from "hardhat";
+import { StorePurchase } from "../../../typechain-types";
 import { Config } from "../common/Config";
 import { uint64max } from "../common/Utils";
-import { RollupStorage } from "../storage/RollupStorage";
+import { StorePurchaseStorage } from "../storage/StorePurchaseStorage";
 
 /**
  * Height and hash of the last block
@@ -31,7 +31,7 @@ export class LastBlockInfo {
      * Returns the information of the last block stored in the database
      * @param storage instance of RollupStorage
      */
-    public static async getInfoByStorage(storage: RollupStorage): Promise<ILastBlockInfo | undefined> {
+    public static async getInfoByStorage(storage: StorePurchaseStorage): Promise<ILastBlockInfo | undefined> {
         try {
             const db_last_height = await storage.selectLastHeight();
             if (db_last_height !== null) {
@@ -46,14 +46,14 @@ export class LastBlockInfo {
 
     /**
      * Returns the information of the last block stored in the contract
-     * @param op instance of RollUp contract or Config
+     * @param op instance of StorePurchase contract or Config
      */
-    public static async getInfoByContract(op: RollUp | Config): Promise<ILastBlockInfo | undefined> {
+    public static async getInfoByContract(op: StorePurchase | Config): Promise<ILastBlockInfo | undefined> {
         try {
-            let contract: RollUp;
+            let contract: StorePurchase;
             if (op instanceof Config) {
-                const contractFactory = await ethers.getContractFactory("RollUp");
-                contract = contractFactory.attach(op.contracts.rollup_address) as RollUp;
+                const contractFactory = await ethers.getContractFactory("StorePurchase");
+                contract = contractFactory.attach(op.contracts.purchaseAddress) as StorePurchase;
             } else {
                 contract = op;
             }
@@ -72,11 +72,11 @@ export class LastBlockInfo {
     /**
      * Returns information from the last block of a database or smart contract
      * @param storage instance of RollupStorage
-     * @param contract instance of RollUp contract
+     * @param contract instance of StorePurchase contract
      */
     public static async getInfo(
-        storage: RollupStorage,
-        contract: RollUp | Config
+        storage: StorePurchaseStorage,
+        contract: StorePurchase | Config
     ): Promise<ILastBlockInfo | undefined> {
         const info_storage = await LastBlockInfo.getInfoByStorage(storage);
         const info_contract = await LastBlockInfo.getInfoByContract(contract);

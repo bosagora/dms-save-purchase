@@ -25,9 +25,9 @@ import {
     selectTxByLengthQuery,
     selectTxsLength,
     setSetting,
-} from "./schema/RollupSchema";
+} from "./schema/Schema";
 
-export class RollupStorage extends Storage {
+export class StorePurchaseStorage extends Storage {
     constructor(databaseConfig: IDatabaseConfig, callback: (err: Error | null) => void) {
         super(databaseConfig, callback);
     }
@@ -41,9 +41,9 @@ export class RollupStorage extends Storage {
         });
     }
 
-    public static make(databaseConfig: IDatabaseConfig): Promise<RollupStorage> {
-        return new Promise<RollupStorage>((resolve, reject) => {
-            const result: RollupStorage = new RollupStorage(databaseConfig, async (err: Error | null) => {
+    public static make(databaseConfig: IDatabaseConfig): Promise<StorePurchaseStorage> {
+        return new Promise<StorePurchaseStorage>((resolve, reject) => {
+            const result: StorePurchaseStorage = new StorePurchaseStorage(databaseConfig, async (err: Error | null) => {
                 if (err) reject(err);
                 else {
                     return resolve(result);
@@ -62,8 +62,8 @@ export class RollupStorage extends Storage {
                 [
                     header.height.toString(),
                     cur_hash.toString(),
-                    header.prev_block.toString(),
-                    header.merkle_root.toString(),
+                    header.prevBlock.toString(),
+                    header.merkleRoot.toString(),
                     header.timestamp,
                     _CID,
                 ],
@@ -96,13 +96,14 @@ export class RollupStorage extends Storage {
             params.forEach((row) => {
                 statement.run([
                     row.sequence,
-                    row.trade_id,
-                    row.user_id,
-                    row.state,
-                    row.amount?.toString(),
+                    row.purchaseId,
                     row.timestamp,
-                    row.exchange_user_id,
-                    row.exchange_id,
+                    row.amount?.toString(),
+                    row.currency,
+                    row.shopId,
+                    row.method,
+                    row.userAccount,
+                    row.userPhoneHash,
                     row.signer,
                     row.signature,
                     row.hash,
@@ -229,37 +230,40 @@ export class RollupStorage extends Storage {
 export class DBTransaction {
     public hash: string;
     public sequence: number;
-    public trade_id: string;
-    public user_id: string;
-    public state: string;
-    public amount: string;
+    public purchaseId: string;
     public timestamp: number;
-    public exchange_user_id: string;
-    public exchange_id: string;
+    public amount: string;
+    public currency: string;
+    public shopId: string;
+    public method: number;
+    public userAccount: string;
+    public userPhoneHash: string;
     public signer: string;
     public signature: string;
 
     constructor(
         sequence: number,
-        trade_id: string,
-        user_id: string,
-        state: string,
-        amount: BigNumber,
+        purchaseId: string,
         timestamp: number,
-        exchange_user_id: string,
-        exchange_id: string,
+        amount: BigNumber,
+        currency: string,
+        shopId: string,
+        method: number,
+        userAccount: string,
+        userPhoneHash: string,
         signer?: string,
         signature?: string,
         hash?: string
     ) {
         this.sequence = sequence;
-        this.trade_id = trade_id;
-        this.user_id = user_id;
-        this.state = state;
-        this.amount = amount.toString();
+        this.purchaseId = purchaseId;
         this.timestamp = timestamp;
-        this.exchange_user_id = exchange_user_id;
-        this.exchange_id = exchange_id;
+        this.amount = amount.toString();
+        this.currency = currency;
+        this.shopId = shopId;
+        this.method = method;
+        this.userAccount = userAccount;
+        this.userPhoneHash = userPhoneHash;
         if (signer !== undefined) this.signer = signer;
         else this.signer = "";
         if (signature !== undefined) this.signature = signature;
@@ -277,13 +281,14 @@ export class DBTransaction {
             (row) =>
                 new Transaction(
                     row.sequence,
-                    row.trade_id,
-                    row.user_id,
-                    row.state,
-                    BigNumber.from(row.amount),
+                    row.purchaseId,
                     row.timestamp,
-                    row.exchange_user_id,
-                    row.exchange_id,
+                    BigNumber.from(row.amount),
+                    row.currency,
+                    row.shopId,
+                    row.method,
+                    row.userAccount,
+                    row.userPhoneHash,
                     row.signer,
                     row.signature
                 )
