@@ -21,15 +21,21 @@ export enum TransactionType {
     CANCEL = 1,
 }
 
+export interface IDetailsByProduct {
+    productId: string;
+    amount: BigNumber;
+    provideRate: number;
+}
+
 export interface INewTransaction {
     type: TransactionType;
     sequence: number;
     purchaseId: string;
     timestamp: number;
-    amount: BigNumber;
+    totalAmount: BigNumber;
+    cashAmount: BigNumber;
     currency: string;
     shopId: string;
-    method: number;
     userAccount: string;
     userPhoneHash: string;
     signer: string;
@@ -55,10 +61,10 @@ export class NewTransaction implements INewTransaction {
     public sequence: number;
     public purchaseId: string;
     public timestamp: number;
-    public amount: BigNumber;
+    public totalAmount: BigNumber;
+    public cashAmount: BigNumber;
     public currency: string;
     public shopId: string;
-    public method: number;
     public userAccount: string;
     public userPhoneHash: string;
     public signer: string;
@@ -71,10 +77,10 @@ export class NewTransaction implements INewTransaction {
         sequence: number,
         purchaseId: string,
         timestamp: number,
-        amount: BigNumber,
+        totalAmount: BigNumber,
+        cashAmount: BigNumber,
         currency: string,
         shopId: string,
-        method: number,
         userAccount: string,
         userPhoneHash: string,
         signer?: string,
@@ -84,10 +90,10 @@ export class NewTransaction implements INewTransaction {
         this.sequence = sequence;
         this.purchaseId = purchaseId;
         this.timestamp = timestamp;
-        this.amount = amount;
+        this.totalAmount = totalAmount;
+        this.cashAmount = cashAmount;
         this.currency = currency;
         this.shopId = shopId;
-        this.method = method;
         this.userAccount = userAccount;
         this.userPhoneHash = userPhoneHash;
         if (signer !== undefined) this.signer = signer;
@@ -115,10 +121,10 @@ export class NewTransaction implements INewTransaction {
             value.sequence,
             value.purchaseId,
             value.timestamp,
-            BigNumber.from(value.amount),
+            BigNumber.from(value.totalAmount),
+            BigNumber.from(value.cashAmount),
             value.currency,
             value.shopId,
-            value.method,
             value.userAccount,
             value.userPhoneHash,
             value.signer,
@@ -135,10 +141,10 @@ export class NewTransaction implements INewTransaction {
         hashPart(this.sequence, buffer);
         hashPart(this.purchaseId, buffer);
         hashPart(this.timestamp, buffer);
-        hashPart(this.amount, buffer);
+        hashPart(this.totalAmount, buffer);
+        hashPart(this.cashAmount, buffer);
         hashPart(this.currency, buffer);
         hashPart(this.shopId, buffer);
-        hashPart(this.method, buffer);
         hashPart(this.userAccount, buffer);
         hashPart(this.userPhoneHash, buffer);
         hashPart(this.signer, buffer);
@@ -153,10 +159,10 @@ export class NewTransaction implements INewTransaction {
             sequence: this.sequence,
             purchaseId: this.purchaseId,
             timestamp: this.timestamp,
-            amount: this.amount.toString(),
+            totalAmount: this.totalAmount.toString(),
+            cashAmount: this.cashAmount.toString(),
             currency: this.currency,
             shopId: this.shopId,
-            method: this.method,
             userAccount: this.userAccount,
             userPhoneHash: this.userPhoneHash,
             signer: this.signer,
@@ -172,10 +178,10 @@ export class NewTransaction implements INewTransaction {
             this.sequence,
             this.purchaseId,
             this.timestamp,
-            this.amount,
+            this.totalAmount,
+            this.cashAmount,
             this.currency,
             this.shopId,
-            this.method,
             this.userAccount,
             this.userPhoneHash,
             this.signer,

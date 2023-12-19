@@ -90,7 +90,10 @@ export class JSONValidator {
                     timestamp: {
                         type: "number",
                     },
-                    amount: {
+                    totalAmount: {
+                        type: "string",
+                    },
+                    cashAmount: {
                         type: "string",
                     },
                     currency: {
@@ -98,9 +101,6 @@ export class JSONValidator {
                     },
                     shopId: {
                         type: "string",
-                    },
-                    method: {
-                        type: "number",
                     },
                     userAccount: {
                         type: "string",
@@ -121,10 +121,10 @@ export class JSONValidator {
                     "sequence",
                     "purchaseId",
                     "timestamp",
-                    "amount",
+                    "totalAmount",
+                    "cashAmount",
                     "currency",
                     "shopId",
-                    "method",
                     "userAccount",
                     "userPhoneHash",
                     "signer",

@@ -27,9 +27,9 @@ describe("Test of Block", () => {
                     (12345670 + idx).toString(),
                     1668044556,
                     BigNumber.from(idx + 1),
+                    BigNumber.from(idx + 1),
                     "krw",
                     "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
-                    0,
                     "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                     phoneHash
                 )
@@ -48,9 +48,9 @@ describe("Test of Block", () => {
                 "00000000",
                 1668044556,
                 BigNumber.from(1000000000),
+                BigNumber.from(1000000000),
                 "krw",
                 "0x0000000000000000000000000000000000000000",
-                0,
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash
             ),
@@ -59,9 +59,9 @@ describe("Test of Block", () => {
                 "00000001",
                 1668044556,
                 BigNumber.from(1000000000),
+                BigNumber.from(1000000000),
                 "krw",
                 "0x0000000000000000000000000000000000000000",
-                0,
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash
             ),
@@ -70,9 +70,9 @@ describe("Test of Block", () => {
                 "00000002",
                 1668044556,
                 BigNumber.from(1000000000),
+                BigNumber.from(1000000000),
                 "krw",
                 "0x0000000000000000000000000000000000000000",
-                0,
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash
             ),
@@ -81,9 +81,9 @@ describe("Test of Block", () => {
                 "00000003",
                 1668044556,
                 BigNumber.from(1000000000),
+                BigNumber.from(1000000000),
                 "krw",
                 "0x0000000000000000000000000000000000000000",
-                0,
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash
             ),
@@ -92,9 +92,9 @@ describe("Test of Block", () => {
                 "00000004",
                 1668044556,
                 BigNumber.from(1000000000),
+                BigNumber.from(1000000000),
                 "krw",
                 "0x0000000000000000000000000000000000000000",
-                0,
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash
             ),

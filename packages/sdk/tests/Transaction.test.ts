@@ -27,9 +27,9 @@ describe("NewTransaction", () => {
             "12345678",
             1668044556,
             BigNumber.from(123),
+            BigNumber.from(123),
             "krw",
             "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
-            0,
             "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
             phoneHash
         );
@@ -37,7 +37,7 @@ describe("NewTransaction", () => {
 
         assert.strictEqual(
             hashFull(tx).toString(),
-            "0xb8221e814dfe74506cbcff156996d7587ddc2feb524b2f123f201e025c858729"
+            "0x50df4e617c399f7eb57131062bafe29b23bf1be570b0d228690b90465368638f"
         );
     });
 
@@ -47,9 +47,9 @@ describe("NewTransaction", () => {
             "12345678",
             1668044556,
             BigNumber.from(123),
+            BigNumber.from(123),
             "krw",
             "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
-            0,
             "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
             phoneHash
         );
@@ -65,9 +65,9 @@ describe("NewTransaction", () => {
             "12345678",
             1668044556,
             BigNumber.from(123),
+            BigNumber.from(123),
             "krw",
             "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
-            0,
             "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
             phoneHash
         );
@@ -75,7 +75,7 @@ describe("NewTransaction", () => {
         await tx.sign(signer1);
         assert.strictEqual(
             tx.signature,
-            "0x0a6a4cf59d1c1a94f700789a5f92d227baa281d606e8531110806741f7d2b1c62e22c7fb4ae8208bc9566e5c505bfbf50b7cc65349885aefa4cad04f01c15a491b"
+            "0xdaa7176bde7a36d71f829ce558981a7fbfc9f0cba36774a5ec1cf7bcc935c99e64928f6baa9e0e92a5c82bd16ce57c54ccb66741db837cc8c82621d2af4a75821c"
         );
         assert.ok(!tx.verify(signer2.address));
         assert.ok(tx.verify(signer1.address));
@@ -84,7 +84,7 @@ describe("NewTransaction", () => {
         await tx.sign(signer2);
         assert.strictEqual(
             tx.signature,
-            "0x76f214210a7df440cdbe09a3345464fa526b42915cd12c70b36fee6004a3de6776cae0ce42e0c9bfc08a5ffe9ad706c854d32ab186420587578260ab39ceab491c"
+            "0x29567bb513eef159a5ffd77abf5d1c84b1912b792c5718fde03bcaa1bbf9a9ff1f191b1b890e93de8010bc77c594308b78e094cbf55e5acbabd0f9a309a189001b"
         );
         assert.ok(!tx.verify(signer1.address));
         assert.ok(tx.verify(signer2.address));
