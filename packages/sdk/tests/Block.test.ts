@@ -8,7 +8,7 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { Block, CancelTransaction, Hash, hashFull, NewTransaction, Utils } from "../src";
+import { Block, CancelTransaction, Hash, hashFull, NewTransaction, PurchaseDetails, Utils } from "../src";
 
 import * as assert from "assert";
 
@@ -31,7 +31,8 @@ describe("Test of Block", () => {
                     "krw",
                     "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
                     "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
-                    phoneHash
+                    phoneHash,
+                    [new PurchaseDetails("PID001", BigNumber.from(idx + 1), BigNumber.from(300))]
                 )
             );
             txs_hash.push(hashFull(txs[idx]));
@@ -52,7 +53,8 @@ describe("Test of Block", () => {
                 "krw",
                 "0x0000000000000000000000000000000000000000",
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
-                phoneHash
+                phoneHash,
+                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
             ),
             new NewTransaction(
                 1,
@@ -63,7 +65,8 @@ describe("Test of Block", () => {
                 "krw",
                 "0x0000000000000000000000000000000000000000",
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
-                phoneHash
+                phoneHash,
+                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
             ),
             new NewTransaction(
                 2,
@@ -74,7 +77,8 @@ describe("Test of Block", () => {
                 "krw",
                 "0x0000000000000000000000000000000000000000",
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
-                phoneHash
+                phoneHash,
+                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
             ),
             new NewTransaction(
                 3,
@@ -85,7 +89,8 @@ describe("Test of Block", () => {
                 "krw",
                 "0x0000000000000000000000000000000000000000",
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
-                phoneHash
+                phoneHash,
+                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
             ),
             new NewTransaction(
                 4,
@@ -96,7 +101,8 @@ describe("Test of Block", () => {
                 "krw",
                 "0x0000000000000000000000000000000000000000",
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
-                phoneHash
+                phoneHash,
+                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
             ),
             new CancelTransaction(4, "00000004", 1668044556),
         ];

@@ -9,6 +9,7 @@
  */
 
 import Ajv from "ajv";
+import { PurchaseDetails } from "../blockchain/data/PurchaseDetails";
 
 /**
  * @ignore
@@ -108,6 +109,12 @@ export class JSONValidator {
                     userPhoneHash: {
                         type: "string",
                     },
+                    details: {
+                        items: {
+                            type: "object",
+                        },
+                        type: "array",
+                    },
                     signer: {
                         type: "string",
                     },
@@ -127,6 +134,7 @@ export class JSONValidator {
                     "shopId",
                     "userAccount",
                     "userPhoneHash",
+                    "details",
                     "signer",
                     "signature",
                 ],
@@ -159,6 +167,26 @@ export class JSONValidator {
                 },
                 additionalProperties: false,
                 required: ["type", "sequence", "purchaseId", "timestamp", "signer", "signature"],
+            },
+        ],
+        [
+            "PurchaseDetails",
+            {
+                title: "PurchaseDetails",
+                type: "object",
+                properties: {
+                    productId: {
+                        type: "string",
+                    },
+                    amount: {
+                        type: "string",
+                    },
+                    providePercent: {
+                        type: "string",
+                    },
+                },
+                additionalProperties: false,
+                required: ["productId", "amount", "providePercent"],
             },
         ],
     ]);

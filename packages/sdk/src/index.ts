@@ -19,6 +19,6 @@ export {
     NewTransaction,
     Transaction,
 } from "./modules/blockchain/data/Transaction";
-
+export { IPurchaseDetails, PurchaseDetails } from "./modules/blockchain/data/PurchaseDetails";
 export { Utils, ArrayRange, iota } from "./modules/utils/Utils";
 export { JSONValidator } from "./modules/utils/JSONValidator";

@@ -15,16 +15,11 @@ import { hashFull, hashPart } from "../common/Hash";
 import { Signer } from "@ethersproject/abstract-signer";
 import { BigNumber } from "@ethersproject/bignumber";
 import { verifyMessage } from "@ethersproject/wallet";
+import { IPurchaseDetails, PurchaseDetails } from "./PurchaseDetails";
 
 export enum TransactionType {
     NEW = 0,
     CANCEL = 1,
-}
-
-export interface IDetailsByProduct {
-    productId: string;
-    amount: BigNumber;
-    provideRate: number;
 }
 
 export interface INewTransaction {
@@ -38,6 +33,7 @@ export interface INewTransaction {
     shopId: string;
     userAccount: string;
     userPhoneHash: string;
+    details: IPurchaseDetails[];
     signer: string;
     signature: string;
 }
@@ -67,6 +63,7 @@ export class NewTransaction implements INewTransaction {
     public shopId: string;
     public userAccount: string;
     public userPhoneHash: string;
+    public details: PurchaseDetails[];
     public signer: string;
     public signature: string;
 
@@ -83,6 +80,7 @@ export class NewTransaction implements INewTransaction {
         shopId: string,
         userAccount: string,
         userPhoneHash: string,
+        details: PurchaseDetails[],
         signer?: string,
         signature?: string
     ) {
@@ -90,8 +88,8 @@ export class NewTransaction implements INewTransaction {
         this.sequence = sequence;
         this.purchaseId = purchaseId;
         this.timestamp = timestamp;
-        this.totalAmount = totalAmount;
-        this.cashAmount = cashAmount;
+        this.totalAmount = BigNumber.from(totalAmount);
+        this.cashAmount = BigNumber.from(cashAmount);
         this.currency = currency;
         this.shopId = shopId;
         this.userAccount = userAccount;
@@ -100,6 +98,9 @@ export class NewTransaction implements INewTransaction {
         else this.signer = "";
         if (signature !== undefined) this.signature = signature;
         else this.signature = "";
+
+        this.details = [];
+        this.details.push(...details);
     }
 
     /**
@@ -117,6 +118,10 @@ export class NewTransaction implements INewTransaction {
 
         JSONValidator.isValidOtherwiseThrow("NewTransaction", value);
 
+        const details: PurchaseDetails[] = [];
+        for (const elem of value.details) {
+            details.push(PurchaseDetails.reviver("", elem));
+        }
         return new NewTransaction(
             value.sequence,
             value.purchaseId,
@@ -127,6 +132,7 @@ export class NewTransaction implements INewTransaction {
             value.shopId,
             value.userAccount,
             value.userPhoneHash,
+            details,
             value.signer,
             value.signature
         );
@@ -148,6 +154,10 @@ export class NewTransaction implements INewTransaction {
         hashPart(this.userAccount, buffer);
         hashPart(this.userPhoneHash, buffer);
         hashPart(this.signer, buffer);
+        hashPart(this.details.length, buffer);
+        for (const elem of this.details) {
+            elem.computeHash(buffer);
+        }
     }
 
     /**
@@ -167,6 +177,7 @@ export class NewTransaction implements INewTransaction {
             userPhoneHash: this.userPhoneHash,
             signer: this.signer,
             signature: this.signature,
+            details: this.details,
         };
     }
 
@@ -184,6 +195,7 @@ export class NewTransaction implements INewTransaction {
             this.shopId,
             this.userAccount,
             this.userPhoneHash,
+            this.details,
             this.signer,
             this.signature
         );
