@@ -1,0 +1,7 @@
+.github/
+.idea/
+.vscode/
+*.iml
+*.log
+node_modules/
+tslint.json
