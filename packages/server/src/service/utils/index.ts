@@ -17,6 +17,7 @@ export class HardhatUtils {
         await contract.deployed();
         await contract.deployTransaction.wait();
         config.contracts.purchaseAddress = contract.address;
+        console.log(`Deployed to ${contract.address}`);
         return contract;
     }
 }

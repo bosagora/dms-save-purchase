@@ -3,9 +3,9 @@
 ################################################################################
 server:
     # Address to which we bind (default: 127.0.0.1)
-    address: "0.0.0.0"
+    address: "${HOST_IP}"
     # Port on which we bind (default: 3000)
-    port: 3000
+    port: "${HOST_PORT}"
 
 ################################################################################
 ##                               Logging options                              ##
@@ -14,17 +14,20 @@ logging:
   # The name of the folder where the logs are stored.
   folder: logs
   # Values: error, warn, info, http, verbose, debug, silly
-  level: http
+  level: "${LOGGING_LEVEL}"
   # Default to false
   console: true
 
+database:
+  path: "${DATABASE_PATH}"
+
 node:
-  interval: 600
-  max_txs: 256
-  send_interval: 30
-  ipfs_api_url: http://ipfs:5001
-  ipfs_gateway_url: http://ipfs:8080
-  ipfs_test: true
+  interval: ${NODE_INTERVAL}
+  max_txs: ${NODE_MAX_TXS}
+  send_interval: ${NODE_SEND_INTERVAL}
+  ipfs_api_url: "${NODE_IPFS_API_URL}"
+  ipfs_gateway_url: "${NODE_IPFS_GATEWAY_URL}"
+  ipfs_test: ${NODE_IPFS_TEST}
 
 scheduler:
   enable: true
@@ -35,9 +38,6 @@ scheduler:
     - name: send_block
       enable: true
       interval: 14
-
-database:
-  path: "${DB_PATH}"
 
 contracts:
   managerKey: "${MANAGER_KEY}"

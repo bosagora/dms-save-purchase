@@ -48,7 +48,6 @@ async function main() {
     logger.info(`address: ${config.server.address}`);
     logger.info(`port: ${config.server.port}`);
 
-    let node: Node;
     const schedulers: Scheduler[] = [];
     if (config.scheduler.enable) {
         let scheduler = config.scheduler.getScheduler("node");
