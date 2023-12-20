@@ -7,8 +7,6 @@ jobs:
 
     runs-on: ${{ matrix.operating-system }}
 
-    services:
-
     strategy:
       fail-fast: false
       matrix:
@@ -25,6 +23,14 @@ jobs:
 
       - name: Install dependencies
         run: yarn install --pure-lockfile
+
+      - name: Check formatting of SDK
+        run: cd packages/sdk && yarn run formatting:check
+      - name: Compile of SDK
+        run: cd packages/sdk && yarn run build
+      - name: Tests of SDK
+        run: cd packages/sdk && yarn run test
+
       - name: Check formatting of Contract
         run: cd packages/contracts && yarn run formatting:check
       - name: Compile of Contract
@@ -33,13 +39,6 @@ jobs:
         env:
           REPORT_GAS: true
         run: cd packages/contracts && yarn run test
-
-      - name: Check formatting of SDK
-        run: cd packages/sdk && yarn run formatting:check
-      - name: Compile of SDK
-        run: cd packages/sdk && yarn run build
-      - name: Tests of SDK
-        run: cd packages/sdk && yarn run test
 
       - name: Copy env of Server
         run: cp packages/server/env/.env.sample packages/server/env/.env
