@@ -83,7 +83,7 @@ export class Scheduler {
             this.state = ScheduleState.STOPPED;
         }
 
-        await this.onStart();
+        await this.onStop();
     }
 
     // tslint:disable-next-line:no-empty

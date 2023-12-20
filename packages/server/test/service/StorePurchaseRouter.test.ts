@@ -1,16 +1,21 @@
 import { Config } from "../../src/service/common/Config";
 
-import chai, { expect } from "chai";
+import chai from "chai";
 import chaiHttp from "chai-http";
 
 import * as assert from "assert";
-import { ITransaction, Transaction } from "dms-store-purchase-sdk";
-import { BigNumber, Wallet } from "ethers";
+import { CancelTransaction, NewTransaction, Transaction } from "dms-store-purchase-sdk";
+import { Wallet } from "ethers";
 import * as path from "path";
 import { URL } from "url";
+import { Amount } from "../../src/service/common/Amount";
 import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
 import { HardhatUtils } from "../../src/service/utils";
+import { TestClient } from "../helper/Utility";
+
+// tslint:disable-next-line:no-var-requires
+const URI = require("urijs");
 
 chai.use(chaiHttp);
 
@@ -18,10 +23,13 @@ describe("Test of StorePurchase Router", () => {
     const config = new Config();
     let storage: StorePurchaseStorage;
     let serverURL: string;
-    let rollupServer: StorePurchaseServer;
+    let server: StorePurchaseServer;
+    const client = new TestClient();
+    let accessKey: string;
 
     before("Create Test SwapServer", async () => {
         config.readFromFile(path.resolve("config", "config_test.yaml"));
+        accessKey = config.authorization.accessKey;
 
         const manager = new Wallet(config.contracts.managerKey || "");
         await HardhatUtils.deployStorePurchaseContract(config, manager);
@@ -36,250 +44,171 @@ describe("Test of StorePurchase Router", () => {
             });
         })();
 
-        rollupServer = new StorePurchaseServer(config, storage);
+        server = new StorePurchaseServer(config, storage);
     });
 
     before("Start Test StorePurchaseServer", async () => {
-        await rollupServer.start();
+        await server.start();
     });
 
     after("Stop Test StorePurchaseServer", async () => {
-        await rollupServer.stop();
+        await server.stop();
     });
 
-    context("StorePurchase API Call Test", async () => {
-        const token: string = "9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54";
-        let tx: ITransaction;
+    let newTxParam: any;
+    let url: string;
+    it("New Transaction", async () => {
+        newTxParam = {
+            sequence: 0,
+            purchaseId: "123456789",
+            timestamp: 1668044556,
+            totalAmount: 10.25,
+            cashAmount: 10.25,
+            currency: "usd",
+            shopId: "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+            userAccount: "",
+            userPhone: "",
+            details: [
+                {
+                    productId: "PID001",
+                    amount: 10.25,
+                    providePercent: 3.25,
+                },
+            ],
+        };
+        url = URI(serverURL).directory("/v1/tx/purchase").filename("new").toString();
+    });
 
-        before("Create Sample Transaction", async () => {
-            const signer = new Wallet("0xf6dda8e03f9dce37c081e5d178c1fda2ebdb90b5b099de1a555a658270d8c47d");
-            const txObj = new Transaction(
-                0,
-                "123456789",
-                1668044556,
-                BigNumber.from("12300"),
-                "krw",
-                "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
-                0,
-                "997DE626B2D417F0361D61C09EB907A57226DB5B",
-                "a5c19fed89739383"
-            );
-            await txObj.sign(signer);
-            tx = txObj.toJSON();
-        });
+    it("Send transaction data to api server", async () => {
+        const response = await client.post(url, { accessKey, ...newTxParam });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 0, response.data?.error?.message);
+        assert.ok(response.data.data !== undefined);
+    });
 
-        it("Send transaction data to api server", async () => {
-            chai.request(serverURL)
-                .post("v1/tx/record")
-                .send(tx)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(200);
-                });
-        });
+    it("Test calls without authorization settings", async () => {
+        const response = await client.post(url, { ...newTxParam });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
 
-        it("Test calls without authorization settings", async () => {
-            chai.request(serverURL)
-                .post("v1/tx/record")
-                .send(tx)
-                .end((err, res) => {
-                    expect(res).to.have.status(401);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "Authentication Error");
-                });
-        });
+    it("Verifying values recorded by API in database ", async () => {
+        const dbRes: DBTransaction[] = await storage.selectTxByLength(1);
+        const dbTx: Transaction[] = DBTransaction.converterTxArray(dbRes);
+        assert.deepStrictEqual(dbTx.length, 1);
+        const tx: NewTransaction = dbTx[0] as NewTransaction;
+        assert.deepStrictEqual(tx.sequence, newTxParam.sequence);
+        assert.deepStrictEqual(tx.timestamp, newTxParam.timestamp);
+        assert.deepStrictEqual(tx.totalAmount, Amount.make(String(newTxParam.totalAmount).trim(), 18).value);
+        assert.deepStrictEqual(tx.cashAmount, Amount.make(String(newTxParam.cashAmount).trim(), 18).value);
+        assert.deepStrictEqual(tx.shopId, tx.shopId);
+    });
 
-        it("Verifying values recorded by API in database ", async () => {
-            const dbRes: DBTransaction[] = await storage.selectTxByLength(1);
-            const dbTx: Transaction[] = DBTransaction.converterTxArray(dbRes);
-            assert.strictEqual(dbTx.length, 1);
-            assert.strictEqual(dbTx[0].purchaseId, tx.purchaseId);
-            assert.strictEqual(dbTx[0].timestamp, tx.timestamp);
-            assert.strictEqual(dbTx[0].amount, tx.amount?.toString());
-            assert.strictEqual(dbTx[0].currency, tx.currency);
-            assert.strictEqual(dbTx[0].method, tx.method);
-            assert.strictEqual(dbTx[0].shopId, tx.shopId);
-            assert.strictEqual(dbTx[0].userAccount, tx.userAccount);
-            assert.strictEqual(dbTx[0].userPhoneHash, tx.userPhoneHash);
-            assert.strictEqual(dbTx[0].signer, tx.signer);
-            assert.strictEqual(dbTx[0].signature, tx.signature);
-        });
+    it("Invalid parameter validation test of purchaseId", async () => {
+        const response = await client.post(url, { accessKey, ...newTxParam, purchaseId: "" });
 
-        it("Invalid parameter validation test of trade_id", async () => {
-            const params = { ...tx, trade_id: "" };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "trade_id is a required value");
-                    assert.strictEqual(data.param, "trade_id");
-                });
-        });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
 
-        it("Invalid parameter validation test of user_id", async () => {
-            const params = { ...tx, user_id: "" };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "user_id is a required value");
-                    assert.strictEqual(data.param, "user_id");
-                });
-        });
+    it("Invalid parameter validation test of userAccount", async () => {
+        const response = await client.post(url, { accessKey, ...newTxParam, userAccount: undefined });
 
-        it("Invalid parameter validation test of state", async () => {
-            const params = { ...tx, state: "charge" };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, `state input type error ,Enter "0" for charge or "1" for discharge`);
-                    assert.strictEqual(data.param, "state");
-                });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
 
-            const params1 = { ...tx, state: undefined };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params1)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "state is a required value");
-                    assert.strictEqual(data.param, "state");
-                });
-        });
+    it("Invalid parameter validation test of userPhone", async () => {
+        const response = await client.post(url, { accessKey, ...newTxParam, userPhone: undefined });
 
-        it("Invalid parameter validation test of amount", async () => {
-            const params = { ...tx, amount: undefined };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "amount is a required value");
-                    assert.strictEqual(data.param, "amount");
-                });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
 
-            const params1 = { ...tx, amount: "1,234.10" };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params1)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "amount can only be numbers type string");
-                    assert.strictEqual(data.param, "amount");
-                });
-        });
+    it("Invalid parameter validation test of currency", async () => {
+        const response = await client.post(url, { accessKey, ...newTxParam, currency: undefined });
 
-        it("Invalid parameter validation test of timestamp", async () => {
-            const params = { ...tx, timestamp: undefined };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "timestamp is a required value");
-                    assert.strictEqual(data.param, "timestamp");
-                });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
 
-            const params1 = { ...tx, timestamp: "Thu Dec 08 2022 09:39:19 GMT+0900" };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params1)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "timestamp can only be numbers");
-                    assert.strictEqual(data.param, "timestamp");
-                });
-        });
+    it("Invalid parameter validation test of sequence", async () => {
+        const response = await client.post(url, { accessKey, ...newTxParam, sequence: undefined });
 
-        it("Invalid parameter validation test of exchange_user_id", async () => {
-            const params = { ...tx, exchange_user_id: "" };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "exchange_user_id is a required value");
-                    assert.strictEqual(data.param, "exchange_user_id");
-                });
-        });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
 
-        it("Invalid parameter validation test of exchange_id", async () => {
-            const params = { ...tx, exchange_id: "" };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "exchange_id is a required value");
-                    assert.strictEqual(data.param, "exchange_id");
-                });
-        });
+    it("Invalid parameter validation test of timestamp", async () => {
+        const response = await client.post(url, { accessKey, ...newTxParam, timestamp: undefined });
 
-        it("Invalid parameter validation test of signer", async () => {
-            const params = { ...tx, signer: "" };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "signer is a required value");
-                    assert.strictEqual(data.param, "signer");
-                });
-        });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
 
-        it("Invalid parameter validation test of signature", async () => {
-            const params = { ...tx, signature: "" };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "signature is a required value");
-                    assert.strictEqual(data.param, "signature");
-                });
-            const params1 = {
-                ...tx,
-                signature:
-                    "0x64ca000fe0fbb7ca96274dc836e3b286863b24fc47576748f0945ce3d07f58ed47f2dda151cbc218d05de2d2363cef6444ab628670d2bc9cf7674862e6dc51c81b",
-            };
-            chai.request(serverURL.toString())
-                .post("v1/tx/record")
-                .send(params1)
-                .set("Authorization", token)
-                .end((err, res) => {
-                    expect(res).to.have.status(400);
-                    const data = res.body.error;
-                    assert.strictEqual(data.msg, "The signature value entered is not valid.");
-                    assert.strictEqual(data.param, "signature");
-                });
-        });
+    it("Invalid parameter validation test of shopId", async () => {
+        const response = await client.post(url, { accessKey, ...newTxParam, shopId: "" });
+
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
+
+    it("Invalid parameter validation test of totalAmount", async () => {
+        let response = await client.post(url, { accessKey, ...newTxParam, totalAmount: undefined });
+
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+
+        response = await client.post(url, { accessKey, ...newTxParam, totalAmount: "1,234.5678" });
+
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
+
+    let cancelTxParam: any;
+    it("Cancel Transaction", async () => {
+        cancelTxParam = {
+            sequence: 1,
+            purchaseId: "123456789",
+            timestamp: 1668044556,
+        };
+        url = URI(serverURL).directory("/v1/tx/purchase").filename("cancel").toString();
+    });
+
+    it("Send cancel transaction data to api server", async () => {
+        const response = await client.post(url, { accessKey, ...cancelTxParam });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 0, response.data?.error?.message);
+        assert.ok(response.data.data !== undefined);
+    });
+
+    it("Test calls without authorization settings", async () => {
+        const response = await client.post(url, { ...cancelTxParam });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
+
+    it("Verifying values recorded by API in database ", async () => {
+        const dbRes: DBTransaction[] = await storage.selectTxByLength(2);
+        const dbTx: Transaction[] = DBTransaction.converterTxArray(dbRes);
+        assert.deepStrictEqual(dbTx.length, 2);
+        const tx: CancelTransaction = dbTx[1] as CancelTransaction;
+        assert.deepStrictEqual(tx.sequence, cancelTxParam.sequence);
+        assert.deepStrictEqual(tx.purchaseId, cancelTxParam.purchaseId);
+        assert.deepStrictEqual(tx.timestamp, cancelTxParam.timestamp);
+    });
+
+    it("Invalid parameter validation test of purchaseId", async () => {
+        const response = await client.post(url, { accessKey, ...cancelTxParam, purchaseId: "" });
+
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
+    });
+
+    it("Invalid parameter validation test of timestamp", async () => {
+        const response = await client.post(url, { accessKey, ...cancelTxParam, timestamp: undefined });
+
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 400);
     });
 });

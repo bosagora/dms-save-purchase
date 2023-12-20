@@ -31,7 +31,7 @@ export class StorePurchaseServer extends WebService {
      */
     private readonly config: Config;
 
-    public readonly rollupRouter: StorePurchaseRouter;
+    public readonly router: StorePurchaseRouter;
 
     private readonly storage: StorePurchaseStorage;
 
@@ -40,7 +40,7 @@ export class StorePurchaseServer extends WebService {
     /**
      * Constructor
      * @param config Configuration
-     * @param storage Rollup Storage
+     * @param storage StorePurchase Storage
      * @param schedules Array of IScheduler
      */
     constructor(config: Config, storage: StorePurchaseStorage, schedules?: Scheduler[]) {
@@ -51,14 +51,14 @@ export class StorePurchaseServer extends WebService {
         this.pool = new TransactionPool();
         this.pool.storage = storage;
 
-        this.rollupRouter = new StorePurchaseRouter(this, config, this.pool, this.storage);
+        this.router = new StorePurchaseRouter(this, config, this.pool, this.storage);
 
         if (schedules) {
             schedules.forEach((m) => this.schedules.push(m));
             this.schedules.forEach((m) =>
                 m.setOption({
                     config: this.config,
-                    router: this.rollupRouter,
+                    router: this.router,
                     storage: this.storage,
                     pool: this.pool,
                 })
@@ -76,7 +76,7 @@ export class StorePurchaseServer extends WebService {
         this.app.use(bodyParser.json({ limit: "1mb" }));
         this.app.use(cors(cors_options));
 
-        this.rollupRouter.registerRoutes();
+        this.router.registerRoutes();
 
         for (const m of this.schedules) await (m as Scheduler).start();
 

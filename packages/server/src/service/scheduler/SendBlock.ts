@@ -38,7 +38,7 @@ export class SendBlock extends Scheduler {
     /**
      * The contract object needed to save the block information
      */
-    private _rollup: StorePurchase | undefined;
+    private _contract: StorePurchase | undefined;
 
     /**
      * The signer needed to save the block information
@@ -122,12 +122,12 @@ export class SendBlock extends Scheduler {
 
             this.old_time_stamp = new_time_stamp;
 
-            if (this._rollup === undefined) {
+            if (this._contract === undefined) {
                 const contractFactory = await ethers.getContractFactory("StorePurchase");
-                this._rollup = contractFactory.attach(this.config.contracts.purchaseAddress) as StorePurchase;
+                this._contract = contractFactory.attach(this.config.contracts.purchaseAddress) as StorePurchase;
             }
 
-            const last_height_org = await this._rollup.getLastHeight();
+            const last_height_org = await this._contract.getLastHeight();
             const last_height: bigint = BigInt(last_height_org.toString());
             const db_last_height = await this.storage.selectLastHeight();
 
@@ -152,9 +152,9 @@ export class SendBlock extends Scheduler {
 
             if (data) {
                 try {
-                    await this._rollup
+                    await this._contract
                         .connect(this.managerSigner)
-                        .add(data.height, data.cur_block, data.prevBlock, data.merkleRoot, data.timestamp, data.CID)
+                        .add(data.height, data.curBlock, data.prevBlock, data.merkleRoot, data.timestamp, data.CID)
                         .then(() => {
                             logger.info(`Successful in adding blocks to the blockchain. Height: ${data.height}`);
                         });

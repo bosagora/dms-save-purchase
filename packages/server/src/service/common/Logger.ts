@@ -34,13 +34,13 @@ export class Logger {
     public static defaultFileTransport(folderPath: string) {
         // write log file options
         const options = {
-            filename: path.resolve(folderPath, "RollupServer.log"),
+            filename: path.resolve(folderPath, "StorePurchase.log"),
             handleExceptions: true,
             json: false,
             maxsize: 10485760, // 10MB
             maxFiles: 10,
             colorize: false,
-            format: combine(label({ label: "RollupServer" }), timestamp(), logFormat),
+            format: combine(label({ label: "StorePurchase" }), timestamp(), logFormat),
         };
 
         return new winston.transports.File(options);
@@ -60,7 +60,7 @@ export class Logger {
             handleExceptions: true,
             json: false,
             colorize: false,
-            format: combine(label({ label: "RollupServer" }), timestamp(), logFormat),
+            format: combine(label({ label: "StorePurchase" }), timestamp(), logFormat),
         };
 
         return new winston.transports.Console(options);

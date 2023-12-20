@@ -9,7 +9,7 @@ git clone https://github.com/bosagora/rollup-server.git
 cd rollup-server
 npm install
 cp env/.env.sample env/.env
-````
+```
 
 ## Run
 
@@ -43,7 +43,7 @@ $ npm run start:client
 
 The following endpoints are provided:
 
-- /tx/record - Endpoint entering the transaction  
-- /tx/sequence - Endpoint requesting the sequence of the last transaction received
+-   /tx/record - Endpoint entering the transaction
+-   /tx/sequence - Endpoint requesting the sequence of the last transaction received
 
 Refer to the [API User's Guide](API.md) for more information

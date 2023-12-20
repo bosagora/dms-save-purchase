@@ -8,8 +8,16 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { Block, BlockHeader, Hash, hashFull, Transaction } from "dms-store-purchase-sdk";
-import { BigNumber } from "ethers";
+import {
+    Block,
+    BlockHeader,
+    CancelTransaction,
+    Hash,
+    hashFull,
+    NewTransaction,
+    Transaction,
+    TransactionType,
+} from "dms-store-purchase-sdk";
 import { Storage } from "../../modules/storage/Storage";
 import { IDatabaseConfig } from "../common/Config";
 import {
@@ -51,6 +59,7 @@ export class StorePurchaseStorage extends Storage {
             });
         });
     }
+
     public insertBlock(_block: Block, _CID: string): Promise<boolean> {
         return new Promise((resolve, reject) => {
             if (_block?.header === undefined) reject("The data is not available.");
@@ -94,20 +103,7 @@ export class StorePurchaseStorage extends Storage {
             const statement = this.database.prepare(insertTxQuery);
 
             params.forEach((row) => {
-                statement.run([
-                    row.sequence,
-                    row.purchaseId,
-                    row.timestamp,
-                    row.amount?.toString(),
-                    row.currency,
-                    row.shopId,
-                    row.method,
-                    row.userAccount,
-                    row.userPhoneHash,
-                    row.signer,
-                    row.signature,
-                    row.hash,
-                ]);
+                statement.run([row.sequence, row.contents, row.hash]);
             });
             statement.finalize((err) => {
                 if (err) reject(err);
@@ -230,68 +226,28 @@ export class StorePurchaseStorage extends Storage {
 export class DBTransaction {
     public hash: string;
     public sequence: number;
-    public purchaseId: string;
-    public timestamp: number;
-    public amount: string;
-    public currency: string;
-    public shopId: string;
-    public method: number;
-    public userAccount: string;
-    public userPhoneHash: string;
-    public signer: string;
-    public signature: string;
+    public contents: string;
 
-    constructor(
-        sequence: number,
-        purchaseId: string,
-        timestamp: number,
-        amount: BigNumber,
-        currency: string,
-        shopId: string,
-        method: number,
-        userAccount: string,
-        userPhoneHash: string,
-        signer?: string,
-        signature?: string,
-        hash?: string
-    ) {
+    constructor(sequence: number, contents: string, hash?: string) {
         this.sequence = sequence;
-        this.purchaseId = purchaseId;
-        this.timestamp = timestamp;
-        this.amount = amount.toString();
-        this.currency = currency;
-        this.shopId = shopId;
-        this.method = method;
-        this.userAccount = userAccount;
-        this.userPhoneHash = userPhoneHash;
-        if (signer !== undefined) this.signer = signer;
-        else this.signer = "";
-        if (signature !== undefined) this.signature = signature;
-        else this.signature = "";
+        this.contents = contents;
         if (hash !== undefined) this.hash = hash;
         else this.hash = "";
     }
 
     public static make(tx: Transaction): DBTransaction {
-        return { ...tx.toJSON(), hash: hashFull(tx).toString() };
+        return { sequence: tx.sequence, contents: JSON.stringify(tx.toJSON()), hash: hashFull(tx).toString() };
     }
 
     public static converterTxArray(dbTx: DBTransaction[]): Transaction[] {
-        return dbTx.map(
-            (row) =>
-                new Transaction(
-                    row.sequence,
-                    row.purchaseId,
-                    row.timestamp,
-                    BigNumber.from(row.amount),
-                    row.currency,
-                    row.shopId,
-                    row.method,
-                    row.userAccount,
-                    row.userPhoneHash,
-                    row.signer,
-                    row.signature
-                )
-        );
+        const txs: Transaction[] = [];
+
+        for (const row of dbTx) {
+            const object = JSON.parse(row.contents);
+            if (object.type === TransactionType.NEW) txs.push(NewTransaction.reviver("", object));
+            else if (object.type === TransactionType.CANCEL) txs.push(CancelTransaction.reviver("", object));
+        }
+
+        return txs;
     }
 }

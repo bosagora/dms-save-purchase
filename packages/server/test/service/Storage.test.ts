@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { Block, Hash, Transaction } from "dms-store-purchase-sdk";
+import { Block, Hash, NewTransaction, PurchaseDetails } from "dms-store-purchase-sdk";
 import { BigNumber } from "ethers";
 import path from "path";
 import { Config } from "../../src/service/common/Config";
@@ -8,31 +8,34 @@ import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/S
 describe("Test of Storage", () => {
     let storage: StorePurchaseStorage;
     const tx1 = DBTransaction.make(
-        new Transaction(
+        new NewTransaction(
             0,
             "123456789",
             1668044556,
             BigNumber.from(123),
+            BigNumber.from(123),
             "krw",
+            "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
             "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-            0,
-            "997DE626B2D417F0361D61C09EB907A57226DB5B",
             "a5c19fed89739383",
+            [new PurchaseDetails("PID001", BigNumber.from(123), BigNumber.from(300))],
             "0x19dCAc1131Dfa2fdBbf992261d54c03dDE616D75",
             "0x64ca000fe0fbb7ca96274dc836e3b286863b24fc47576748f0945ce3d07f58ed47f2dda151cbc218d05de2d2363cef6444ab628670d2bc9cf7674862e6dc51c81b"
         )
     );
+
     const tx2 = DBTransaction.make(
-        new Transaction(
+        new NewTransaction(
             1,
             "987654321",
             1313456756,
-            BigNumber.from(321),
+            BigNumber.from(123),
+            BigNumber.from(123),
             "krw",
+            "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
             "0x064c9Fc53d5936792845ca58778a52317fCf47F2",
-            0,
-            "997DE626B2D417F0361D61C09EB907A57226DB5B",
             "a5c19fed89739383",
+            [new PurchaseDetails("PID001", BigNumber.from(123), BigNumber.from(300))],
             "0xc2DfB49ad9BF96b541939EDABdDeBd63d85e8d70",
             "0x8a65d1c86d40a468a428d8ade17a795b49c0fc4356159d7208af97d19206f59766f7adbf1a348605d58c0a564098d805b0934e131343d45554b7d54501a83b0d1c"
         )
@@ -80,30 +83,14 @@ describe("Test of Storage", () => {
             const res1 = await storage.selectTxByHash(tx1?.hash);
             assert.notStrictEqual(res1, null);
             if (res1) {
-                assert.strictEqual(res1.purchaseId, tx1.purchaseId);
-                assert.strictEqual(res1.timestamp, tx1.timestamp);
-                assert.strictEqual(res1.amount, tx1.amount?.toString());
-                assert.strictEqual(res1.currency, tx1.currency);
-                assert.strictEqual(res1.method, tx1.method);
-                assert.strictEqual(res1.shopId, tx1.shopId);
-                assert.strictEqual(res1.userAccount, tx1.userAccount);
-                assert.strictEqual(res1.userPhoneHash, tx1.userPhoneHash);
-                assert.strictEqual(res1.signer, tx1.signer);
-                assert.strictEqual(res1.signature, tx1.signature);
+                assert.strictEqual(res1.sequence, tx1.sequence);
+                assert.strictEqual(res1.contents, tx1.contents);
             }
             const res2 = await storage.selectTxByHash(tx2.hash);
             assert.notStrictEqual(res2, null);
             if (res2) {
-                assert.strictEqual(res2.purchaseId, tx2.purchaseId);
-                assert.strictEqual(res2.timestamp, tx2.timestamp);
-                assert.strictEqual(res2.amount, tx2.amount?.toString());
-                assert.strictEqual(res2.currency, tx2.currency);
-                assert.strictEqual(res2.method, tx2.method);
-                assert.strictEqual(res2.shopId, tx2.shopId);
-                assert.strictEqual(res2.userAccount, tx2.userAccount);
-                assert.strictEqual(res2.userPhoneHash, tx2.userPhoneHash);
-                assert.strictEqual(res2.signer, tx2.signer);
-                assert.strictEqual(res2.signature, tx2.signature);
+                assert.strictEqual(res2.sequence, tx2.sequence);
+                assert.strictEqual(res2.contents, tx2.contents);
             }
         });
 

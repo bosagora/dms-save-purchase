@@ -36,7 +36,7 @@ export class LastBlockInfo {
             const db_last_height = await storage.selectLastHeight();
             if (db_last_height !== null) {
                 const db_block = await storage.selectBlockByHeight(db_last_height);
-                return { height: db_block.height, hash: new Hash(db_block.cur_block) };
+                return { height: db_block.height, hash: new Hash(db_block.curBlock) };
             }
             return undefined;
         } catch (error) {

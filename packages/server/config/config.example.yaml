@@ -37,11 +37,11 @@ scheduler:
       interval: 14
 
 database:
-  path: ${DB_PATH}
+  path: "${DB_PATH}"
 
 contracts:
-  managerKey: ${MANAGER_KEY}
-  purchaseAddress: ${STORE_PURCHASE_CONTRACT_ADDRESS}
+  managerKey: "${MANAGER_KEY}"
+  purchaseAddress: "${STORE_PURCHASE_CONTRACT_ADDRESS}"
 
 authorization:
-  accessKey:  ${ACCESS_SECRET}
+  accessKey: "${ACCESS_KEY}"

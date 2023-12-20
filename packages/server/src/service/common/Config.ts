@@ -8,12 +8,13 @@
  *       MIT License. See LICENSE for details.
  */
 
+import { Utils } from "dms-store-purchase-sdk";
+
 import { ArgumentParser } from "argparse";
 import extend from "extend";
 import fs from "fs";
 import ip from "ip";
 import path from "path";
-import { Utils } from "dms-store-purchase-sdk";
 import { readYamlEnvSync } from "yaml-env-defaults";
 
 /**
@@ -477,7 +478,7 @@ export class DatabaseConfig implements IDatabaseConfig {
      */
     public static defaultValue(): IDatabaseConfig {
         return {
-            path: "./db/rollup.db",
+            path: "./db/purchase.db",
         } as unknown as IDatabaseConfig;
     }
 }
@@ -535,7 +536,7 @@ export class AuthorizationConfig implements IAuthorizationConfig {
      */
     public static defaultValue(): IAuthorizationConfig {
         return {
-            accessKey: "9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54",
+            accessKey: "0x9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54",
         } as unknown as IAuthorizationConfig;
     }
 }

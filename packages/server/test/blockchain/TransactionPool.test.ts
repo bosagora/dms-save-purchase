@@ -9,12 +9,13 @@
  */
 
 import * as assert from "assert";
-import { Transaction, Utils } from "dms-store-purchase-sdk";
+import { NewTransaction, PurchaseDetails, Utils } from "dms-store-purchase-sdk";
 import { BigNumber } from "ethers";
 import path from "path";
 import { Config } from "../../src/service/common/Config";
 import { TransactionPool } from "../../src/service/scheduler/TransactionPool";
 import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
+import { delay } from "../helper/Utility";
 
 describe("TransactionPool", () => {
     const addresses = [
@@ -41,7 +42,8 @@ describe("TransactionPool", () => {
     ];
 
     let tx_pool: TransactionPool;
-    let txs: DBTransaction[];
+    let txs: NewTransaction[];
+    let dbTxs: DBTransaction[];
 
     it("Create TransactionPool", async () => {
         tx_pool = new TransactionPool();
@@ -61,49 +63,48 @@ describe("TransactionPool", () => {
 
     // The test codes below compare with the values calculated in Agora.
     it("Insert test for transactionPool", async () => {
-        txs = addresses.map((m, index) =>
-            DBTransaction.make(
-                new Transaction(
+        txs = addresses.map(
+            (m, index) =>
+                new NewTransaction(
                     index,
                     "transaction_" + index,
                     Utils.getTimeStamp(),
                     BigNumber.from(10000),
+                    BigNumber.from(10000),
                     "krw",
                     "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
-                    0,
                     m,
-                    ""
+                    "",
+                    [new PurchaseDetails("PID001", BigNumber.from(10000), BigNumber.from(300))],
+                    m
                 )
-            )
         );
-
-        await tx_pool.add(txs);
+        dbTxs = txs.map((m) => DBTransaction.make(m));
+        await tx_pool.add(dbTxs);
     });
 
     it("Check insert data count", async () => {
         const length = await tx_pool.length();
-        assert.strictEqual(length, txs.length);
+        assert.strictEqual(length, dbTxs.length);
     });
 
     it("Remove Test", async () => {
         const length = await tx_pool.length();
-        assert.strictEqual(length, txs.length);
+        assert.strictEqual(length, dbTxs.length);
 
         for (let idx = 0; idx < length; idx++) {
-            const tx: DBTransaction[] = await tx_pool.get(1);
-
-            assert.strictEqual(tx[0].purchaseId, txs[idx].purchaseId);
+            const dbTx: DBTransaction[] = await tx_pool.get(1);
+            const tx = DBTransaction.converterTxArray(dbTx) as NewTransaction[];
+            assert.strictEqual(tx[0].sequence, txs[idx].sequence);
             assert.strictEqual(tx[0].timestamp, txs[idx].timestamp);
-            assert.strictEqual(tx[0].amount.toString(), txs[idx].amount.toString());
+            assert.strictEqual(tx[0].totalAmount.toString(), txs[idx].totalAmount.toString());
+            assert.strictEqual(tx[0].cashAmount.toString(), txs[idx].cashAmount.toString());
             assert.strictEqual(tx[0].currency, txs[idx].currency);
-            assert.strictEqual(tx[0].method, txs[idx].method);
             assert.strictEqual(tx[0].shopId, txs[idx].shopId);
             assert.strictEqual(tx[0].userAccount, txs[idx].userAccount);
             assert.strictEqual(tx[0].userPhoneHash, txs[idx].userPhoneHash);
-            assert.strictEqual(tx[0].signer, txs[idx].signer);
-            assert.strictEqual(tx[0].signature, txs[idx].signature);
 
-            await tx_pool.remove(tx[0]);
+            await tx_pool.remove(dbTx[0]);
         }
         assert.strictEqual(await tx_pool.length(), 0);
     });

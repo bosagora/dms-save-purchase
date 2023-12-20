@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { handleNetworkError } from "../src/modules/network/ErrorTypes";
-import { StorePurchaseServer } from "../src/service/StorePurchaseServer";
+import { handleNetworkError } from "./ErrorTypes";
+import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
 
 export class TestRollupServer extends StorePurchaseServer {}
 

@@ -9,14 +9,14 @@
  */
 
 import { BigNumber, Wallet } from "ethers";
-import { ethers, waffle } from "hardhat";
+import { waffle } from "hardhat";
 
 import { Block, Hash, hashFull } from "dms-store-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { SendBlock } from "../../src/service/scheduler/SendBlock";
 import { HardhatUtils } from "../../src/service/utils";
 import { StorePurchase } from "../../typechain-types";
-import { delay } from "../Utility";
+import { delay } from "../helper/Utility";
 
 import * as assert from "assert";
 import path from "path";
@@ -24,7 +24,7 @@ import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseSto
 
 describe("Test of SendBlock", () => {
     let sendBlock: SendBlock;
-    let rollUp: StorePurchase;
+    let contract: StorePurchase;
     const config = new Config();
     let storage: StorePurchaseStorage;
 
@@ -33,8 +33,8 @@ describe("Test of SendBlock", () => {
     const admin = new Wallet(config.contracts.managerKey || "");
     const admin_signer = provider.getSigner(admin.address);
 
-    before("Deploy Rollup Contract", async () => {
-        rollUp = await HardhatUtils.deployStorePurchaseContract(config, admin);
+    before("Deploy StorePurchase Contract", async () => {
+        contract = await HardhatUtils.deployStorePurchaseContract(config, admin);
     });
 
     after(() => {
@@ -72,12 +72,12 @@ describe("Test of SendBlock", () => {
         // Test Block height 0
         await storage.insertBlock(block_0, cid);
         await delay(5000);
-        assert.deepStrictEqual(await rollUp.connect(admin_signer).getLastHeight(), BigNumber.from(0));
-        assert.deepStrictEqual(await rollUp.size(), BigNumber.from(1));
-        const sc_block_0 = await rollUp.connect(admin_signer).getByHeight(BigNumber.from(0));
+        assert.deepStrictEqual(await contract.connect(admin_signer).getLastHeight(), BigNumber.from(0));
+        assert.deepStrictEqual(await contract.size(), BigNumber.from(1));
+        const sc_block_0 = await contract.connect(admin_signer).getByHeight(BigNumber.from(0));
         const db_block_0 = await storage.selectBlockByHeight(0n);
         assert.deepStrictEqual(sc_block_0[0], BigNumber.from(db_block_0.height));
-        assert.deepStrictEqual(sc_block_0[1], db_block_0.cur_block);
+        assert.deepStrictEqual(sc_block_0[1], db_block_0.curBlock);
         assert.deepStrictEqual(sc_block_0[2], db_block_0.prevBlock);
         assert.deepStrictEqual(sc_block_0[3], db_block_0.merkleRoot);
         assert.deepStrictEqual(sc_block_0[4], BigNumber.from(db_block_0.timestamp));
@@ -85,12 +85,12 @@ describe("Test of SendBlock", () => {
         // Test Block height 1
         await storage.insertBlock(block_1, cid);
         await delay(5000);
-        assert.deepStrictEqual(await rollUp.connect(admin_signer).getLastHeight(), BigNumber.from(1));
-        assert.deepStrictEqual(await rollUp.size(), BigNumber.from(2));
-        const sc_block_1 = await rollUp.connect(admin_signer).getByHeight(BigNumber.from(1));
+        assert.deepStrictEqual(await contract.connect(admin_signer).getLastHeight(), BigNumber.from(1));
+        assert.deepStrictEqual(await contract.size(), BigNumber.from(2));
+        const sc_block_1 = await contract.connect(admin_signer).getByHeight(BigNumber.from(1));
         const db_block_1 = await storage.selectBlockByHeight(1n);
         assert.deepStrictEqual(sc_block_1[0], BigNumber.from(db_block_1.height));
-        assert.deepStrictEqual(sc_block_1[1], db_block_1.cur_block);
+        assert.deepStrictEqual(sc_block_1[1], db_block_1.curBlock);
         assert.deepStrictEqual(sc_block_1[2], db_block_1.prevBlock);
         assert.deepStrictEqual(sc_block_1[3], db_block_1.merkleRoot);
         assert.deepStrictEqual(sc_block_1[4], BigNumber.from(db_block_1.timestamp));

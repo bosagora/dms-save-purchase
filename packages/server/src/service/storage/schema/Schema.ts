@@ -24,21 +24,12 @@ export const createTablesQuery = `
   );
   CREATE INDEX IF NOT EXISTS curBlockHashIndex on blocks (curBlock);
 
-  CREATE TABLE IF NOT EXISTS tx(
+  CREATE TABLE IF NOT EXISTS txs (
     "sequence" INTEGER PRIMARY KEY,
-    "purchaseId" TEXT,
-    "timestamp" INTEGER,
-    "amount" TEXT,
-    "currency" TEXT,
-    "shopId" TEXT,
-    "method" TEXT,
-    "userAccount" TEXT,
-    "userPhoneHash" TEXT,
-    "signer" TEXT,
-    "signature" TEXT,
+    "contents" TEXT,
     "hash" TEXT
   );
-  CREATE INDEX IF NOT EXISTS txHashIndex on tx (hash);
+  CREATE INDEX IF NOT EXISTS txHashIndex on txs (hash);
 
   CREATE TABLE IF NOT EXISTS setting(
     "key" TEXT PRIMARY KEY,
@@ -58,20 +49,11 @@ export const insertBlockQuery = `
 `;
 
 export const insertTxQuery = `
-  INSERT OR REPLACE INTO tx(
+  INSERT OR REPLACE INTO txs (
     "sequence",
-    "purchaseId",
-    "timestamp",
-    "amount",
-    "currency",
-    "shopId",
-    "method",
-    "userAccount",
-    "userPhoneHash",
-    "signer",
-    "signature",
+    "contents",
     "hash"
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+    ) VALUES (?,?,?)
 `;
 
 export const selectBlockByHeightQuery = `
@@ -91,19 +73,19 @@ export const deleteBlockByHeightQuery = `
 `;
 
 export const deleteTxByHashQuery = `
-    DELETE FROM tx WHERE hash = ?
+    DELETE FROM txs WHERE hash = ?
 `;
 
 export const selectTxByHashQuery = `
-    SELECT * FROM tx WHERE hash = ?
+    SELECT * FROM txs WHERE hash = ?
 `;
 
 export const selectTxByLengthQuery = `
-    SELECT * FROM tx ORDER BY sequence ASC LIMIT ?
+    SELECT * FROM txs ORDER BY sequence ASC LIMIT ?
 `;
 
 export const selectTxsLength = `
-    SELECT COUNT(sequence) as count FROM tx
+    SELECT COUNT(sequence) as count FROM txs
 `;
 
 export const getSetting = `

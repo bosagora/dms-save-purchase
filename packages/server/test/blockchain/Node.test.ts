@@ -11,11 +11,11 @@
 import { BigNumber, Wallet } from "ethers";
 import { waffle } from "hardhat";
 
-import { Block, Hash, Transaction, Utils } from "dms-store-purchase-sdk";
+import { Block, Hash, NewTransaction, PurchaseDetails, Utils } from "dms-store-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { IBlockExternalizer, Node } from "../../src/service/scheduler/Node";
 import { HardhatUtils } from "../../src/service/utils";
-import { delay } from "../Utility";
+import { delay } from "../helper/Utility";
 
 import * as assert from "assert";
 import path from "path";
@@ -43,7 +43,7 @@ describe("Test of Node", function () {
     const manager = new Wallet(config.contracts.managerKey || "");
     const signer = provider.getSigner(manager.address);
 
-    before("Deploy Rollup Contract", async () => {
+    before("Deploy StorePurchase Contract", async () => {
         await HardhatUtils.deployStorePurchaseContract(config, manager);
     });
 
@@ -73,16 +73,17 @@ describe("Test of Node", function () {
         const txs = [];
         for (let idx = 0; idx < 8; idx++) {
             txs.push(
-                new Transaction(
+                new NewTransaction(
                     idx,
                     (12345670 + idx).toString(),
                     Utils.getTimeStamp(),
                     BigNumber.from(idx + 1),
+                    BigNumber.from(idx + 1),
                     "krw",
                     "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
-                    0,
                     "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
-                    "a5c19fed89739383"
+                    "a5c19fed89739383",
+                    [new PurchaseDetails("PID001", BigNumber.from(idx + 1), BigNumber.from(300))]
                 )
             );
         }

@@ -1,11 +1,4 @@
 import { Config } from "../../src/service/common/Config";
-
-import * as assert from "assert";
-import { Transaction, Utils } from "dms-store-purchase-sdk";
-import { BigNumber, Wallet } from "ethers";
-import * as path from "path";
-import URI from "urijs";
-import { URL } from "url";
 import { Scheduler } from "../../src/modules";
 import { LastBlockInfo } from "../../src/service/scheduler/LastBlockInfo";
 import { Node } from "../../src/service/scheduler/Node";
@@ -14,19 +7,27 @@ import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseSto
 import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
 import { HardhatUtils } from "../../src/service/utils";
 import { StorePurchase } from "../../typechain-types";
-import { delay, TestClient } from "../Utility";
+import { delay, TestClient } from "../helper/Utility";
+
+import { Utils } from "dms-store-purchase-sdk";
+
+import * as assert from "assert";
+import { Wallet } from "ethers";
+import * as path from "path";
+import URI from "urijs";
+import { URL } from "url";
 
 describe("Test of StorePurchase Server", function () {
     this.timeout(1000 * 60);
 
     const config = new Config();
-    let rollupServer: StorePurchaseServer;
+    let server: StorePurchaseServer;
     let storage: StorePurchaseStorage;
     let serverURL: string;
     let manager: Wallet;
     let contract: StorePurchase;
     const schedulers: Scheduler[] = [];
-    let token: string;
+    let accessKey: string;
 
     const MAX_TX_IN_BLOCK = 8;
     const BLOCK_INTERVAL = 3;
@@ -66,7 +67,7 @@ describe("Test of StorePurchase Server", function () {
         config.node.ipfs_test = true;
         config.node.send_interval = SEND_INTERVAL;
 
-        token = config.authorization.accessKey;
+        accessKey = config.authorization.accessKey;
     });
 
     before("Create Schedulers", () => {
@@ -75,42 +76,45 @@ describe("Test of StorePurchase Server", function () {
     });
 
     before("Create Test Server", () => {
-        rollupServer = new StorePurchaseServer(config, storage, schedulers);
+        server = new StorePurchaseServer(config, storage, schedulers);
     });
 
     before("Start Test Server", async () => {
-        await rollupServer.start();
+        await server.start();
     });
 
     after("Stop Test Server", async () => {
-        await rollupServer.stop();
+        await server.stop();
     });
 
     before("Create Client", async () => {
-        sendURL = URI(serverURL).directory("v1/tx/record").toString();
-        client = new TestClient({ headers: { Authorization: token } });
+        sendURL = URI(serverURL).directory("/v1/tx/purchase").filename("new").toString();
+        client = new TestClient();
     });
 
     let numTx: number = 0;
-    const makeMultiTransactions = async (count: number): Promise<Transaction[]> => {
-        const signer = new Wallet("0xf6dda8e03f9dce37c081e5d178c1fda2ebdb90b5b099de1a555a658270d8c47d");
-        const exchange_user_id = "EXCHANGE_UID";
-        const exchange_id = "EXCHANGE_ID";
-        const txs: Transaction[] = [];
+    const makeMultiTransactions = async (count: number): Promise<any[]> => {
+        const txs: any[] = [];
 
         for (let idx = 0; idx < count; idx++) {
-            const tx = new Transaction(
-                numTx,
-                "TX" + numTx.toString().padStart(10, "0"),
-                Utils.getTimeStamp(),
-                BigNumber.from(10000),
-                "krw",
-                "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
-                0,
-                signer.address,
-                "0"
-            );
-            await tx.sign(signer);
+            const tx = {
+                sequence: numTx,
+                purchaseId: "TX" + numTx.toString().padStart(10, "0"),
+                timestamp: Utils.getTimeStamp(),
+                totalAmount: 10000,
+                cashAmount: 10000,
+                currency: "krw",
+                shopId: "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+                userAccount: "",
+                userPhone: "",
+                details: [
+                    {
+                        productId: "PID001",
+                        amount: 10000,
+                        providePercent: 3.25,
+                    },
+                ],
+            };
             txs.push(tx);
             numTx++;
         }
@@ -121,9 +125,9 @@ describe("Test of StorePurchase Server", function () {
     context("Step 1", () => {
         it("Send transactions", async () => {
             const txs = await makeMultiTransactions(MAX_TX_IN_BLOCK);
-            for (const tx of txs.map((m) => m.toJSON())) {
-                const res = await client.post(sendURL, tx);
-                assert.strictEqual(res.data.code, 200);
+            for (const tx of txs) {
+                const res = await client.post(sendURL, { accessKey, ...tx });
+                assert.strictEqual(res.data.code, 0);
             }
         });
 
@@ -143,9 +147,9 @@ describe("Test of StorePurchase Server", function () {
     context("Step 2", () => {
         it("Send transactions", async () => {
             const txs = await makeMultiTransactions(MAX_TX_IN_BLOCK);
-            for (const tx of txs.map((m) => m.toJSON())) {
-                const res = await client.post(sendURL, tx);
-                assert.strictEqual(res.data.code, 200);
+            for (const tx of txs) {
+                const res = await client.post(sendURL, { accessKey, ...tx });
+                assert.strictEqual(res.data.code, 0);
             }
         });
 
@@ -164,7 +168,7 @@ describe("Test of StorePurchase Server", function () {
 
     context("Restart Server", () => {
         it("Stop Test Server", async () => {
-            await rollupServer.stop();
+            await server.stop();
         });
 
         schedulers.length = 0;
@@ -174,11 +178,11 @@ describe("Test of StorePurchase Server", function () {
         });
 
         it("Create Test Server", async () => {
-            rollupServer = new StorePurchaseServer(config, storage, schedulers);
+            server = new StorePurchaseServer(config, storage, schedulers);
         });
 
         it("Start Test Server", async () => {
-            await rollupServer.start();
+            await server.start();
         });
 
         it("Check the height of the last block", async () => {
@@ -191,9 +195,9 @@ describe("Test of StorePurchase Server", function () {
     context("Step 3", () => {
         it("Send transactions", async () => {
             const txs = await makeMultiTransactions(MAX_TX_IN_BLOCK);
-            for (const tx of txs.map((m) => m.toJSON())) {
-                const res = await client.post(sendURL, tx);
-                assert.strictEqual(res.data.code, 200);
+            for (const tx of txs) {
+                const res = await client.post(sendURL, { accessKey, ...tx });
+                assert.strictEqual(res.data.code, 0);
             }
         });
 
@@ -224,8 +228,8 @@ describe("Test of StorePurchase Server", function () {
     // The sequence of transactions received should be increased by 1.
     // If a value different from the expected sequence is received, response code 417 is returned
     context("Step 4 - Receive sequential transactions", () => {
-        let tx1: Transaction;
-        let tx2: Transaction;
+        let tx1: any;
+        let tx2: any;
 
         before("Create Transactions", async () => {
             tx1 = (await makeMultiTransactions(1))[0];
@@ -233,28 +237,28 @@ describe("Test of StorePurchase Server", function () {
         });
 
         it("Unexpected sequence", async () => {
-            const res = await client.post(sendURL, tx2.toJSON());
+            const res = await client.post(sendURL, { accessKey, ...tx2 });
             assert.strictEqual(res.data.code, 417);
             assert.strictEqual(res.data.data, undefined);
             assert.strictEqual(res.data.error.msg, "sequence is different from the expected value");
         });
 
         it("Expected sequence 1", async () => {
-            const res = await client.post(sendURL, tx1.toJSON());
-            assert.strictEqual(res.data.code, 200);
-            assert.strictEqual(res.data.data, "SUCCESS");
+            const res = await client.post(sendURL, { accessKey, ...tx1 });
+            assert.strictEqual(res.data.code, 0);
+            assert.notStrictEqual(res.data.data, undefined);
         });
 
         it("Expected sequence 2", async () => {
-            const res = await client.post(sendURL, tx2.toJSON());
-            assert.strictEqual(res.data.code, 200);
-            assert.strictEqual(res.data.data, "SUCCESS");
+            const res = await client.post(sendURL, { accessKey, ...tx2 });
+            assert.strictEqual(res.data.code, 0);
+            assert.notStrictEqual(res.data.data, undefined);
         });
 
         it("GET /tx/sequence", async () => {
             const url = URI(serverURL).directory("v1/tx/sequence").toString();
             const res = await client.get(url);
-            assert.strictEqual(res.data.code, 200);
+            assert.strictEqual(res.data.code, 0);
             assert.strictEqual(res.data.data.sequence, 25);
         });
     });
