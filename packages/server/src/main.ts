@@ -24,23 +24,6 @@ async function main() {
     // Create with the arguments and read from file
     const config = Config.createWithArgument();
 
-    // Now configure the logger with the expected transports
-    switch (process.env.NODE_ENV) {
-        case "test":
-            // Logger is silent, do nothing
-            break;
-
-        case "development":
-            // Only use the console log
-            logger.add(Logger.defaultConsoleTransport());
-            break;
-
-        case "production":
-        default:
-            // Read the config file and potentially use both
-            logger.add(Logger.defaultFileTransport(config.logging.folder));
-            if (config.logging.console) logger.add(Logger.defaultConsoleTransport());
-    }
     logger.transports.forEach((tp) => {
         tp.level = config.logging.level;
     });

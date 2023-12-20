@@ -104,7 +104,6 @@ services:
       - "3030:3030"
     volumes:
       - "./config/:/app/config/"
-      - "./logs/:/app/logs/"
       - "./db/:/app/db/"
     restart: always
     extra_hosts:

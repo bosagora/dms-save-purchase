@@ -27,7 +27,7 @@ describe("Test of StorePurchase Router", () => {
     const client = new TestClient();
     let accessKey: string;
 
-    before("Create Test SwapServer", async () => {
+    before("Create Test Server", async () => {
         config.readFromFile(path.resolve("config", "config_test.yaml"));
         accessKey = config.authorization.accessKey;
 

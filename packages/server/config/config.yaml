@@ -11,12 +11,8 @@ server:
 ##                               Logging options                              ##
 ################################################################################
 logging:
-  # The name of the folder where the logs are stored.
-  folder: logs
   # Values: error, warn, info, http, verbose, debug, silly
   level: "${LOGGING_LEVEL}"
-  # Default to false
-  console: true
 
 database:
   path: "${DATABASE_PATH}"
