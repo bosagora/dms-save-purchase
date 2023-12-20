@@ -25,5 +25,4 @@ contract StorePurchaseStorage {
 
     /// @dev Block map with block hash as key
     mapping(bytes32 => BlockHeight) internal blockMap;
-
 }

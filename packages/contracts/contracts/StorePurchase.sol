@@ -12,12 +12,17 @@ import "./StorePurchaseStorage.sol";
 /// @author BOSagora Foundation
 /// @notice Stored block headers sequentially
 contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeable, UUPSUpgradeable {
-
-    event AddedBlock(uint64 height, bytes32 curBlock, bytes32 prevBlock, bytes32 merkleRoot, uint64 _timestamp, string cid);
+    event AddedBlock(
+        uint64 height,
+        bytes32 curBlock,
+        bytes32 prevBlock,
+        bytes32 merkleRoot,
+        uint64 _timestamp,
+        string cid
+    );
 
     /// @notice 생성자
-    function initialize(
-    ) external initializer {
+    function initialize() external initializer {
         __UUPSUpgradeable_init();
         __Ownable_init_unchained();
 

@@ -18,14 +18,10 @@ describe("Test of StorePurchase Contract", () => {
 
     before(async () => {
         const StorePurchaseFactory = await ethers.getContractFactory("StorePurchase");
-        contract = (await upgrades.deployProxy(
-            StorePurchaseFactory.connect(admin_signer),
-            [],
-            {
-                initializer: "initialize",
-                kind: "uups",
-            }
-        )) as StorePurchase;
+        contract = (await upgrades.deployProxy(StorePurchaseFactory.connect(admin_signer), [], {
+            initializer: "initialize",
+            kind: "uups",
+        })) as StorePurchase;
         await contract.deployed();
         await contract.deployTransaction.wait();
     });
@@ -137,14 +133,10 @@ describe("Test of StorePurchase Contract", () => {
 
     it("Test of Get 32 blocks", async () => {
         const StorePurchaseFactory = await ethers.getContractFactory("StorePurchase");
-        contract = (await upgrades.deployProxy(
-            StorePurchaseFactory.connect(admin_signer),
-            [],
-            {
-                initializer: "initialize",
-                kind: "uups",
-            }
-        )) as StorePurchase;
+        contract = (await upgrades.deployProxy(StorePurchaseFactory.connect(admin_signer), [], {
+            initializer: "initialize",
+            kind: "uups",
+        })) as StorePurchase;
         await contract.deployed();
         await contract.deployTransaction.wait();
         const admin_contract = contract.connect(admin_signer);
