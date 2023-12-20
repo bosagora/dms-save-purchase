@@ -1,12 +1,13 @@
-# From Agora Runner
-FROM node:16.9.1-alpine
-RUN apk add --no-cache git py-pip alpine-sdk \
-    bash autoconf libtool automake
+FROM node:16-alpine
 
-WORKDIR /rollup/
+RUN apk add --update python3 g++ make yarn
+RUN alias python=python3
 
-ADD . /rollup/
-RUN npm ci --prefix /rollup/ && npm run build --prefix /rollup/
+WORKDIR /app/
 
-# Starts a node process, which compiles TS and watches `src` for changes
-ENTRYPOINT [ "/rollup/docker/entrypoint_client.sh" ]
+ADD . /app/
+COPY ./env/.env.sample /app/env/.env
+
+RUN yarn install
+RUN yarn build
+ENTRYPOINT [ "/app/docker/entrypoint_client.sh" ]

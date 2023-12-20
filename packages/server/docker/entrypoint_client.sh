@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exec npm run start:client -- $@
+exec yarn run start:client -- $@

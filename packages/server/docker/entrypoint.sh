@@ -1,3 +1,3 @@
 #!/bin/sh
 
-exec npm start -- $@
+exec yarn start -- $@
