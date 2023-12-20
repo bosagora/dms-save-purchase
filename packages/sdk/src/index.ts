@@ -1,6 +1,6 @@
 /**
  *  This is the main file for exporting classes and functions provided
- *      by the Rollup SDK.
+ *      by the StorePurchase SDK.
  *
  *  Copyright:
  *      Copyright (c) 2022 BOSAGORA Foundation All rights reserved.
@@ -18,6 +18,7 @@ export {
     CancelTransaction,
     NewTransaction,
     Transaction,
+    TransactionType,
 } from "./modules/blockchain/data/Transaction";
 export { IPurchaseDetails, PurchaseDetails } from "./modules/blockchain/data/PurchaseDetails";
 export { Utils, ArrayRange, iota } from "./modules/utils/Utils";

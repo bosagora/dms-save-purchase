@@ -10,8 +10,8 @@
         "build": "rimraf ./dist && tsc",
         "lint": "tslint --config tslint.json \"{src,tests}/**/*.ts\"",
         "lint-fix": "tslint --fix --config tslint.json \"{src,tests}/**/*.ts\"",
-        "formatting:check": "prettier '**/*.{json,sol,ts,js,md}' -c",
-        "formatting:write": "prettier '**/*.{json,sol,ts,js,md}' --write"
+        "formatting:check": "prettier '**/*.{json,sol,ts,js}' -c",
+        "formatting:write": "prettier '**/*.{json,sol,ts,js}' --write"
     },
     "repository": {
         "type": "git",
