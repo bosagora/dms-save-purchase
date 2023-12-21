@@ -24,6 +24,8 @@ import { ResponseMessage } from "../utils/Errors";
 
 import { BigNumber } from "@ethersproject/bignumber";
 
+import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
+
 export class StorePurchaseRouter {
     /**
      *
@@ -65,6 +67,8 @@ export class StorePurchaseRouter {
      */
     private _managerSigner: Wallet | undefined;
 
+    private _phoneUtil: PhoneNumberUtil;
+
     /**
      *
      * @param service  WebService
@@ -73,6 +77,7 @@ export class StorePurchaseRouter {
      * @param storage RollupStorage
      */
     constructor(service: WebService, config: Config, pool: TransactionPool, storage: StorePurchaseStorage) {
+        this._phoneUtil = PhoneNumberUtil.getInstance();
         this._web_service = service;
         this._config = config;
         this.pool = pool;
@@ -129,16 +134,7 @@ export class StorePurchaseRouter {
                     .exists()
                     .trim()
                     .matches(/^(0x)[0-9a-f]{64}$/i),
-                body("userAccount").custom(async (value) => {
-                    if (value === undefined) {
-                        throw new Error("Not Assigned User Account");
-                    } else if (value !== "") {
-                        const eth = /^(0x)[0-9a-f]{40}$/i;
-                        if (!eth.test(value)) {
-                            throw new Error("Not Invalid User Account");
-                        }
-                    }
-                }),
+                body("userAccount").exists(),
                 body("userPhone").exists(),
                 body("details").exists().isArray({ min: 1 }),
             ],
@@ -182,20 +178,42 @@ export class StorePurchaseRouter {
      */
     private async postNewPurchase(req: express.Request, res: express.Response) {
         logger.http(`POST /v1/tx/purchase/new`);
-        //
-        // if (req.body.userAccount !== undefined && String(req.body.userAccount).trim() !== "") {
-        //     body("userAccount").isEthereumAddress();
-        // }
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(200).json(ResponseMessage.getErrorMessage("2001", { validation: errors.array() }));
         }
 
+        const userAccount = String(req.body.userAccount).trim();
+        if (userAccount !== "") {
+            const eth = /^(0x)[0-9a-f]{40}$/i;
+            if (!eth.test(userAccount)) {
+                return res.status(200).json(ResponseMessage.getErrorMessage("2002"));
+            }
+        }
+
+        let userPhone = String(req.body.userPhone).trim();
+        if (userPhone !== "") {
+            const number = this._phoneUtil.parseAndKeepRawInput(userPhone, "ZZ");
+            if (!this._phoneUtil.isValidNumber(number)) {
+                return res.status(200).json(ResponseMessage.getErrorMessage("2003"));
+            } else {
+                userPhone = this._phoneUtil.format(number, PhoneNumberFormat.INTERNATIONAL);
+            }
+        }
+
         try {
             const accessKey: string = String(req.body.accessKey).trim();
             if (accessKey !== this._config.authorization.accessKey) {
                 return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
+            }
+
+            if (this.lastReceiveSequence === -1) {
+                this.lastReceiveSequence = await this.storage.getLastReceiveSequence();
+            }
+
+            if (this.lastReceiveSequence + 1 !== Number(req.body.sequence)) {
+                return res.status(200).json(ResponseMessage.getErrorMessage("3050"));
             }
 
             const details: PurchaseDetails[] = [];
@@ -219,21 +237,13 @@ export class StorePurchaseRouter {
                 Amount.make(String(req.body.cashAmount).trim(), 18).value,
                 String(req.body.currency).trim(),
                 String(req.body.shopId).trim(),
-                String(req.body.userAccount).trim(),
-                ContractUtils.getPhoneHash(String(req.body.userPhone).trim()),
+                userAccount,
+                ContractUtils.getPhoneHash(userPhone),
                 details,
                 this.managerSigner.address
             );
 
             await tx.sign(this.managerSigner);
-
-            if (this.lastReceiveSequence === -1) {
-                this.lastReceiveSequence = await this.storage.getLastReceiveSequence();
-            }
-
-            if (this.lastReceiveSequence + 1 !== tx.sequence) {
-                return res.status(200).json(ResponseMessage.getErrorMessage("3050"));
-            }
 
             await this.pool.add(DBTransaction.make(tx));
             await this.storage.setLastReceiveSequence(tx.sequence);
@@ -263,6 +273,14 @@ export class StorePurchaseRouter {
                 return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
             }
 
+            if (this.lastReceiveSequence === -1) {
+                this.lastReceiveSequence = await this.storage.getLastReceiveSequence();
+            }
+
+            if (this.lastReceiveSequence + 1 !== Number(req.body.sequence)) {
+                return res.status(200).json(ResponseMessage.getErrorMessage("3050"));
+            }
+
             const tx: CancelTransaction = new CancelTransaction(
                 Number(req.body.sequence),
                 String(req.body.purchaseId).trim(),
@@ -271,14 +289,6 @@ export class StorePurchaseRouter {
             );
 
             await tx.sign(this.managerSigner);
-
-            if (this.lastReceiveSequence === -1) {
-                this.lastReceiveSequence = await this.storage.getLastReceiveSequence();
-            }
-
-            if (this.lastReceiveSequence + 1 !== tx.sequence) {
-                return res.status(200).json(ResponseMessage.getErrorMessage("3050"));
-            }
 
             await this.pool.add(DBTransaction.make(tx));
             await this.storage.setLastReceiveSequence(tx.sequence);

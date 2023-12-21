@@ -3,6 +3,8 @@ import { Config } from "../../src/service/common/Config";
 import * as assert from "assert";
 import path from "path";
 
+import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
+
 describe("Test of Config", () => {
     it("Test parsing the settings of a string", async () => {
         const config: Config = new Config();
@@ -33,5 +35,13 @@ describe("Test of Config", () => {
             config.authorization.accessKey,
             "9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54"
         );
+    });
+    it("Test Phone Number", async () => {
+        const phoneUtil = PhoneNumberUtil.getInstance();
+        const number = phoneUtil.parseAndKeepRawInput("+82 10-1000-2000", "ZZ");
+        console.log(phoneUtil.isValidNumber(number));
+        console.log(phoneUtil.getRegionCodeForNumber(number));
+        console.log(phoneUtil.format(number, PhoneNumberFormat.INTERNATIONAL));
+        console.log(phoneUtil.format(number, PhoneNumberFormat.NATIONAL));
     });
 });

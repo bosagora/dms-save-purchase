@@ -124,14 +124,22 @@ describe("Test of StorePurchase Router", () => {
         });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 2001);
+        assert.deepStrictEqual(response.data.code, 2002);
     });
 
     it("Invalid parameter validation test of userPhone", async () => {
-        const response = await client.post(url, { accessKey, ...newTxParam, userPhone: undefined });
+        let response = await client.post(url, { accessKey, ...newTxParam, userPhone: undefined });
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
+
+        response = await client.post(url, { accessKey, ...newTxParam, userPhone: "+82 10-1000-2000" });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 3050);
+
+        response = await client.post(url, { accessKey, ...newTxParam, userPhone: "+821010002000" });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 3050);
     });
 
     it("Invalid parameter validation test of currency", async () => {
