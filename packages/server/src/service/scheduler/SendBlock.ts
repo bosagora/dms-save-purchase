@@ -16,7 +16,6 @@ import { StorePurchase } from "../../../typechain-types";
 import { Scheduler } from "../../modules";
 import { Config } from "../common/Config";
 import { logger } from "../common/Logger";
-import { uint64max } from "../common/Utils";
 import { GasPriceManager } from "../contract/GasPriceManager";
 import { StorePurchaseStorage } from "../storage/StorePurchaseStorage";
 
@@ -143,10 +142,7 @@ export class SendBlock extends Scheduler {
             }
 
             let data: any = null;
-            // Genesis Block
-            if (last_height_org.toString() === uint64max && db_last_height >= 0n) {
-                data = await this.storage.selectBlockByHeight(0n);
-            } else if (db_last_height > last_height) {
+            if (db_last_height > last_height) {
                 data = await this.storage.selectBlockByHeight(last_height + 1n);
             }
 
@@ -167,9 +163,7 @@ export class SendBlock extends Scheduler {
             }
 
             // Delete blocks stored in the contract from the database
-            if (last_height_org.toString() !== uint64max) {
-                await this.storage.deleteBlockByHeight(last_height);
-            }
+            await this.storage.deleteBlockByHeight(last_height);
         } catch (error) {
             logger.error(`Failed to execute the Send Block: ${error}`);
         }

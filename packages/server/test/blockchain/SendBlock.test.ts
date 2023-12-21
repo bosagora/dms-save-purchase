@@ -66,16 +66,15 @@ describe("Test of SendBlock", () => {
         const prev_hash = Hash.Null;
         const cid = "CID";
         const block_0 = Block.createBlock(prev_hash, 0n, []);
-        block_0.header.height = 0n;
-        const block_1 = Block.createBlock(hashFull(block_0.header), 0n, []);
+        const block_1 = Block.createBlock(hashFull(block_0.header), 1n, []);
 
         // Test Block height 0
         await storage.insertBlock(block_0, cid);
         await delay(5000);
-        assert.deepStrictEqual(await contract.connect(admin_signer).getLastHeight(), BigNumber.from(0));
-        assert.deepStrictEqual(await contract.size(), BigNumber.from(1));
-        const sc_block_0 = await contract.connect(admin_signer).getByHeight(BigNumber.from(0));
-        const db_block_0 = await storage.selectBlockByHeight(0n);
+        assert.deepStrictEqual(await contract.connect(admin_signer).getLastHeight(), BigNumber.from(1));
+        assert.deepStrictEqual(await contract.size(), BigNumber.from(2));
+        const sc_block_0 = await contract.connect(admin_signer).getByHeight(BigNumber.from(1));
+        const db_block_0 = await storage.selectBlockByHeight(1n);
         assert.deepStrictEqual(sc_block_0[0], BigNumber.from(db_block_0.height));
         assert.deepStrictEqual(sc_block_0[1], db_block_0.curBlock);
         assert.deepStrictEqual(sc_block_0[2], db_block_0.prevBlock);
@@ -85,10 +84,10 @@ describe("Test of SendBlock", () => {
         // Test Block height 1
         await storage.insertBlock(block_1, cid);
         await delay(5000);
-        assert.deepStrictEqual(await contract.connect(admin_signer).getLastHeight(), BigNumber.from(1));
-        assert.deepStrictEqual(await contract.size(), BigNumber.from(2));
-        const sc_block_1 = await contract.connect(admin_signer).getByHeight(BigNumber.from(1));
-        const db_block_1 = await storage.selectBlockByHeight(1n);
+        assert.deepStrictEqual(await contract.connect(admin_signer).getLastHeight(), BigNumber.from(2));
+        assert.deepStrictEqual(await contract.size(), BigNumber.from(3));
+        const sc_block_1 = await contract.connect(admin_signer).getByHeight(BigNumber.from(2));
+        const db_block_1 = await storage.selectBlockByHeight(2n);
         assert.deepStrictEqual(sc_block_1[0], BigNumber.from(db_block_1.height));
         assert.deepStrictEqual(sc_block_1[1], db_block_1.curBlock);
         assert.deepStrictEqual(sc_block_1[2], db_block_1.prevBlock);

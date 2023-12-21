@@ -17,7 +17,7 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
         bytes32 curBlock,
         bytes32 prevBlock,
         bytes32 merkleRoot,
-        uint64 _timestamp,
+        uint64 timestamp,
         string cid
     );
 
@@ -26,7 +26,7 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
         __UUPSUpgradeable_init();
         __Ownable_init_unchained();
 
-        lastHeight = type(uint64).max;
+        addGenesis();
     }
 
     function _authorizeUpgrade(address newImplementation) internal virtual override {
@@ -47,11 +47,8 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
         bytes32 _merkleRoot,
         uint64 _timestamp,
         string memory _cid
-    ) public onlyOwner {
-        require(
-            (lastHeight == type(uint64).max && _height == 0) || lastHeight + 1 == _height,
-            "E001: Height is incorrect."
-        );
+    ) external onlyOwner {
+        require(lastHeight + 1 == _height, "E001: Height is incorrect.");
 
         if (_height != 0 && _prevBlock != (blockArray[_height - 1]).curBlock)
             revert("E002: The previous block hash is not valid.");
@@ -72,13 +69,38 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
         emit AddedBlock(_height, _curBlock, _prevBlock, _merkleRoot, _timestamp, _cid);
     }
 
+    function addGenesis() internal {
+        BlockHeader memory blockHeader = BlockHeader({
+            height: 0,
+            curBlock: bytes32(0x0),
+            prevBlock: bytes32(0x0),
+            merkleRoot: bytes32(0x0),
+            timestamp: 0,
+            CID: "GENESIS"
+        });
+        blockArray.push(blockHeader);
+
+        BlockHeight memory blockHeight = BlockHeight({ height: blockHeader.height, exists: true });
+        blockMap[blockHeader.curBlock] = blockHeight;
+        lastHeight = 0;
+
+        emit AddedBlock(
+            blockHeader.height,
+            blockHeader.curBlock,
+            blockHeader.prevBlock,
+            blockHeader.merkleRoot,
+            blockHeader.timestamp,
+            blockHeader.CID
+        );
+    }
+
     /// @notice Get a blockheader by block height
     /// @param _height Height of the block header
     /// @return Block header of the height
     function getByHeight(
         uint64 _height
-    ) public view returns (uint64, bytes32, bytes32, bytes32, uint64, string memory) {
-        require(_height <= lastHeight && lastHeight != type(uint64).max, "E003: Must be not more than last height.");
+    ) external view returns (uint64, bytes32, bytes32, bytes32, uint64, string memory) {
+        require(_height <= lastHeight, "E003: Must be not more than last height.");
         BlockHeader memory blockHeader = blockArray[_height];
         return (
             blockHeader.height,
@@ -95,7 +117,7 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
     /// @return Block header of the block hash
     function getByHash(
         bytes32 _blockHash
-    ) public view returns (uint64, bytes32, bytes32, bytes32, uint64, string memory) {
+    ) external view returns (uint64, bytes32, bytes32, bytes32, uint64, string memory) {
         require(_blockHash.length == 32, "E004: The hash length is not valid.");
         require((blockMap[_blockHash]).exists, "E005: No corresponding block hash key value.");
 
@@ -116,12 +138,9 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
     /// @param _height Block height to start getting
     /// @param _size The size of the blocks
     /// @return Block header list
-    function getByFromHeight(uint64 _height, uint8 _size) public view returns (BlockHeader[] memory) {
+    function getByFromHeight(uint64 _height, uint8 _size) external view returns (BlockHeader[] memory) {
         require(_size > 0 && _size <= 32, "E006: Size are allowed from 1 to 32.");
-        require(
-            (_height + (_size - 1)) <= lastHeight && lastHeight != type(uint64).max,
-            "E003: Must be not more than last height."
-        );
+        require((_height + (_size - 1)) <= lastHeight, "E003: Must be not more than last height.");
 
         BlockHeader[] memory blockHeaders = new BlockHeader[](_size);
         uint8 j = 0;
@@ -131,13 +150,13 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
 
     /// @notice Get a last block height
     /// @return The most recent block height
-    function getLastHeight() public view returns (uint64) {
+    function getLastHeight() external view returns (uint64) {
         return uint64(lastHeight);
     }
 
     /// @notice Get the block array length
     /// @return The block array length
-    function size() public view returns (uint64) {
+    function size() external view returns (uint64) {
         return uint64(blockArray.length);
     }
 }

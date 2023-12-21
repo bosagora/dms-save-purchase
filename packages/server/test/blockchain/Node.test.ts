@@ -90,7 +90,7 @@ describe("Test of Node", function () {
         for (const tx of txs) await tx.sign(signer);
 
         const prev_hash = Hash.Null;
-        const prev_height = -1n;
+        const prev_height = 0n;
         const block = Block.createBlock(prev_hash, prev_height, txs);
         for (const tx of txs) await node.receive(tx);
 

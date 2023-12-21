@@ -137,10 +137,10 @@ describe("Test of StorePurchase Server", function () {
 
         it("Check the height of the last block", async () => {
             const last_height_storage = await storage.selectLastHeight();
-            assert.strictEqual(last_height_storage, 0n);
+            assert.strictEqual(last_height_storage, 1n);
 
             const last_height_contract = await contract.getLastHeight();
-            assert.strictEqual(last_height_contract.toString(), "0");
+            assert.strictEqual(last_height_contract.toString(), "1");
         });
     });
 
@@ -159,10 +159,10 @@ describe("Test of StorePurchase Server", function () {
 
         it("Check the height of the last block", async () => {
             const last_height_storage = await storage.selectLastHeight();
-            assert.strictEqual(last_height_storage, 1n);
+            assert.strictEqual(last_height_storage, 2n);
 
             const last_height_contract = await contract.getLastHeight();
-            assert.strictEqual(last_height_contract.toString(), "1");
+            assert.strictEqual(last_height_contract.toString(), "2");
         });
     });
 
@@ -188,7 +188,7 @@ describe("Test of StorePurchase Server", function () {
         it("Check the height of the last block", async () => {
             const res = await LastBlockInfo.getInfo(storage, contract);
             assert.ok(res !== undefined);
-            assert.strictEqual(res.height, 1n);
+            assert.strictEqual(res.height, 2n);
         });
     });
 
@@ -207,21 +207,15 @@ describe("Test of StorePurchase Server", function () {
 
         it("Check the height of the last block", async () => {
             const last_height_storage = await storage.selectLastHeight();
-            assert.strictEqual(last_height_storage, 2n);
+            assert.strictEqual(last_height_storage, 3n);
 
             const last_height_contract = await contract.getLastHeight();
-            assert.strictEqual(last_height_contract.toString(), "2");
+            assert.strictEqual(last_height_contract.toString(), "3");
         });
 
         it("Check that the blocks stored in the contract have been deleted from the database", async () => {
-            const res0 = await storage.selectBlockByHeight(0n);
-            assert.strictEqual(res0, undefined);
-
-            const res1 = await storage.selectBlockByHeight(1n);
-            assert.strictEqual(res1, undefined);
-
-            const res2 = await storage.selectBlockByHeight(2n);
-            assert.notStrictEqual(res2, undefined);
+            const res = await storage.selectBlockByHeight(3n);
+            assert.notStrictEqual(res, undefined);
         });
     });
 

@@ -1,6 +1,6 @@
 {
     "name": "dms-store-purchase-contracts",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Smart contracts that stores purchase history for decentralized point systems",
     "files": [
         "**/*.sol"
@@ -13,27 +13,19 @@
         "deploy:mainnet": "hardhat run deploy/bosagora_devnet/deploy.ts --network bosagora_mainnet",
         "deploy:testnet": "hardhat run deploy/bosagora_devnet/deploy.ts --network bosagora_testnet",
         "deploy:devnet": "hardhat run deploy/bosagora_devnet/deploy.ts --network bosagora_devnet",
-        "lint": "tslint --config tslint.json \\\"{src,test}/**/*.ts\\\"",
-        "lint-fix": "tslint --fix --config tslint.json \\\"{src,test}/**/*.ts\\\"",
         "formatting:check": "prettier '**/*.{json,sol,ts,js}' -c",
-        "formatting:write": "prettier '**/*.{json,sol,ts,js}' --write",
-        "docgen": "hardhat docgen",
-        "test:Validator": "hardhat test test/00-Validator.test.ts",
-        "test:CurrencyRate": "hardhat test test/01-CurrencyRate.test.ts",
-        "test:Certifier": "hardhat test test/02-Certifier.test.ts",
-        "test:Shop": "hardhat test test/03-Shop.test.ts",
-        "test:Ledger": "hardhat test test/04-Ledger.test.ts"
+        "formatting:write": "prettier '**/*.{json,sol,ts,js}' --write"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/bosagora/dms-osx.git"
+        "url": "git+https://github.com/bosagora/dms-store-purchase.git"
     },
     "author": "BOSagora Foundation",
     "license": "AGPL-3.0-or-later",
     "bugs": {
-        "url": "https://github.com/bosagora/dms-osx/issues"
+        "url": "https://github.com/bosagora/dms-store-purchase/issues"
     },
-    "homepage": "https://github.com/bosagora/dms-osx#readme",
+    "homepage": "https://github.com/bosagora/dms-store-purchase#readme",
     "devDependencies": {
         "@ethersproject/constants": "^5.7.0",
         "@nomiclabs/hardhat-ethers": "^2.2.3",

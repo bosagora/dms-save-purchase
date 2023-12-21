@@ -12,7 +12,6 @@ import { Hash } from "dms-store-purchase-sdk";
 import { ethers } from "hardhat";
 import { StorePurchase } from "../../../typechain-types";
 import { Config } from "../common/Config";
-import { uint64max } from "../common/Utils";
 import { StorePurchaseStorage } from "../storage/StorePurchaseStorage";
 
 /**
@@ -58,7 +57,6 @@ export class LastBlockInfo {
                 contract = op;
             }
             const last_height_bn = await contract.getLastHeight();
-            if (last_height_bn.toString() === uint64max) return undefined;
             const last_height: bigint = BigInt(last_height_bn.toString());
 
             const res = await contract.getByHeight(last_height_bn);
