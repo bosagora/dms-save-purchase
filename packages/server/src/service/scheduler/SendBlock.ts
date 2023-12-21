@@ -19,6 +19,8 @@ import { logger } from "../common/Logger";
 import { GasPriceManager } from "../contract/GasPriceManager";
 import { StorePurchaseStorage } from "../storage/StorePurchaseStorage";
 
+import { ResponseMessage } from "../utils/Errors";
+
 /**
  * Store the headers of blocks in a smart contract at regular intervals.
  * The header of the block is created by the class Node and stored in the database.
@@ -155,6 +157,9 @@ export class SendBlock extends Scheduler {
                             logger.info(`Successful in adding blocks to the blockchain. Height: ${data.height}`);
                         });
                 } catch (err) {
+                    const msg = ResponseMessage.getEVMErrorMessage(err);
+                    logger.error(`SendBlock : ${msg.error.message}`);
+
                     const signer = this.managerSigner as NonceManager;
                     signer.setTransactionCount(await signer.getTransactionCount());
                 }

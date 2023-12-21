@@ -86,7 +86,7 @@ describe("Test of StorePurchase Contract", () => {
                 BigNumber.from(1669704553),
                 "QmW3CT4SHmso5dRJdsjR8GL1qmt79HkdAebCn2uNaWXF1h"
             )
-        ).to.be.revertedWith("E002: The previous block hash is not valid.");
+        ).to.be.revertedWith("3002");
 
         assert.deepStrictEqual((await admin_contract.size()).toNumber(), 3);
     });
@@ -113,7 +113,7 @@ describe("Test of StorePurchase Contract", () => {
             admin_contract.getByHash(
                 Utils.readFromString("0x1111111111111111111111111111111111111111111111111111111111111111")
             )
-        ).to.be.revertedWith("E005: No corresponding block hash key value.");
+        ).to.be.revertedWith("3005");
     });
 
     it("Test of Get by FromHeight", async () => {

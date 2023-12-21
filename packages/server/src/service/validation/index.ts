@@ -35,4 +35,18 @@ export class Validation {
             return resolve(value);
         });
     }
+
+    public static isUserAccount(value: string): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            if (!Utils.isPositiveInteger(value)) {
+                return reject(new Error("Invalid value"));
+            }
+            try {
+                BigNumber.from(value);
+            } catch (e) {
+                return reject(new Error("Invalid value"));
+            }
+            return resolve(value);
+        });
+    }
 }

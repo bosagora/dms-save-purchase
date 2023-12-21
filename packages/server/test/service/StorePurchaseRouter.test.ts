@@ -89,7 +89,7 @@ describe("Test of StorePurchase Router", () => {
     it("Test calls without authorization settings", async () => {
         const response = await client.post(url, { ...newTxParam });
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Verifying values recorded by API in database ", async () => {
@@ -108,61 +108,70 @@ describe("Test of StorePurchase Router", () => {
         const response = await client.post(url, { accessKey, ...newTxParam, purchaseId: "" });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of userAccount", async () => {
-        const response = await client.post(url, { accessKey, ...newTxParam, userAccount: undefined });
+        let response = await client.post(url, { accessKey, ...newTxParam, userAccount: undefined });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
+
+        response = await client.post(url, {
+            accessKey,
+            ...newTxParam,
+            userAccount: "0x00",
+        });
+
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of userPhone", async () => {
         const response = await client.post(url, { accessKey, ...newTxParam, userPhone: undefined });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of currency", async () => {
         const response = await client.post(url, { accessKey, ...newTxParam, currency: undefined });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of sequence", async () => {
         const response = await client.post(url, { accessKey, ...newTxParam, sequence: undefined });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of timestamp", async () => {
         const response = await client.post(url, { accessKey, ...newTxParam, timestamp: undefined });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of shopId", async () => {
         const response = await client.post(url, { accessKey, ...newTxParam, shopId: "" });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of totalAmount", async () => {
         let response = await client.post(url, { accessKey, ...newTxParam, totalAmount: undefined });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
 
         response = await client.post(url, { accessKey, ...newTxParam, totalAmount: "1,234.5678" });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     let cancelTxParam: any;
@@ -185,7 +194,7 @@ describe("Test of StorePurchase Router", () => {
     it("Test calls without authorization settings", async () => {
         const response = await client.post(url, { ...cancelTxParam });
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Verifying values recorded by API in database ", async () => {
@@ -202,13 +211,13 @@ describe("Test of StorePurchase Router", () => {
         const response = await client.post(url, { accessKey, ...cancelTxParam, purchaseId: "" });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of timestamp", async () => {
         const response = await client.post(url, { accessKey, ...cancelTxParam, timestamp: undefined });
 
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 400);
+        assert.deepStrictEqual(response.data.code, 2001);
     });
 });

@@ -232,9 +232,9 @@ describe("Test of StorePurchase Server", function () {
 
         it("Unexpected sequence", async () => {
             const res = await client.post(sendURL, { accessKey, ...tx2 });
-            assert.strictEqual(res.data.code, 417);
+            assert.strictEqual(res.data.code, 3050);
             assert.strictEqual(res.data.data, undefined);
-            assert.strictEqual(res.data.error.msg, "sequence is different from the expected value");
+            assert.strictEqual(res.data.error.message, "Sequence is different from the expected value");
         });
 
         it("Expected sequence 1", async () => {

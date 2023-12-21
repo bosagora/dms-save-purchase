@@ -72,7 +72,7 @@ export class Node extends Scheduler {
         super(expression);
         this._pool = new TransactionPool();
         this.prev_hash = Hash.Null;
-        this.prev_height = -1n;
+        this.prev_height = 0n;
 
         this.old_time_stamp = Utils.getTimeStamp();
     }

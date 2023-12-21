@@ -48,10 +48,9 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
         uint64 _timestamp,
         string memory _cid
     ) external onlyOwner {
-        require(lastHeight + 1 == _height, "E001: Height is incorrect.");
+        require(lastHeight + 1 == _height, "3001");
 
-        if (_height != 0 && _prevBlock != (blockArray[_height - 1]).curBlock)
-            revert("E002: The previous block hash is not valid.");
+        if (_height != 0 && _prevBlock != (blockArray[_height - 1]).curBlock) revert("3002");
 
         BlockHeader memory blockHeader = BlockHeader({
             height: _height,
@@ -100,7 +99,7 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
     function getByHeight(
         uint64 _height
     ) external view returns (uint64, bytes32, bytes32, bytes32, uint64, string memory) {
-        require(_height <= lastHeight, "E003: Must be not more than last height.");
+        require(_height <= lastHeight, "3003");
         BlockHeader memory blockHeader = blockArray[_height];
         return (
             blockHeader.height,
@@ -118,8 +117,8 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
     function getByHash(
         bytes32 _blockHash
     ) external view returns (uint64, bytes32, bytes32, bytes32, uint64, string memory) {
-        require(_blockHash.length == 32, "E004: The hash length is not valid.");
-        require((blockMap[_blockHash]).exists, "E005: No corresponding block hash key value.");
+        require(_blockHash.length == 32, "3004");
+        require((blockMap[_blockHash]).exists, "3005");
 
         uint64 height = blockMap[_blockHash].height;
         BlockHeader memory blockHeader = blockArray[height];
@@ -139,8 +138,8 @@ contract StorePurchase is StorePurchaseStorage, Initializable, OwnableUpgradeabl
     /// @param _size The size of the blocks
     /// @return Block header list
     function getByFromHeight(uint64 _height, uint8 _size) external view returns (BlockHeader[] memory) {
-        require(_size > 0 && _size <= 32, "E006: Size are allowed from 1 to 32.");
-        require((_height + (_size - 1)) <= lastHeight, "E003: Must be not more than last height.");
+        require(_size > 0 && _size <= 32, "3006");
+        require((_height + (_size - 1)) <= lastHeight, "3003");
 
         BlockHeader[] memory blockHeaders = new BlockHeader[](_size);
         uint8 j = 0;

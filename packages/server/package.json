@@ -70,7 +70,7 @@
         "chai": "^4.3.6",
         "chai-http": "^4.3.0",
         "cors": "^2.8.5",
-        "dms-store-purchase-contracts": "^1.0.1",
+        "dms-store-purchase-contracts": "^1.0.2",
         "dms-store-purchase-sdk": "^1.0.0",
         "dotenv": "^10.0.0",
         "ethereum-waffle": "^3.4.0",

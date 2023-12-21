@@ -20,6 +20,7 @@ import { logger } from "../common/Logger";
 import { TransactionPool } from "../scheduler/TransactionPool";
 import { DBTransaction, StorePurchaseStorage } from "../storage/StorePurchaseStorage";
 import { ContractUtils } from "../utils/ContractUtils";
+import { ResponseMessage } from "../utils/Errors";
 
 import { BigNumber } from "@ethersproject/bignumber";
 
@@ -111,46 +112,35 @@ export class StorePurchaseRouter {
         return this._managerSigner;
     }
 
-    private isValidate(req: express.Request, res: express.Response, next: any) {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            const e = errors.array({ onlyFirstError: true });
-            if (e.length) {
-                return res.status(200).json(StorePurchaseRouter.makeResponseData(400, undefined, e[0]));
-            } else {
-                return res.status(200).json(
-                    StorePurchaseRouter.makeResponseData(400, undefined, {
-                        validation: errors.array(),
-                        msg: "Failed to check the validity of parameters.",
-                    })
-                );
-            }
-        }
-        next();
-    }
-
     public registerRoutes() {
         this.app.get("/", [], StorePurchaseRouter.getHealthStatus.bind(this));
         this.app.get("/v1/tx/sequence", [], this.getSequence.bind(this));
         this.app.post(
             "/v1/tx/purchase/new",
             [
-                body("accessKey").exists().withMessage("Authentication Error"),
-                body("sequence").exists().isNumeric().bail(),
-                body("purchaseId").exists().not().isEmpty().bail(),
-                body("timestamp").exists().isNumeric().bail(),
-                body("totalAmount").exists().trim().isNumeric().bail(),
-                body("cashAmount").exists().trim().isNumeric().bail(),
-                body("currency").exists().not().isEmpty().bail(),
+                body("accessKey").exists(),
+                body("sequence").exists().isNumeric(),
+                body("purchaseId").exists().not().isEmpty(),
+                body("timestamp").exists().isNumeric(),
+                body("totalAmount").exists().trim().isNumeric(),
+                body("cashAmount").exists().trim().isNumeric(),
+                body("currency").exists().not().isEmpty(),
                 body("shopId")
                     .exists()
                     .trim()
-                    .matches(/^(0x)[0-9a-f]{64}$/i)
-                    .bail(),
-                body("userAccount").exists().bail(),
-                body("userPhone").exists().bail(),
-                body("details").exists().isArray({ min: 1 }).bail(),
-                this.isValidate,
+                    .matches(/^(0x)[0-9a-f]{64}$/i),
+                body("userAccount").custom(async (value) => {
+                    if (value === undefined) {
+                        throw new Error("Not Assigned User Account");
+                    } else if (value !== "") {
+                        const eth = /^(0x)[0-9a-f]{40}$/i;
+                        if (!eth.test(value)) {
+                            throw new Error("Not Invalid User Account");
+                        }
+                    }
+                }),
+                body("userPhone").exists(),
+                body("details").exists().isArray({ min: 1 }),
             ],
             this.postNewPurchase.bind(this)
         );
@@ -158,17 +148,16 @@ export class StorePurchaseRouter {
             "/v1/tx/purchase/cancel",
             [
                 body("accessKey").exists().withMessage("Authentication Error"),
-                body("sequence").exists().isNumeric().bail(),
-                body("purchaseId").exists().not().isEmpty().bail(),
-                body("timestamp").exists().isNumeric().bail(),
-                this.isValidate,
+                body("sequence").exists().isNumeric(),
+                body("purchaseId").exists().not().isEmpty(),
+                body("timestamp").exists().isNumeric(),
             ],
             this.postCancelPurchase.bind(this)
         );
     }
 
     private static async getHealthStatus(req: express.Request, res: express.Response) {
-        return res.json("OK");
+        return res.status(200).json("OK");
     }
 
     /**
@@ -183,11 +172,7 @@ export class StorePurchaseRouter {
             return res.status(200).json(StorePurchaseRouter.makeResponseData(0, { sequence }));
         } catch (error) {
             logger.error("GET /v1/tx/sequence , " + error);
-            return res.status(200).json(
-                StorePurchaseRouter.makeResponseData(500, undefined, {
-                    msg: "Failed to transaction record.",
-                })
-            );
+            return res.status(200).json(ResponseMessage.getErrorMessage("6000"));
         }
     }
 
@@ -197,15 +182,20 @@ export class StorePurchaseRouter {
      */
     private async postNewPurchase(req: express.Request, res: express.Response) {
         logger.http(`POST /v1/tx/purchase/new`);
+        //
+        // if (req.body.userAccount !== undefined && String(req.body.userAccount).trim() !== "") {
+        //     body("userAccount").isEthereumAddress();
+        // }
+
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(200).json(ResponseMessage.getErrorMessage("2001", { validation: errors.array() }));
+        }
 
         try {
             const accessKey: string = String(req.body.accessKey).trim();
             if (accessKey !== this._config.authorization.accessKey) {
-                return res.status(200).json(
-                    StorePurchaseRouter.makeResponseData(401, undefined, {
-                        msg: "Authentication Error",
-                    })
-                );
+                return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
             }
 
             const details: PurchaseDetails[] = [];
@@ -242,14 +232,7 @@ export class StorePurchaseRouter {
             }
 
             if (this.lastReceiveSequence + 1 !== tx.sequence) {
-                return res.status(200).json(
-                    StorePurchaseRouter.makeResponseData(417, undefined, {
-                        param: "sequence",
-                        expected: this.lastReceiveSequence + 1,
-                        actual: tx.sequence,
-                        msg: "sequence is different from the expected value",
-                    })
-                );
+                return res.status(200).json(ResponseMessage.getErrorMessage("3050"));
             }
 
             await this.pool.add(DBTransaction.make(tx));
@@ -258,11 +241,7 @@ export class StorePurchaseRouter {
             return res.json(StorePurchaseRouter.makeResponseData(0, tx.toJSON()));
         } catch (error) {
             logger.error("POST /v1/tx/purchase/new , " + error);
-            return res.status(200).json(
-                StorePurchaseRouter.makeResponseData(500, undefined, {
-                    msg: "Failed to transaction record.",
-                })
-            );
+            return res.status(200).json(ResponseMessage.getErrorMessage("6000"));
         }
     }
 
@@ -273,14 +252,15 @@ export class StorePurchaseRouter {
     private async postCancelPurchase(req: express.Request, res: express.Response) {
         logger.http(`POST /v1/tx/purchase/cancel`);
 
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(200).json(ResponseMessage.getErrorMessage("2001", { validation: errors.array() }));
+        }
+
         try {
             const accessKey: string = String(req.body.accessKey).trim();
             if (accessKey !== this._config.authorization.accessKey) {
-                return res.status(200).json(
-                    StorePurchaseRouter.makeResponseData(401, undefined, {
-                        msg: "Authentication Error",
-                    })
-                );
+                return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
             }
 
             const tx: CancelTransaction = new CancelTransaction(
@@ -297,14 +277,7 @@ export class StorePurchaseRouter {
             }
 
             if (this.lastReceiveSequence + 1 !== tx.sequence) {
-                return res.status(200).json(
-                    StorePurchaseRouter.makeResponseData(417, undefined, {
-                        param: "sequence",
-                        expected: this.lastReceiveSequence + 1,
-                        actual: tx.sequence,
-                        msg: "sequence is different from the expected value",
-                    })
-                );
+                return res.status(200).json(ResponseMessage.getErrorMessage("3050"));
             }
 
             await this.pool.add(DBTransaction.make(tx));
@@ -312,12 +285,8 @@ export class StorePurchaseRouter {
             this.lastReceiveSequence = tx.sequence;
             return res.json(StorePurchaseRouter.makeResponseData(0, tx.toJSON()));
         } catch (error) {
-            logger.error("POST /v1/tx/purchase/new , " + error);
-            return res.status(200).json(
-                StorePurchaseRouter.makeResponseData(500, undefined, {
-                    msg: "Failed to transaction record.",
-                })
-            );
+            logger.error("POST /v1/tx/purchase/cancel , " + error);
+            return res.status(200).json(ResponseMessage.getErrorMessage("6000"));
         }
     }
 }
