@@ -1,10 +1,10 @@
 import * as dotenv from "dotenv";
-import { RollupClientScheduler } from "./client/ClientScheduler";
+import { StorePurchaseClientScheduler } from "./client/ClientScheduler";
 
 dotenv.config({ path: "env/.env.client" });
 
 async function clientMain() {
-    const scheduler = new RollupClientScheduler();
+    const scheduler = new StorePurchaseClientScheduler("*/1 * * * * *");
     await scheduler.start();
 }
 

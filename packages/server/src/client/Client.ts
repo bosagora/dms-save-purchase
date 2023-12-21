@@ -1,18 +1,18 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { Transaction } from "dms-store-purchase-sdk";
 // @ts-ignore
 import URI from "urijs";
 import { handleNetworkError } from "../modules/network/ErrorTypes";
+import { INewPurchaseData } from "./types/index";
 
-export class RollupClient {
-    private readonly token: string;
+export class StorePurchaseClient {
+    private readonly accessKey: string;
     private serverURL: string;
     private client: AxiosInstance;
 
     constructor() {
-        this.token = process.env.ACCESS_SECRET || "";
+        this.accessKey = process.env.ACCESS_KEY || "";
         this.serverURL = process.env.SERVER_URL || "";
-        this.client = axios.create({ headers: { Authorization: this.token } });
+        this.client = axios.create();
     }
 
     private get(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
@@ -67,13 +67,14 @@ export class RollupClient {
         });
     }
 
-    public sendTransaction(tx: Transaction): Promise<number> {
-        const url = URI(this.serverURL).directory("v1/tx/record").toString();
-        const sendTx = tx.toJSON();
+    public sendTransaction(tx: INewPurchaseData): Promise<number> {
+        const url = URI(this.serverURL).directory("/v1/tx/purchase").filename("new").toString();
+        const sendTx = tx;
         return new Promise<number>((resolve, reject) => {
             this.client
-                .post(url, sendTx)
+                .post(url, { accessKey: this.accessKey, ...sendTx })
                 .then((res) => {
+                    console.log("Response", JSON.stringify(res.data));
                     return resolve(res.status);
                 })
                 .catch((reason) => {
