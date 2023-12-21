@@ -52,8 +52,8 @@ export class SendBlock extends Scheduler {
     /**
      * Constructor
      */
-    constructor() {
-        super(1);
+    constructor(expression: string) {
+        super(expression);
 
         this.old_time_stamp = Utils.getTimeStamp();
     }

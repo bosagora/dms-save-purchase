@@ -30,10 +30,10 @@ scheduler:
   items:
     - name: node
       enable: true
-      interval: 1
+      expression: "*/1 * * * * *"
     - name: send_block
       enable: true
-      interval: 14
+      expression: "*/14 * * * * *"
 
 contracts:
   managerKey: "${MANAGER_KEY}"

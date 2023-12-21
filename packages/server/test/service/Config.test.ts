@@ -15,7 +15,7 @@ describe("Test of Config", () => {
         assert.strictEqual(config.scheduler.items.length, 2);
         assert.strictEqual(config.scheduler.items[0].name, "node");
         assert.strictEqual(config.scheduler.items[0].enable, true);
-        assert.strictEqual(config.scheduler.items[0].interval, 1);
+        assert.strictEqual(config.scheduler.items[0].expression, "*/1 * * * * *");
 
         assert.strictEqual(config.node.interval, 10);
         assert.strictEqual(config.node.max_txs, 8);

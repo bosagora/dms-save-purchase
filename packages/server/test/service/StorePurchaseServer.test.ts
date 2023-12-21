@@ -71,8 +71,8 @@ describe("Test of StorePurchase Server", function () {
     });
 
     before("Create Schedulers", () => {
-        schedulers.push(new Node());
-        schedulers.push(new SendBlock());
+        schedulers.push(new Node("*/1 * * * * *"));
+        schedulers.push(new SendBlock("*/1 * * * * *"));
     });
 
     before("Create Test Server", () => {
@@ -173,8 +173,8 @@ describe("Test of StorePurchase Server", function () {
 
         schedulers.length = 0;
         it("Create Schedulers", () => {
-            schedulers.push(new Node());
-            schedulers.push(new SendBlock());
+            schedulers.push(new Node("*/1 * * * * *"));
+            schedulers.push(new SendBlock("*/1 * * * * *"));
         });
 
         it("Create Test Server", async () => {

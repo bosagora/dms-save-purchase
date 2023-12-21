@@ -208,7 +208,7 @@ export class SchedulerConfig implements ISchedulerConfig {
                 {
                     name: "node",
                     enable: false,
-                    interval: 1,
+                    expression: "*/1 * * * * *",
                 },
             ],
         } as unknown as ISchedulerConfig;
@@ -370,7 +370,7 @@ export interface ISchedulerItemConfig {
     /**
      * Execution cycle (seconds)
      */
-    interval: number;
+    expression: string;
 }
 
 /**

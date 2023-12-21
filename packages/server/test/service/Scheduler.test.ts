@@ -40,7 +40,7 @@ describe("Test of Scheduler", () => {
     let scheduler: TestScheduler;
 
     before("Create Scheduler", () => {
-        scheduler = new TestScheduler(2);
+        scheduler = new TestScheduler("*/2 * * * * *");
         scheduler.setOption({ value: 10 });
     });
 

@@ -56,7 +56,7 @@ describe("Test of Node", function () {
                 });
             });
         })();
-        node = new Node();
+        node = new Node("*/1 * * * * *");
         const pool = new TransactionPool();
         pool.storage = storage;
         node.setOption({ config, storage, pool });

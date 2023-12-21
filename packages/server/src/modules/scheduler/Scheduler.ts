@@ -37,10 +37,7 @@ export class Scheduler {
      */
     protected state: ScheduleState;
 
-    /**
-     * The period in which the task is performed (in seconds).
-     */
-    protected interval: number;
+    protected expression: string;
 
     /**
      * If the work is running, return true
@@ -49,10 +46,9 @@ export class Scheduler {
 
     /**
      * Constructor
-     * @param interval The period in which the task is performed (in seconds).
      */
-    constructor(interval: number = 15) {
-        this.interval = interval;
+    constructor(expression: string) {
+        this.expression = expression;
         this.state = ScheduleState.NONE;
     }
 
@@ -62,7 +58,7 @@ export class Scheduler {
     public async start() {
         this.state = ScheduleState.STARTING;
         this.is_working = false;
-        this.task = cron.schedule(`*/${this.interval} * * * * *`, this.workTask.bind(this));
+        this.task = cron.schedule(this.expression, this.workTask.bind(this));
         this.addEventHandlers();
         this.state = ScheduleState.RUNNING;
         await this.onStart();

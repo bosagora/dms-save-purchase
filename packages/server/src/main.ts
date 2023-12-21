@@ -35,11 +35,11 @@ async function main() {
     if (config.scheduler.enable) {
         let scheduler = config.scheduler.getScheduler("node");
         if (scheduler && scheduler.enable) {
-            schedulers.push(new Node());
+            schedulers.push(new Node(scheduler.expression));
         }
         scheduler = config.scheduler.getScheduler("send_block");
         if (scheduler && scheduler.enable) {
-            schedulers.push(new SendBlock());
+            schedulers.push(new SendBlock(scheduler.expression));
         }
     }
 
