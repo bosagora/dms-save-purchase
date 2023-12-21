@@ -310,12 +310,12 @@ export class NodeConfig implements INodeConfig {
      * @param config The object of ILoggingConfig
      */
     public readFromObject(config: INodeConfig) {
-        if (config.interval !== undefined) this.interval = config.interval;
-        if (config.max_txs !== undefined) this.max_txs = config.max_txs;
-        if (config.send_interval !== undefined) this.send_interval = config.send_interval;
+        if (config.interval !== undefined) this.interval = Number(config.interval);
+        if (config.max_txs !== undefined) this.max_txs = Number(config.max_txs);
+        if (config.send_interval !== undefined) this.send_interval = Number(config.send_interval);
         if (config.ipfs_api_url !== undefined) this.ipfs_api_url = config.ipfs_api_url;
         if (config.ipfs_gateway_url !== undefined) this.ipfs_gateway_url = config.ipfs_gateway_url;
-        if (config.ipfs_test !== undefined) this.ipfs_test = config.ipfs_test;
+        if (config.ipfs_test !== undefined) this.ipfs_test = config.ipfs_test.toString().toLowerCase() === "true";
     }
 }
 
