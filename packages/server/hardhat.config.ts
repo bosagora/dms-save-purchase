@@ -72,14 +72,19 @@ const config = {
             gas: 2100000,
             gasPrice: 8000000000,
         },
-        main_net: {
+        bosagora_mainnet: {
             url: process.env.MAIN_NET_URL || "",
             chainId: 2151,
             accounts: getAccounts(),
         },
-        test_net: {
+        bosagora_testnet: {
             url: process.env.TEST_NET_URL || "",
             chainId: 2019,
+            accounts: getAccounts(),
+        },
+        bosagora_devnet: {
+            url: "http://localhost:8545",
+            chainId: 24680,
             accounts: getAccounts(),
         },
         production_net: {
