@@ -3,7 +3,6 @@ import { BigNumber } from "ethers";
 export interface IShopData {
     shopId: string;
     name: string;
-    providePercent: number;
     address: string;
     privateKey: string;
 }
