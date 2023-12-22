@@ -59,7 +59,6 @@ describe("Test of StorePurchase Router", () => {
     let url: string;
     it("New Transaction", async () => {
         newTxParam = {
-            sequence: 0,
             purchaseId: "123456789",
             timestamp: 1668044556,
             totalAmount: 10.25,
@@ -97,7 +96,6 @@ describe("Test of StorePurchase Router", () => {
         const dbTx: Transaction[] = DBTransaction.converterTxArray(dbRes);
         assert.deepStrictEqual(dbTx.length, 1);
         const tx: NewTransaction = dbTx[0] as NewTransaction;
-        assert.deepStrictEqual(tx.sequence, newTxParam.sequence);
         assert.deepStrictEqual(tx.timestamp, newTxParam.timestamp);
         assert.deepStrictEqual(tx.totalAmount, Amount.make(String(newTxParam.totalAmount).trim(), 18).value);
         assert.deepStrictEqual(tx.cashAmount, Amount.make(String(newTxParam.cashAmount).trim(), 18).value);
@@ -135,22 +133,15 @@ describe("Test of StorePurchase Router", () => {
 
         response = await client.post(url, { accessKey, ...newTxParam, userPhone: "+82 10-1000-2000" });
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 3050);
+        assert.deepStrictEqual(response.data.code, 0);
 
         response = await client.post(url, { accessKey, ...newTxParam, userPhone: "+821010002000" });
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 3050);
+        assert.deepStrictEqual(response.data.code, 0);
     });
 
     it("Invalid parameter validation test of currency", async () => {
         const response = await client.post(url, { accessKey, ...newTxParam, currency: undefined });
-
-        assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 2001);
-    });
-
-    it("Invalid parameter validation test of sequence", async () => {
-        const response = await client.post(url, { accessKey, ...newTxParam, sequence: undefined });
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
@@ -185,7 +176,6 @@ describe("Test of StorePurchase Router", () => {
     let cancelTxParam: any;
     it("Cancel Transaction", async () => {
         cancelTxParam = {
-            sequence: 1,
             purchaseId: "123456789",
             timestamp: 1668044556,
         };
@@ -210,7 +200,6 @@ describe("Test of StorePurchase Router", () => {
         const dbTx: Transaction[] = DBTransaction.converterTxArray(dbRes);
         assert.deepStrictEqual(dbTx.length, 2);
         const tx: CancelTransaction = dbTx[1] as CancelTransaction;
-        assert.deepStrictEqual(tx.sequence, cancelTxParam.sequence);
         assert.deepStrictEqual(tx.purchaseId, cancelTxParam.purchaseId);
         assert.deepStrictEqual(tx.timestamp, cancelTxParam.timestamp);
     });

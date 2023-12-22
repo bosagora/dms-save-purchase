@@ -103,7 +103,7 @@ export class StorePurchaseStorage extends Storage {
             const statement = this.database.prepare(insertTxQuery);
 
             params.forEach((row) => {
-                statement.run([row.sequence, row.contents, row.hash]);
+                statement.run([row.sequence.toString(), row.contents, row.hash]);
             });
             statement.finalize((err) => {
                 if (err) reject(err);
@@ -116,7 +116,12 @@ export class StorePurchaseStorage extends Storage {
         return new Promise<DBTransaction[]>((resolve, reject) => {
             this.database.all(selectTxByLengthQuery, [length], (err: Error | null, row: DBTransaction[]) => {
                 if (err) reject(err);
-                else resolve(row.map((tx: DBTransaction) => tx as DBTransaction));
+                else
+                    resolve(
+                        row.map((m: any) => {
+                            return new DBTransaction(m.sequence, m.contents, m.hash);
+                        })
+                    );
             });
         });
     }
@@ -125,7 +130,7 @@ export class StorePurchaseStorage extends Storage {
         return new Promise<DBTransaction | null>((resolve, reject) => {
             this.database.all(selectTxByHashQuery, [hash], (err: Error | null, row: DBTransaction[]) => {
                 if (err) reject(err);
-                else resolve(row.length > 0 ? (row[0] as DBTransaction) : null);
+                else resolve(row.length > 0 ? new DBTransaction(row[0].sequence, row[0].contents, row[0].hash) : null);
             });
         });
     }
@@ -202,10 +207,10 @@ export class StorePurchaseStorage extends Storage {
     /**
      * Return the last sequence received
      */
-    public async getLastReceiveSequence(): Promise<number> {
-        return new Promise<number>((resolve, reject) => {
+    public async getLastReceiveSequence(): Promise<bigint> {
+        return new Promise<bigint>((resolve, reject) => {
             this.getSetting("last_receive_sequence", "-1")
-                .then((value) => resolve(Number(value)))
+                .then((value) => resolve(BigInt(value)))
                 .catch((e) => reject(e));
         });
     }
@@ -214,7 +219,7 @@ export class StorePurchaseStorage extends Storage {
      * Save the last received sequence as a database
      * @param value Value to set
      */
-    public async setLastReceiveSequence(value: number): Promise<void> {
+    public async setLastReceiveSequence(value: bigint): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             this.setSetting("last_receive_sequence", value.toString())
                 .then(() => resolve())
@@ -225,18 +230,18 @@ export class StorePurchaseStorage extends Storage {
 
 export class DBTransaction {
     public hash: string;
-    public sequence: number;
+    public sequence: bigint;
     public contents: string;
 
-    constructor(sequence: number, contents: string, hash?: string) {
-        this.sequence = sequence;
+    constructor(sequence: bigint | string | number, contents: string, hash?: string) {
+        this.sequence = BigInt(sequence);
         this.contents = contents;
         if (hash !== undefined) this.hash = hash;
         else this.hash = "";
     }
 
     public static make(tx: Transaction): DBTransaction {
-        return { sequence: tx.sequence, contents: JSON.stringify(tx.toJSON()), hash: hashFull(tx).toString() };
+        return { sequence: BigInt(tx.sequence), contents: JSON.stringify(tx.toJSON()), hash: hashFull(tx).toString() };
     }
 
     public static converterTxArray(dbTx: DBTransaction[]): Transaction[] {

@@ -60,7 +60,7 @@ export class StorePurchaseRouter {
      * Sequence of the last received transaction
      * @private
      */
-    private lastReceiveSequence: number;
+    private lastReceiveSequence: bigint;
 
     /**
      * The signer needed to save the block information
@@ -84,7 +84,7 @@ export class StorePurchaseRouter {
         this.storage = storage;
 
         StorePurchaseRouter.accessKey = config.authorization.accessKey;
-        this.lastReceiveSequence = -1;
+        this.lastReceiveSequence = -1n;
     }
 
     private get app(): express.Application {
@@ -124,7 +124,6 @@ export class StorePurchaseRouter {
             "/v1/tx/purchase/new",
             [
                 body("accessKey").exists(),
-                body("sequence").exists().isNumeric(),
                 body("purchaseId").exists().not().isEmpty(),
                 body("timestamp").exists().isNumeric(),
                 body("totalAmount").exists().trim().isNumeric(),
@@ -143,8 +142,7 @@ export class StorePurchaseRouter {
         this.app.post(
             "/v1/tx/purchase/cancel",
             [
-                body("accessKey").exists().withMessage("Authentication Error"),
-                body("sequence").exists().isNumeric(),
+                body("accessKey").exists(),
                 body("purchaseId").exists().not().isEmpty(),
                 body("timestamp").exists().isNumeric(),
             ],
@@ -202,18 +200,14 @@ export class StorePurchaseRouter {
             }
         }
 
+        const accessKey: string = String(req.body.accessKey).trim();
+        if (accessKey !== this._config.authorization.accessKey) {
+            return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
+        }
+
         try {
-            const accessKey: string = String(req.body.accessKey).trim();
-            if (accessKey !== this._config.authorization.accessKey) {
-                return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
-            }
-
-            if (this.lastReceiveSequence === -1) {
+            if (this.lastReceiveSequence === -1n) {
                 this.lastReceiveSequence = await this.storage.getLastReceiveSequence();
-            }
-
-            if (this.lastReceiveSequence + 1 !== Number(req.body.sequence)) {
-                return res.status(200).json(ResponseMessage.getErrorMessage("3050"));
             }
 
             const details: PurchaseDetails[] = [];
@@ -230,7 +224,7 @@ export class StorePurchaseRouter {
             }
 
             const tx: NewTransaction = new NewTransaction(
-                Number(req.body.sequence),
+                this.lastReceiveSequence + 1n,
                 String(req.body.purchaseId).trim(),
                 Number(req.body.timestamp),
                 Amount.make(String(req.body.totalAmount).trim(), 18).value,
@@ -267,22 +261,18 @@ export class StorePurchaseRouter {
             return res.status(200).json(ResponseMessage.getErrorMessage("2001", { validation: errors.array() }));
         }
 
-        try {
-            const accessKey: string = String(req.body.accessKey).trim();
-            if (accessKey !== this._config.authorization.accessKey) {
-                return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
-            }
+        const accessKey: string = String(req.body.accessKey).trim();
+        if (accessKey !== this._config.authorization.accessKey) {
+            return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
+        }
 
-            if (this.lastReceiveSequence === -1) {
+        try {
+            if (this.lastReceiveSequence === -1n) {
                 this.lastReceiveSequence = await this.storage.getLastReceiveSequence();
             }
 
-            if (this.lastReceiveSequence + 1 !== Number(req.body.sequence)) {
-                return res.status(200).json(ResponseMessage.getErrorMessage("3050"));
-            }
-
             const tx: CancelTransaction = new CancelTransaction(
-                Number(req.body.sequence),
+                this.lastReceiveSequence + 1n,
                 String(req.body.purchaseId).trim(),
                 Number(req.body.timestamp),
                 this.managerSigner.address

@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "sourceMap": true,
-        "target": "es2022",
+        "target": "es2020",
         "module": "commonjs",
         "lib": ["esnext"],
         "strict": true,
@@ -10,5 +10,6 @@
         "declaration": true,
         "resolveJsonModule": true
     },
-    "exclude": ["node_modules", "**/*.test.ts", "tests"]
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules"]
 }

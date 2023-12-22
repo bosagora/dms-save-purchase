@@ -24,7 +24,7 @@ export enum TransactionType {
 
 export interface INewTransaction {
     type: TransactionType;
-    sequence: number;
+    sequence: bigint;
     purchaseId: string;
     timestamp: number;
     totalAmount: BigNumber;
@@ -40,7 +40,7 @@ export interface INewTransaction {
 
 export interface ICancelTransaction {
     type: TransactionType;
-    sequence: number;
+    sequence: bigint;
     purchaseId: string;
     timestamp: number;
     signer: string;
@@ -54,7 +54,7 @@ export interface ICancelTransaction {
  */
 export class NewTransaction implements INewTransaction {
     public type: TransactionType;
-    public sequence: number;
+    public sequence: bigint;
     public purchaseId: string;
     public timestamp: number;
     public totalAmount: BigNumber;
@@ -71,7 +71,7 @@ export class NewTransaction implements INewTransaction {
      * Constructor
      */
     constructor(
-        sequence: number,
+        sequence: string | bigint,
         purchaseId: string,
         timestamp: number,
         totalAmount: BigNumber,
@@ -85,7 +85,7 @@ export class NewTransaction implements INewTransaction {
         signature?: string
     ) {
         this.type = TransactionType.NEW;
-        this.sequence = sequence;
+        this.sequence = BigInt(sequence);
         this.purchaseId = purchaseId;
         this.timestamp = timestamp;
         this.totalAmount = BigNumber.from(totalAmount);
@@ -166,7 +166,7 @@ export class NewTransaction implements INewTransaction {
     public toJSON(): any {
         return {
             type: this.type,
-            sequence: this.sequence,
+            sequence: this.sequence.toString(),
             purchaseId: this.purchaseId,
             timestamp: this.timestamp,
             totalAmount: this.totalAmount.toString(),
@@ -230,7 +230,7 @@ export class NewTransaction implements INewTransaction {
 
 export class CancelTransaction implements ICancelTransaction {
     public type: TransactionType;
-    public sequence: number;
+    public sequence: bigint;
     public purchaseId: string;
     public timestamp: number;
     public signer: string;
@@ -239,9 +239,9 @@ export class CancelTransaction implements ICancelTransaction {
     /**
      * Constructor
      */
-    constructor(sequence: number, purchaseId: string, timestamp: number, signer?: string, signature?: string) {
+    constructor(sequence: string | bigint, purchaseId: string, timestamp: number, signer?: string, signature?: string) {
         this.type = TransactionType.CANCEL;
-        this.sequence = sequence;
+        this.sequence = BigInt(sequence);
         this.purchaseId = purchaseId;
         this.timestamp = timestamp;
         if (signer !== undefined) this.signer = signer;
@@ -286,7 +286,7 @@ export class CancelTransaction implements ICancelTransaction {
     public toJSON(): any {
         return {
             type: this.type,
-            sequence: this.sequence,
+            sequence: this.sequence.toString(),
             purchaseId: this.purchaseId,
             timestamp: this.timestamp,
             signer: this.signer,

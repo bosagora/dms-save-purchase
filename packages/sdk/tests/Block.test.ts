@@ -23,7 +23,7 @@ describe("Test of Block", () => {
         for (let idx = 0; idx < 7; idx++) {
             txs.push(
                 new NewTransaction(
-                    0,
+                    BigInt(0),
                     (12345670 + idx).toString(),
                     1668044556,
                     BigNumber.from(idx + 1),
@@ -45,7 +45,7 @@ describe("Test of Block", () => {
     it("Test createBlock", () => {
         const txs = [
             new NewTransaction(
-                0,
+                BigInt(0),
                 "00000000",
                 1668044556,
                 BigNumber.from(1000000000),
@@ -57,7 +57,7 @@ describe("Test of Block", () => {
                 [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
             ),
             new NewTransaction(
-                1,
+                BigInt(1),
                 "00000001",
                 1668044556,
                 BigNumber.from(1000000000),
@@ -69,7 +69,7 @@ describe("Test of Block", () => {
                 [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
             ),
             new NewTransaction(
-                2,
+                BigInt(2),
                 "00000002",
                 1668044556,
                 BigNumber.from(1000000000),
@@ -81,7 +81,7 @@ describe("Test of Block", () => {
                 [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
             ),
             new NewTransaction(
-                3,
+                BigInt(3),
                 "00000003",
                 1668044556,
                 BigNumber.from(1000000000),
@@ -93,7 +93,7 @@ describe("Test of Block", () => {
                 [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
             ),
             new NewTransaction(
-                4,
+                BigInt(4),
                 "00000004",
                 1668044556,
                 BigNumber.from(1000000000),
@@ -104,7 +104,7 @@ describe("Test of Block", () => {
                 phoneHash,
                 [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
             ),
-            new CancelTransaction(4, "00000004", 1668044556),
+            new CancelTransaction(BigInt(4), "00000004", 1668044556),
         ];
         const signer = new Wallet("0xf6dda8e03f9dce37c081e5d178c1fda2ebdb90b5b099de1a555a658270d8c47d");
         const prev_hash = Hash.Null;

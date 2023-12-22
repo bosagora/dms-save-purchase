@@ -83,7 +83,7 @@ export class JSONValidator {
                         type: "number",
                     },
                     sequence: {
-                        type: "number",
+                        type: "string",
                     },
                     purchaseId: {
                         type: "string",
@@ -150,7 +150,7 @@ export class JSONValidator {
                         type: "number",
                     },
                     sequence: {
-                        type: "number",
+                        type: "string",
                     },
                     purchaseId: {
                         type: "string",

@@ -74,7 +74,7 @@ describe("Test of Node", function () {
         for (let idx = 0; idx < 8; idx++) {
             txs.push(
                 new NewTransaction(
-                    idx,
+                    BigInt(idx),
                     (12345670 + idx).toString(),
                     Utils.getTimeStamp(),
                     BigNumber.from(idx + 1),

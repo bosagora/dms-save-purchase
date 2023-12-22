@@ -11,7 +11,6 @@ import * as fs from "fs";
 export class StorePurchaseClientScheduler extends Scheduler {
     private client: StorePurchaseClient;
     private oldTimeStamp: number;
-    private lastSequence: number = -1;
     private readonly minInterval: number;
     private readonly maxInterval: number;
     private randInterval: number;
@@ -36,8 +35,6 @@ export class StorePurchaseClientScheduler extends Scheduler {
     }
 
     public async onStart() {
-        const sequence = await this.client.getSequence();
-        if (sequence >= -1) this.lastSequence = sequence;
         await this.loadData();
     }
 
@@ -71,14 +68,11 @@ export class StorePurchaseClientScheduler extends Scheduler {
                 console.log(`interval : ${this.randInterval}`);
             }
 
-            const sequence = await this.client.getSequence();
-            if (sequence >= -1) this.lastSequence = sequence;
-
             this.oldTimeStamp = newTimeStamp;
 
             const tx = await this.makeTransactions();
-            console.log(`sequence : ${tx.sequence}`);
-            const res = await this.client.sendTransaction(tx);
+            console.log("Send: ", JSON.stringify(tx));
+            await this.client.sendTransaction(tx);
         } catch (error) {
             logger.error(`Failed to execute the node scheduler: ${error}`);
         }
@@ -118,7 +112,6 @@ export class StorePurchaseClientScheduler extends Scheduler {
         const shopIndex = Math.floor(Math.random() * this.shops.length);
 
         const res: INewPurchaseData = {
-            sequence: this.lastSequence + 1,
             purchaseId,
             timestamp: Utils.getTimeStamp(),
             totalAmount,

@@ -98,7 +98,6 @@ describe("Test of StorePurchase Server", function () {
 
         for (let idx = 0; idx < count; idx++) {
             const tx = {
-                sequence: numTx,
                 purchaseId: "TX" + numTx.toString().padStart(10, "0"),
                 timestamp: Utils.getTimeStamp(),
                 totalAmount: 10000,
@@ -216,44 +215,6 @@ describe("Test of StorePurchase Server", function () {
         it("Check that the blocks stored in the contract have been deleted from the database", async () => {
             const res = await storage.selectBlockByHeight(3n);
             assert.notStrictEqual(res, undefined);
-        });
-    });
-
-    // The sequence of transactions received should be increased by 1.
-    // If a value different from the expected sequence is received, response code 417 is returned
-    context("Step 4 - Receive sequential transactions", () => {
-        let tx1: any;
-        let tx2: any;
-
-        before("Create Transactions", async () => {
-            tx1 = (await makeMultiTransactions(1))[0];
-            tx2 = (await makeMultiTransactions(1))[0];
-        });
-
-        it("Unexpected sequence", async () => {
-            const res = await client.post(sendURL, { accessKey, ...tx2 });
-            assert.strictEqual(res.data.code, 3050);
-            assert.strictEqual(res.data.data, undefined);
-            assert.strictEqual(res.data.error.message, "Sequence is different from the expected value");
-        });
-
-        it("Expected sequence 1", async () => {
-            const res = await client.post(sendURL, { accessKey, ...tx1 });
-            assert.strictEqual(res.data.code, 0);
-            assert.notStrictEqual(res.data.data, undefined);
-        });
-
-        it("Expected sequence 2", async () => {
-            const res = await client.post(sendURL, { accessKey, ...tx2 });
-            assert.strictEqual(res.data.code, 0);
-            assert.notStrictEqual(res.data.data, undefined);
-        });
-
-        it("GET /tx/sequence", async () => {
-            const url = URI(serverURL).directory("v1/tx/sequence").toString();
-            const res = await client.get(url);
-            assert.strictEqual(res.data.code, 0);
-            assert.strictEqual(res.data.data.sequence, 25);
         });
     });
 });

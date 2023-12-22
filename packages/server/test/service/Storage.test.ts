@@ -9,7 +9,7 @@ describe("Test of Storage", () => {
     let storage: StorePurchaseStorage;
     const tx1 = DBTransaction.make(
         new NewTransaction(
-            0,
+            BigInt(0),
             "123456789",
             1668044556,
             BigNumber.from(123),
@@ -26,7 +26,7 @@ describe("Test of Storage", () => {
 
     const tx2 = DBTransaction.make(
         new NewTransaction(
-            1,
+            BigInt(1),
             "987654321",
             1313456756,
             BigNumber.from(123),
@@ -127,13 +127,13 @@ describe("Test of Storage", () => {
 
         it("getLastReceiveSequence & default", async () => {
             const res = await storage.getLastReceiveSequence();
-            assert.strictEqual(res, -1);
+            assert.strictEqual(res, -1n);
         });
 
         it("setSetting & getSetting", async () => {
-            await storage.setLastReceiveSequence(45);
+            await storage.setLastReceiveSequence(45n);
             const res = await storage.getLastReceiveSequence();
-            assert.strictEqual(res, 45);
+            assert.strictEqual(res, 45n);
         });
     });
 });

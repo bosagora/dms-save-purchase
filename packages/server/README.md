@@ -46,4 +46,4 @@ The following endpoints are provided:
 -   /tx/record - Endpoint entering the transaction
 -   /tx/sequence - Endpoint requesting the sequence of the last transaction received
 
-Refer to the [API User's Guide](API.md) for more information
+Refer to the [API User's Guide](docs/store-purchase.md) for more information

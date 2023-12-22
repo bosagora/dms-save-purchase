@@ -66,7 +66,7 @@ describe("TransactionPool", () => {
         txs = addresses.map(
             (m, index) =>
                 new NewTransaction(
-                    index,
+                    BigInt(index),
                     "transaction_" + index,
                     Utils.getTimeStamp(),
                     BigNumber.from(10000),

@@ -23,7 +23,7 @@ describe("NewTransaction", () => {
     // The test codes below compare with the values calculated in Agora.
     it("Test for hash value of NewTransaction data", async () => {
         const tx = new NewTransaction(
-            0,
+            "0",
             "12345678",
             1668044556,
             BigNumber.from(123),
@@ -44,7 +44,7 @@ describe("NewTransaction", () => {
 
     it("Test for NewTransaction.clone()", async () => {
         const tx = new NewTransaction(
-            0,
+            "0",
             "12345678",
             1668044556,
             BigNumber.from(123),
@@ -63,7 +63,7 @@ describe("NewTransaction", () => {
 
     it("Test for NewTransaction.sign() & verify", async () => {
         const tx = new NewTransaction(
-            0,
+            BigInt(0),
             "12345678",
             1668044556,
             BigNumber.from(123),

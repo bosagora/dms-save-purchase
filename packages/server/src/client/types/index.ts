@@ -28,7 +28,6 @@ export interface INewPurchaseDetails {
 }
 
 export interface INewPurchaseData {
-    sequence: number;
     purchaseId: string;
     timestamp: number;
     totalAmount: number;

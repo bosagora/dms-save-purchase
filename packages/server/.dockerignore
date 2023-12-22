@@ -7,7 +7,7 @@ Dockerfile
 .prettirrc
 .solhintignore
 .solhint.jso
-API.md
+docs/store-purchase.md
 README.md
 node_modules/
 artifacts/

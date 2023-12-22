@@ -55,7 +55,12 @@ export class StorePurchaseClient {
             this.client
                 .get(url)
                 .then((res) => {
-                    if (res.status === 200 && res.data && res.data.data && res.data.data.sequence) {
+                    if (
+                        res.status === 200 &&
+                        res.data !== undefined &&
+                        res.data.data !== undefined &&
+                        res.data.data.sequence !== undefined
+                    ) {
                         return resolve(res.data.data.sequence);
                     } else {
                         return resolve(-2);
@@ -74,7 +79,7 @@ export class StorePurchaseClient {
             this.client
                 .post(url, { accessKey: this.accessKey, ...sendTx })
                 .then((res) => {
-                    console.log("Response", JSON.stringify(res.data));
+                    console.log("Response:", JSON.stringify(res.data));
                     return resolve(res.status);
                 })
                 .catch((reason) => {
