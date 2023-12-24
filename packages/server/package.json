@@ -40,6 +40,7 @@
     "devDependencies": {
         "@ethersproject/abi": "^5.7.0",
         "@ethersproject/bignumber": "^5.7.0",
+        "@ethersproject/constants": "^5.7.0",
         "@ethersproject/experimental": "^5.7.0",
         "@ethersproject/keccak256": "^5.7.0",
         "@nomiclabs/hardhat-ethers": "^2.2.3",

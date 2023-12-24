@@ -23,6 +23,7 @@ import { ContractUtils } from "../utils/ContractUtils";
 import { ResponseMessage } from "../utils/Errors";
 
 import { BigNumber } from "@ethersproject/bignumber";
+import { AddressZero } from "@ethersproject/constants";
 
 import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
 
@@ -182,12 +183,14 @@ export class StorePurchaseRouter {
             return res.status(200).json(ResponseMessage.getErrorMessage("2001", { validation: errors.array() }));
         }
 
-        const userAccount = String(req.body.userAccount).trim();
+        let userAccount = String(req.body.userAccount).trim();
         if (userAccount !== "") {
             const eth = /^(0x)[0-9a-f]{40}$/i;
             if (!eth.test(userAccount)) {
                 return res.status(200).json(ResponseMessage.getErrorMessage("2002"));
             }
+        } else {
+            userAccount = AddressZero;
         }
 
         let userPhone = String(req.body.userPhone).trim();
