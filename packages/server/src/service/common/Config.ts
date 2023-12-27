@@ -49,9 +49,9 @@ export class Config implements IConfig {
     public contracts: ContractConfig;
 
     /**
-     * Authorization
+     * setting
      */
-    public authorization: AuthorizationConfig;
+    public setting: Setting;
 
     /**
      * Constructor
@@ -63,7 +63,7 @@ export class Config implements IConfig {
         this.scheduler = new SchedulerConfig();
         this.database = new DatabaseConfig();
         this.contracts = new ContractConfig();
-        this.authorization = new AuthorizationConfig();
+        this.setting = new Setting();
     }
 
     /**
@@ -112,7 +112,7 @@ export class Config implements IConfig {
         this.scheduler.readFromObject(cfg.scheduler);
         this.database.readFromObject(cfg.database);
         this.contracts.readFromObject(cfg.contracts);
-        this.authorization.readFromObject(cfg.authorization);
+        this.setting.readFromObject(cfg.setting);
     }
 }
 
@@ -428,7 +428,7 @@ export interface IConfig {
     /**
      * Database
      */
-    authorization: IAuthorizationConfig;
+    setting: ISetting;
 }
 
 export interface IDatabaseConfig {
@@ -489,28 +489,67 @@ export class ContractConfig implements IContractsConfig {
     }
 }
 
-export interface IAuthorizationConfig {
+export interface ISetting {
     accessKey: string;
+    relayAccessKey: string;
+    relayEndpoint: string;
+    smsAccessKey: string;
+    smsEndpoint: string;
+    smsSender: string;
+    tokenSymbol: string;
+    messageEnable: boolean;
 }
-export class AuthorizationConfig implements IAuthorizationConfig {
+
+export class Setting implements ISetting {
     public accessKey: string;
+    public relayAccessKey: string;
+    public relayEndpoint: string;
+    public smsAccessKey: string;
+    public smsEndpoint: string;
+    public smsSender: string;
+    public tokenSymbol: string;
+    public messageEnable: boolean;
 
     /**
      * Constructor
      */
     constructor() {
-        const defaults = AuthorizationConfig.defaultValue();
+        const defaults = Setting.defaultValue();
         this.accessKey = defaults.accessKey;
+        this.relayAccessKey = defaults.relayAccessKey;
+        this.relayEndpoint = defaults.relayEndpoint;
+        this.smsAccessKey = defaults.smsAccessKey;
+        this.smsEndpoint = defaults.smsEndpoint;
+        this.smsSender = defaults.smsSender;
+        this.tokenSymbol = defaults.tokenSymbol;
+        this.messageEnable = defaults.messageEnable;
     }
-    public readFromObject(config: IAuthorizationConfig) {
+
+    public readFromObject(config: ISetting) {
         if (config.accessKey !== undefined) this.accessKey = config.accessKey;
+        if (config.relayAccessKey !== undefined) this.relayAccessKey = config.relayAccessKey;
+        if (config.relayEndpoint !== undefined) this.relayEndpoint = config.relayEndpoint;
+        if (config.smsAccessKey !== undefined) this.smsAccessKey = config.smsAccessKey;
+        if (config.smsEndpoint !== undefined) this.smsEndpoint = config.smsEndpoint;
+        if (config.smsSender !== undefined) this.smsSender = config.smsSender;
+        if (config.tokenSymbol !== undefined) this.tokenSymbol = config.tokenSymbol;
+        if (config.messageEnable !== undefined)
+            this.messageEnable = config.messageEnable.toString().toLowerCase() === "true";
     }
+
     /**
      * Returns default value
      */
-    public static defaultValue(): IAuthorizationConfig {
+    public static defaultValue(): ISetting {
         return {
-            accessKey: "0x9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54",
-        } as unknown as IAuthorizationConfig;
+            accessKey: "",
+            relayAccessKey: "",
+            relayEndpoint: "",
+            smsAccessKey: "",
+            smsEndpoint: "",
+            smsSender: "",
+            tokenSymbol: "",
+            messageEnable: "false",
+        } as unknown as ISetting;
     }
 }

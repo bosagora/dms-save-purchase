@@ -30,5 +30,5 @@ contracts:
     managerKey: "0x94bf5604b9eb7990985dfabbfd1298a16a3c94cb79a5fa39638279ba9ca48a80"
     purchaseAddress: "0x0000000000000000000000000000000000000000"
 
-authorization:
+setting:
     accessKey: 9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54

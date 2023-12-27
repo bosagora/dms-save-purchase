@@ -111,18 +111,32 @@ export class StorePurchaseClientScheduler extends Scheduler {
         const userIndex = Math.floor(Math.random() * this.users.length);
         const shopIndex = Math.floor(Math.random() * this.shops.length);
 
-        const res: INewPurchaseData = {
-            purchaseId,
-            timestamp: Utils.getTimeStamp(),
-            totalAmount,
-            cashAmount,
-            currency: "krw",
-            shopId: this.shops[shopIndex].shopId,
-            userAccount: this.users[userIndex].address,
-            userPhone: "",
-            details,
-        };
-
-        return res;
+        if (Math.random() < 0.2) {
+            const res: INewPurchaseData = {
+                purchaseId,
+                timestamp: Utils.getTimeStamp(),
+                totalAmount,
+                cashAmount,
+                currency: "krw",
+                shopId: this.shops[shopIndex].shopId,
+                userAccount: "",
+                userPhone: this.users[userIndex].phone,
+                details,
+            };
+            return res;
+        } else {
+            const res: INewPurchaseData = {
+                purchaseId,
+                timestamp: Utils.getTimeStamp(),
+                totalAmount,
+                cashAmount,
+                currency: "krw",
+                shopId: this.shops[shopIndex].shopId,
+                userAccount: this.users[userIndex].address,
+                userPhone: "",
+                details,
+            };
+            return res;
+        }
     }
 }

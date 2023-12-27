@@ -11,10 +11,10 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 
-import { CancelTransaction, NewTransaction, PurchaseDetails } from "dms-store-purchase-sdk";
+import { CancelTransaction, NewTransaction, PurchaseDetails, TransactionType } from "dms-store-purchase-sdk";
 import { Wallet } from "ethers";
 import { WebService } from "../../modules";
-import { Amount } from "../common/Amount";
+import { Amount, BOACoin } from "../common/Amount";
 import { Config } from "../common/Config";
 import { logger } from "../common/Logger";
 import { TransactionPool } from "../scheduler/TransactionPool";
@@ -26,6 +26,11 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { AddressZero } from "@ethersproject/constants";
 
 import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
+import { HTTPClient } from "../utils/HTTPClient";
+import { RelayClient } from "../relay/RelayClient";
+
+// tslint:disable-next-line:no-var-requires
+const URI = require("urijs");
 
 export class StorePurchaseRouter {
     /**
@@ -84,7 +89,7 @@ export class StorePurchaseRouter {
         this.pool = pool;
         this.storage = storage;
 
-        StorePurchaseRouter.accessKey = config.authorization.accessKey;
+        StorePurchaseRouter.accessKey = config.setting.accessKey;
         this.lastReceiveSequence = -1n;
     }
 
@@ -204,7 +209,7 @@ export class StorePurchaseRouter {
         }
 
         const accessKey: string = String(req.body.accessKey).trim();
-        if (accessKey !== this._config.authorization.accessKey) {
+        if (accessKey !== this._config.setting.accessKey) {
             return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
         }
 
@@ -226,6 +231,7 @@ export class StorePurchaseRouter {
                 }
             }
 
+            const userPhoneHash = ContractUtils.getPhoneHash(userPhone);
             const tx: NewTransaction = new NewTransaction(
                 this.lastReceiveSequence + 1n,
                 String(req.body.purchaseId).trim(),
@@ -235,7 +241,7 @@ export class StorePurchaseRouter {
                 String(req.body.currency).trim(),
                 String(req.body.shopId).trim(),
                 userAccount,
-                ContractUtils.getPhoneHash(userPhone),
+                userPhoneHash,
                 details,
                 this.managerSigner.address
             );
@@ -245,11 +251,95 @@ export class StorePurchaseRouter {
             await this.pool.add(DBTransaction.make(tx));
             await this.storage.setLastReceiveSequence(tx.sequence);
             this.lastReceiveSequence = tx.sequence;
+
+            let loyalty = this.getLoyaltyInTransaction(tx);
+            if (loyalty.gt(1)) {
+                const client = new RelayClient(this._config);
+                if (userAccount !== AddressZero) {
+                    const result = await client.getBalanceOfAccount(userAccount);
+                    if (result !== undefined) {
+                        if (result.loyaltyType === 1) {
+                            const value = await client.convertCurrency(
+                                loyalty,
+                                "point",
+                                this._config.setting.tokenSymbol
+                            );
+                            if (value !== undefined) loyalty = value;
+                        }
+                        const unit = result.loyaltyType === 0 ? "포인트" : result.loyaltyType === 1 ? "토큰" : "";
+                        const precision = result.loyaltyType === 0 ? 0 : 2;
+                        const loyaltyAmount = new BOACoin(BigNumber.from(loyalty));
+                        const currentBalance = new BOACoin(BigNumber.from(result.balance));
+                        const contents =
+                            `결제가 완료되는 8일 뒤에 ${loyaltyAmount.toDisplayString(
+                                true,
+                                precision
+                            )} ${unit} 적립됩니다.` +
+                            `현제 잔액은 ${currentBalance.toDisplayString(
+                                true,
+                                precision
+                            )} ${unit} 입니다. 토큰은 시세에 따라서 다소 차이가 생길 수 있습니다.`;
+                        if (this._config.setting.messageEnable)
+                            await client.sendPushMessage(userAccount, 0, "로열티 적립", contents);
+                        logger.info("[NOTIFICATION]" + contents);
+                    }
+                } else if (userPhone !== "") {
+                    const result = await client.getBalanceOfPhone(userPhoneHash);
+                    if (result !== undefined) {
+                        const unit = "포인트";
+                        const precision = 0;
+                        const loyaltyAmount = new BOACoin(BigNumber.from(loyalty));
+                        const currentBalance = new BOACoin(BigNumber.from(result.balance));
+                        const contents =
+                            `결제가 완료되는 8일 뒤에 ${loyaltyAmount.toDisplayString(
+                                true,
+                                precision
+                            )} ${unit}가 적립됩니다.\n` +
+                            `현제 잔액은 ${currentBalance.toDisplayString(true, precision)} ${unit} 입니다.`;
+                        if (this._config.setting.messageEnable)
+                            await client.sendSMSMessage(contents, "+82 10-9520-1803");
+                        logger.info("[SMS]" + contents);
+                    }
+                }
+            }
             return res.json(StorePurchaseRouter.makeResponseData(0, tx.toJSON()));
         } catch (error) {
             logger.error("POST /v1/tx/purchase/new , " + error);
             return res.status(200).json(ResponseMessage.getErrorMessage("6000"));
         }
+    }
+
+    private getLoyaltyInTransaction(tx: NewTransaction): BigNumber {
+        if (tx.totalAmount.eq(0)) return BigNumber.from(0);
+        if (tx.cashAmount.eq(0)) return BigNumber.from(0);
+        let sum: BigNumber = BigNumber.from(0);
+        for (const elem of tx.details) {
+            sum = sum.add(elem.amount.mul(elem.providePercent));
+        }
+        const loyalty = sum.mul(tx.cashAmount).div(tx.totalAmount).div(10000);
+        return loyalty;
+    }
+
+    private async getBalanceOfAccount(account: string): Promise<{ loyaltyType: number; balance: BigNumber }> {
+        const client = new HTTPClient();
+        const url = URI(this._config.setting.relayEndpoint)
+            .directory("/v1/payment/user")
+            .filename("balance")
+            .addQuery("account", account)
+            .toString();
+        const response = await client.get(url);
+        return { loyaltyType: response.data.data.loyaltyType, balance: BigNumber.from(response.data.data.balance) };
+    }
+
+    private async getBalanceOfPhone(phone: string): Promise<BigNumber> {
+        const client = new HTTPClient();
+        const url = URI(this._config.setting.relayEndpoint)
+            .directory("/v1/payment/phone")
+            .filename("balance")
+            .addQuery("account", phone)
+            .toString();
+        const response = await client.get(url);
+        return BigNumber.from(response.data.data.balance);
     }
 
     /**
@@ -265,7 +355,7 @@ export class StorePurchaseRouter {
         }
 
         const accessKey: string = String(req.body.accessKey).trim();
-        if (accessKey !== this._config.authorization.accessKey) {
+        if (accessKey !== this._config.setting.accessKey) {
             return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
         }
 

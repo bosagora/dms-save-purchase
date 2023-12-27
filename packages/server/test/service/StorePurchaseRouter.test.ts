@@ -29,7 +29,7 @@ describe("Test of StorePurchase Router", () => {
 
     before("Create Test Server", async () => {
         config.readFromFile(path.resolve("config", "config_test.yaml"));
-        accessKey = config.authorization.accessKey;
+        accessKey = config.setting.accessKey;
 
         const manager = new Wallet(config.contracts.managerKey || "");
         await HardhatUtils.deployStorePurchaseContract(config, manager);
@@ -85,7 +85,7 @@ describe("Test of StorePurchase Router", () => {
         assert.ok(response.data.data !== undefined);
     });
 
-    it("Test calls without authorization settings", async () => {
+    it("Test calls without setting settings", async () => {
         const response = await client.post(url, { ...newTxParam });
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
@@ -189,7 +189,7 @@ describe("Test of StorePurchase Router", () => {
         assert.ok(response.data.data !== undefined);
     });
 
-    it("Test calls without authorization settings", async () => {
+    it("Test calls without setting settings", async () => {
         const response = await client.post(url, { ...cancelTxParam });
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
