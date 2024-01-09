@@ -233,13 +233,19 @@ export class StorePurchaseRouter {
                 }
             }
 
+            const totalAmount = Amount.make(String(req.body.totalAmount).trim(), 18).value;
+            const cashAmount = Amount.make(String(req.body.cashAmount).trim(), 18).value;
+            const sum = details.reduce((previous, current) => previous.add(current.amount), BigNumber.from(0));
+            if (!totalAmount.eq(sum)) {
+                return res.status(200).json(ResponseMessage.getErrorMessage("2004"));
+            }
             const userPhoneHash = ContractUtils.getPhoneHash(userPhone);
             const tx: NewTransaction = new NewTransaction(
                 this.lastReceiveSequence + 1n,
                 String(req.body.purchaseId).trim(),
                 BigInt(req.body.timestamp),
-                Amount.make(String(req.body.totalAmount).trim(), 18).value,
-                Amount.make(String(req.body.cashAmount).trim(), 18).value,
+                totalAmount,
+                cashAmount,
                 String(req.body.currency).trim(),
                 String(req.body.shopId).trim(),
                 userAccount,

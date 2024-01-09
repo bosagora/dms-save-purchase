@@ -211,6 +211,7 @@
 | 2001 | 파라메타의 검증에 실패하였습니다<br/>Failed to check the validity of parameters                                 |
 | 2002 | 지갑주소가 유효하지 않습니다<br/>This is not a wallet address                                                 |
 | 2003 | 전화번호가 유효하지 않습니다<br/>This is not a phone number format. International Standard (+82 10-1000-2000) |
+| 2004 | 구매총금액과 상세구매내역의 총합이 일치하지 않습니다<br/>totalAmount and sum of detailed purchase do not match           |
 | 3051 | 엑세스키가 유효하지 않습니다<br/>The access key entered is not valid                                          |
 
 [상단으로 이동](#로열티를-사용한-결제-프로세스)
