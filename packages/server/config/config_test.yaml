@@ -47,3 +47,4 @@ setting:
   smsAccessKey: "${SMS_ACCESS_KEY}"
   smsSender: "${SMS_SENDER}"
   tokenSymbol: "${TOKEN_SYMBOL}"
+  messageEnable: "${MESSAGE_ENABLE}"
