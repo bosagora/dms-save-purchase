@@ -1,5 +1,3 @@
-import { BigNumber } from "ethers";
-
 export interface IShopData {
     shopId: string;
     name: string;

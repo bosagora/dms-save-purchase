@@ -25,7 +25,7 @@ describe("NewTransaction", () => {
         const tx = new NewTransaction(
             "0",
             "12345678",
-            1668044556,
+            BigInt(1668044556),
             BigNumber.from(123),
             BigNumber.from(123),
             "krw",
@@ -46,7 +46,7 @@ describe("NewTransaction", () => {
         const tx = new NewTransaction(
             "0",
             "12345678",
-            1668044556,
+            BigInt(1668044556),
             BigNumber.from(123),
             BigNumber.from(123),
             "krw",
@@ -65,7 +65,7 @@ describe("NewTransaction", () => {
         const tx = new NewTransaction(
             BigInt(0),
             "12345678",
-            1668044556,
+            BigInt(1668044556),
             BigNumber.from(123),
             BigNumber.from(123),
             "krw",

@@ -68,7 +68,7 @@ describe("TransactionPool", () => {
                 new NewTransaction(
                     BigInt(index),
                     "transaction_" + index,
-                    Utils.getTimeStamp(),
+                    Utils.getTimeStampBigInt(),
                     BigNumber.from(10000),
                     BigNumber.from(10000),
                     "krw",

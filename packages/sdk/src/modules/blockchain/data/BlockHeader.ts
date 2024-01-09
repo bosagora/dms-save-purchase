@@ -36,7 +36,7 @@ export class BlockHeader {
     /**
      * Time timestamp on created
      */
-    public timestamp: number;
+    public timestamp: bigint;
 
     /**
      * Constructor
@@ -45,7 +45,7 @@ export class BlockHeader {
      * @param height      The block height
      * @param timestamp
      */
-    constructor(prevBlock: Hash, merkleRoot: Hash, height: bigint, timestamp: number) {
+    constructor(prevBlock: Hash, merkleRoot: Hash, height: bigint, timestamp: bigint) {
         this.prevBlock = prevBlock;
         this.merkleRoot = merkleRoot;
         this.height = height;
@@ -71,7 +71,7 @@ export class BlockHeader {
             new Hash(value.prevBlock),
             new Hash(value.merkleRoot),
             BigInt(value.height),
-            value.timestamp
+            BigInt(value.timestamp)
         );
     }
 
@@ -83,7 +83,7 @@ export class BlockHeader {
             prevBlock: this.prevBlock,
             merkleRoot: this.merkleRoot,
             height: this.height.toString(),
-            timestamp: this.timestamp,
+            timestamp: this.timestamp.toString(),
         };
     }
 
@@ -95,6 +95,6 @@ export class BlockHeader {
         this.prevBlock.computeHash(buffer);
         this.merkleRoot.computeHash(buffer);
         buffer.writeBigUInt64LE(this.height);
-        buffer.writeBigUInt64LE(BigInt(this.timestamp));
+        buffer.writeBigUInt64LE(this.timestamp);
     }
 }

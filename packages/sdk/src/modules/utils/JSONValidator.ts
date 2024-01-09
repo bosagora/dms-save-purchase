@@ -66,7 +66,7 @@ export class JSONValidator {
                         type: "string",
                     },
                     timestamp: {
-                        type: "number",
+                        type: "string",
                     },
                 },
                 additionalProperties: false,
@@ -89,7 +89,7 @@ export class JSONValidator {
                         type: "string",
                     },
                     timestamp: {
-                        type: "number",
+                        type: "string",
                     },
                     totalAmount: {
                         type: "string",
@@ -156,7 +156,7 @@ export class JSONValidator {
                         type: "string",
                     },
                     timestamp: {
-                        type: "number",
+                        type: "string",
                     },
                     signer: {
                         type: "string",

@@ -59,8 +59,8 @@ describe("Test of StorePurchase Router", () => {
     let url: string;
     it("New Transaction", async () => {
         newTxParam = {
-            purchaseId: "123456789",
-            timestamp: 1668044556,
+            purchaseId: "441381704768166151",
+            timestamp: "1704768163",
             totalAmount: 10.25,
             cashAmount: 10.25,
             currency: "usd",
@@ -69,7 +69,7 @@ describe("Test of StorePurchase Router", () => {
             userPhone: "",
             details: [
                 {
-                    productId: "PID001",
+                    productId: "20200513101535",
                     amount: 10.25,
                     providePercent: 3.25,
                 },
@@ -96,7 +96,7 @@ describe("Test of StorePurchase Router", () => {
         const dbTx: Transaction[] = DBTransaction.converterTxArray(dbRes);
         assert.deepStrictEqual(dbTx.length, 1);
         const tx: NewTransaction = dbTx[0] as NewTransaction;
-        assert.deepStrictEqual(tx.timestamp, newTxParam.timestamp);
+        assert.deepStrictEqual(tx.timestamp, BigInt(newTxParam.timestamp));
         assert.deepStrictEqual(tx.totalAmount, Amount.make(String(newTxParam.totalAmount).trim(), 18).value);
         assert.deepStrictEqual(tx.cashAmount, Amount.make(String(newTxParam.cashAmount).trim(), 18).value);
         assert.deepStrictEqual(tx.shopId, tx.shopId);
@@ -176,8 +176,8 @@ describe("Test of StorePurchase Router", () => {
     let cancelTxParam: any;
     it("Cancel Transaction", async () => {
         cancelTxParam = {
-            purchaseId: "123456789",
-            timestamp: 1668044556,
+            purchaseId: "441381704768166151",
+            timestamp: "1704768163",
         };
         url = URI(serverURL).directory("/v1/tx/purchase").filename("cancel").toString();
     });
@@ -201,7 +201,7 @@ describe("Test of StorePurchase Router", () => {
         assert.deepStrictEqual(dbTx.length, 2);
         const tx: CancelTransaction = dbTx[1] as CancelTransaction;
         assert.deepStrictEqual(tx.purchaseId, cancelTxParam.purchaseId);
-        assert.deepStrictEqual(tx.timestamp, cancelTxParam.timestamp);
+        assert.deepStrictEqual(tx.timestamp, BigInt(cancelTxParam.timestamp));
     });
 
     it("Invalid parameter validation test of purchaseId", async () => {

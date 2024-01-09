@@ -108,7 +108,7 @@ export class Block {
         const txHashList = txs.map((tx) => hashFull(tx));
         const merkleTree = Block.buildMerkleTree(txHashList);
         const merkleRoot = merkleTree.length > 0 ? merkleTree[merkleTree.length - 1] : Hash.Null;
-        const blockHeader = new BlockHeader(prevHash, merkleRoot, BigInt(prevHeight) + 1n, Utils.getTimeStamp());
+        const blockHeader = new BlockHeader(prevHash, merkleRoot, BigInt(prevHeight) + 1n, Utils.getTimeStampBigInt());
 
         return new Block(blockHeader, txs, merkleTree);
     }

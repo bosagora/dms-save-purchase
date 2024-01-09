@@ -26,8 +26,8 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { AddressZero } from "@ethersproject/constants";
 
 import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
-import { HTTPClient } from "../utils/HTTPClient";
 import { RelayClient } from "../relay/RelayClient";
+import { HTTPClient } from "../utils/HTTPClient";
 
 // tslint:disable-next-line:no-var-requires
 const URI = require("urijs");
@@ -183,6 +183,8 @@ export class StorePurchaseRouter {
     private async postNewPurchase(req: express.Request, res: express.Response) {
         logger.http(`POST /v1/tx/purchase/new`);
 
+        logger.info(JSON.stringify(req.body));
+
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(200).json(ResponseMessage.getErrorMessage("2001", { validation: errors.array() }));
@@ -235,7 +237,7 @@ export class StorePurchaseRouter {
             const tx: NewTransaction = new NewTransaction(
                 this.lastReceiveSequence + 1n,
                 String(req.body.purchaseId).trim(),
-                Number(req.body.timestamp),
+                BigInt(req.body.timestamp),
                 Amount.make(String(req.body.totalAmount).trim(), 18).value,
                 Amount.make(String(req.body.cashAmount).trim(), 18).value,
                 String(req.body.currency).trim(),
@@ -349,6 +351,8 @@ export class StorePurchaseRouter {
     private async postCancelPurchase(req: express.Request, res: express.Response) {
         logger.http(`POST /v1/tx/purchase/cancel`);
 
+        logger.info(JSON.stringify(req.body));
+
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(200).json(ResponseMessage.getErrorMessage("2001", { validation: errors.array() }));
@@ -367,7 +371,7 @@ export class StorePurchaseRouter {
             const tx: CancelTransaction = new CancelTransaction(
                 this.lastReceiveSequence + 1n,
                 String(req.body.purchaseId).trim(),
-                Number(req.body.timestamp),
+                BigInt(req.body.timestamp),
                 this.managerSigner.address
             );
 

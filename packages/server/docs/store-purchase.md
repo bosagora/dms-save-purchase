@@ -20,7 +20,7 @@
 |-------------|-----------------|--------| ---- |-------------------------------------------------------------|
 | accessKey   |                 | string | Yes  | 접근키                                                         |
 | purchaseId  |                 | string | Yes  | 구매 아이디                                                      |
-| timestamp   |                 | number | Yes  | 타임스탬프                                                       |
+| timestamp   |                 | string | Yes  | 타임스탬프                                                       |
 | totalAmount |                 | number | Yes  | 구매 총금액 (소수점 포함, 1000원 -> 1000, 1.56USD -> 1.56)             |
 | cashAmount  |                 | number | Yes  | 구매에 사용된 현금또는 카드결제  (소수점 포함, 1000원 -> 1000, 1.56USD -> 1.56) |
 | currency    |                 | string | Yes  | 환률코드(usd, krw, the9, point...)                              |
@@ -36,7 +36,7 @@
 ```json
 {
   "purchaseId": "913131703230316517",
-  "timestamp": 1703230316,
+  "timestamp": "1703230316",
   "totalAmount": 51400,
   "cashAmount": 51400,
   "currency": "krw",
@@ -101,7 +101,7 @@
     "type": 0,
     "sequence": "45",
     "purchaseId": "913131703230316517",
-    "timestamp": 1703230316,
+    "timestamp": "1703230316",
     "totalAmount": "51400000000000000000000",
     "cashAmount": "51400000000000000000000",
     "currency": "krw",
@@ -175,7 +175,7 @@
 |-------------|-----------------|--------| ---- |------------|
 | accessKey   |                 | string | Yes  | 접근키        |
 | purchaseId  |                 | string | Yes  | 취소할 구매 아이디 |
-| timestamp   |                 | number | Yes  | 타임스탬프      |
+| timestamp   |                 | string | Yes  | 타임스탬프      |
 
 #### - 입력 예시
 ```json
@@ -194,7 +194,7 @@
     "type": 1,
     "sequence": "50",
     "purchaseId": "913131703230316517",
-    "timestamp": 1703230316,
+    "timestamp": "1703230316",
     "signer": "0x9f97e74e211D53B16491f33a1fF3A6E774B6Af26",
     "signature": "0xfd9ec4d89be8264a0142fb9d77087036f9a0b940c1220d419c3637a4810b32347abe7b767223e5f4345a6bbf3af4c49bd1cdaaa61ecc14472f862d02b7d5becd1c",
   }

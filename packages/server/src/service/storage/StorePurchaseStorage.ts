@@ -73,7 +73,7 @@ export class StorePurchaseStorage extends Storage {
                     cur_hash.toString(),
                     header.prevBlock.toString(),
                     header.merkleRoot.toString(),
-                    header.timestamp,
+                    header.timestamp.toString(),
                     _CID,
                 ],
                 (err: Error | null) => {

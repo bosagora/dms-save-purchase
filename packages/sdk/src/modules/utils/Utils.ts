@@ -131,6 +131,10 @@ export class Utils {
         return Math.floor(new Date().getTime() / 1000);
     }
 
+    public static getTimeStampBigInt(): bigint {
+        return BigInt(new Date().getTime()) / 1000n;
+    }
+
     public static getPhoneHash(phone: string): string {
         const encodedResult = defaultAbiCoder.encode(["string", "string"], ["BOSagora Phone Number", phone]);
         return keccak256(encodedResult);
@@ -284,3 +288,7 @@ export class ArrayRange {
 export function iota(begin: number, end?: number, step?: number): ArrayRange {
     return new ArrayRange(begin, end, step);
 }
+
+(BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+};

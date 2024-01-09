@@ -76,7 +76,7 @@ describe("Test of Node", function () {
                 new NewTransaction(
                     BigInt(idx),
                     (12345670 + idx).toString(),
-                    Utils.getTimeStamp(),
+                    Utils.getTimeStampBigInt(),
                     BigNumber.from(idx + 1),
                     BigNumber.from(idx + 1),
                     "krw",
