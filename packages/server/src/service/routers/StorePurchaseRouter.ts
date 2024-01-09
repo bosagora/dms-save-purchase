@@ -181,9 +181,7 @@ export class StorePurchaseRouter {
      * @private
      */
     private async postNewPurchase(req: express.Request, res: express.Response) {
-        logger.http(`POST /v1/tx/purchase/new`);
-
-        logger.info(JSON.stringify(req.body));
+        logger.http(`POST /v1/tx/purchase/new ${req.ip}:${JSON.stringify(req.body)}`);
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -355,9 +353,7 @@ export class StorePurchaseRouter {
      * @private
      */
     private async postCancelPurchase(req: express.Request, res: express.Response) {
-        logger.http(`POST /v1/tx/purchase/cancel`);
-
-        logger.info(JSON.stringify(req.body));
+        logger.http(`POST /v1/tx/purchase/cancel ${req.ip}:${JSON.stringify(req.body)}`);
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
