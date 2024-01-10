@@ -114,7 +114,7 @@ export class StorePurchaseClientScheduler extends Scheduler {
         if (Math.random() < 0.2) {
             const res: INewPurchaseData = {
                 purchaseId,
-                timestamp: Utils.getTimeStamp(),
+                timestamp: Utils.getTimeStampBigInt().toString(),
                 totalAmount,
                 cashAmount,
                 currency: "krw",
@@ -127,7 +127,7 @@ export class StorePurchaseClientScheduler extends Scheduler {
         } else {
             const res: INewPurchaseData = {
                 purchaseId,
-                timestamp: Utils.getTimeStamp(),
+                timestamp: Utils.getTimeStampBigInt().toString(),
                 totalAmount,
                 cashAmount,
                 currency: "krw",

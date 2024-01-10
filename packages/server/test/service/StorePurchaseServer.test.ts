@@ -99,7 +99,7 @@ describe("Test of StorePurchase Server", function () {
         for (let idx = 0; idx < count; idx++) {
             const tx = {
                 purchaseId: "TX" + numTx.toString().padStart(10, "0"),
-                timestamp: Utils.getTimeStamp(),
+                timestamp: Utils.getTimeStampBigInt().toString(),
                 totalAmount: 10000,
                 cashAmount: 10000,
                 currency: "krw",

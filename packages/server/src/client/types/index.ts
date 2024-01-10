@@ -27,7 +27,7 @@ export interface INewPurchaseDetails {
 
 export interface INewPurchaseData {
     purchaseId: string;
-    timestamp: number;
+    timestamp: string;
     totalAmount: number;
     cashAmount: number;
     currency: string;
