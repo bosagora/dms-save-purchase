@@ -4,7 +4,15 @@ import { Utils } from "dms-store-purchase-sdk";
 import { Scheduler } from "../modules";
 import { logger } from "../service/common/Logger";
 import { StorePurchaseClient } from "./Client";
-import { INewPurchaseData, INewPurchaseDetails, IProductData, IProducts, IShopData, IUserData } from "./types/index";
+import {
+    ICancelPurchaseData,
+    INewPurchaseData,
+    INewPurchaseDetails,
+    IProductData,
+    IProducts,
+    IShopData,
+    IUserData,
+} from "./types/index";
 
 import * as fs from "fs";
 
@@ -19,6 +27,7 @@ export class StorePurchaseClientScheduler extends Scheduler {
     private products: IProductData[];
     private shops: IShopData[];
     private users: IUserData[];
+    private purchases: string[];
 
     constructor(expression: string) {
         super(expression);
@@ -32,6 +41,7 @@ export class StorePurchaseClientScheduler extends Scheduler {
         this.products = [];
         this.shops = [];
         this.users = [];
+        this.purchases = [];
     }
 
     public async onStart() {
@@ -70,9 +80,17 @@ export class StorePurchaseClientScheduler extends Scheduler {
 
             this.oldTimeStamp = newTimeStamp;
 
-            const tx = await this.makeTransactions();
-            console.log("Send: ", JSON.stringify(tx));
-            await this.client.sendTransaction(tx);
+            if (this.purchases.length > 0 && Math.random() < 0.3) {
+                const tx = await this.makeCancelTransactions();
+                if (tx !== undefined) {
+                    console.log("Send: ", JSON.stringify(tx));
+                    await this.client.sendCancelTransaction(tx);
+                }
+            } else {
+                const tx = await this.makeTransactions();
+                console.log("Send: ", JSON.stringify(tx));
+                await this.client.sendTransaction(tx);
+            }
         } catch (error) {
             logger.error(`Failed to execute the node scheduler: ${error}`);
         }
@@ -111,6 +129,10 @@ export class StorePurchaseClientScheduler extends Scheduler {
         const userIndex = Math.floor(Math.random() * this.users.length);
         const shopIndex = Math.floor(Math.random() * this.shops.length);
 
+        if (Math.random() < 0.3) {
+            this.purchases.push(purchaseId);
+        }
+
         if (Math.random() < 0.2) {
             const res: INewPurchaseData = {
                 purchaseId,
@@ -138,5 +160,15 @@ export class StorePurchaseClientScheduler extends Scheduler {
             };
             return res;
         }
+    }
+    private async makeCancelTransactions(): Promise<ICancelPurchaseData | undefined> {
+        const purchaseId = this.purchases.shift();
+        if (purchaseId !== undefined) {
+            const res: ICancelPurchaseData = {
+                purchaseId,
+                timestamp: Utils.getTimeStampBigInt().toString(),
+            };
+            return res;
+        } else return undefined;
     }
 }

@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 // @ts-ignore
 import URI from "urijs";
 import { handleNetworkError } from "../modules/network/ErrorTypes";
-import { INewPurchaseData } from "./types/index";
+import { ICancelPurchaseData, INewPurchaseData } from "./types/index";
 
 export class StorePurchaseClient {
     private readonly accessKey: string;
@@ -74,6 +74,22 @@ export class StorePurchaseClient {
 
     public sendTransaction(tx: INewPurchaseData): Promise<number> {
         const url = URI(this.serverURL).directory("/v1/tx/purchase").filename("new").toString();
+        const sendTx = tx;
+        return new Promise<number>((resolve, reject) => {
+            this.client
+                .post(url, { accessKey: this.accessKey, ...sendTx })
+                .then((res) => {
+                    console.log("Response:", JSON.stringify(res.data));
+                    return resolve(res.status);
+                })
+                .catch((reason) => {
+                    return resolve(-1);
+                });
+        });
+    }
+
+    public sendCancelTransaction(tx: ICancelPurchaseData): Promise<number> {
+        const url = URI(this.serverURL).directory("/v1/tx/purchase").filename("cancel").toString();
         const sendTx = tx;
         return new Promise<number>((resolve, reject) => {
             this.client

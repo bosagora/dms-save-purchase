@@ -37,6 +37,11 @@ export interface INewPurchaseData {
     details: INewPurchaseDetails[];
 }
 
+export interface ICancelPurchaseData {
+    purchaseId: string;
+    timestamp: string;
+}
+
 export interface IProducts {
     product: IProductData;
     count: number;
