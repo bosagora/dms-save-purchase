@@ -33,7 +33,7 @@ export class LastBlockInfo {
     public static async getInfoByStorage(storage: StorePurchaseStorage): Promise<ILastBlockInfo | undefined> {
         try {
             const db_last_height = await storage.selectLastHeight();
-            if (db_last_height !== null) {
+            if (db_last_height !== undefined) {
                 const db_block = await storage.selectBlockByHeight(db_last_height);
                 return { height: db_block.height, hash: new Hash(db_block.curBlock) };
             }

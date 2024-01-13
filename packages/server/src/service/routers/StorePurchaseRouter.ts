@@ -71,7 +71,7 @@ export class StorePurchaseRouter {
     /**
      * The signer needed to save the block information
      */
-    private _managerSigner: Wallet | undefined;
+    private _publisherSigner: Wallet | undefined;
 
     private _phoneUtil: PhoneNumberUtil;
 
@@ -113,14 +113,14 @@ export class StorePurchaseRouter {
     }
 
     /**
-     * Returns the value if this._managerSigner is defined.
+     * Returns the value if this.publisherSigner is defined.
      * Otherwise, make signer
      */
-    private get managerSigner(): Wallet {
-        if (this._managerSigner === undefined) {
-            this._managerSigner = new Wallet(this._config.contracts.managerKey);
+    private get publisherSigner(): Wallet {
+        if (this._publisherSigner === undefined) {
+            this._publisherSigner = new Wallet(this._config.contracts.publisherKey);
         }
-        return this._managerSigner;
+        return this._publisherSigner;
     }
 
     public registerRoutes() {
@@ -249,10 +249,10 @@ export class StorePurchaseRouter {
                 userAccount,
                 userPhoneHash,
                 details,
-                this.managerSigner.address
+                this.publisherSigner.address
             );
 
-            await tx.sign(this.managerSigner);
+            await tx.sign(this.publisherSigner);
 
             await this.pool.add(DBTransaction.make(tx));
             await this.storage.setLastReceiveSequence(tx.sequence);
@@ -374,10 +374,10 @@ export class StorePurchaseRouter {
                 this.lastReceiveSequence + 1n,
                 String(req.body.purchaseId).trim(),
                 BigInt(req.body.timestamp),
-                this.managerSigner.address
+                this.publisherSigner.address
             );
 
-            await tx.sign(this.managerSigner);
+            await tx.sign(this.publisherSigner);
 
             await this.pool.add(DBTransaction.make(tx));
             await this.storage.setLastReceiveSequence(tx.sequence);

@@ -8,14 +8,15 @@
  *       MIT License. See LICENSE for details.
  */
 
-import * as assert from "assert";
-import { NewTransaction, PurchaseDetails, Utils } from "dms-store-purchase-sdk";
-import { BigNumber } from "ethers";
-import path from "path";
 import { Config } from "../../src/service/common/Config";
 import { TransactionPool } from "../../src/service/scheduler/TransactionPool";
 import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
-import { delay } from "../helper/Utility";
+
+import { NewTransaction, PurchaseDetails, Utils } from "dms-store-purchase-sdk";
+
+import * as assert from "assert";
+import { BigNumber } from "ethers";
+import path from "path";
 
 describe("TransactionPool", () => {
     const addresses = [
@@ -50,14 +51,7 @@ describe("TransactionPool", () => {
         const config: Config = new Config();
         config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
 
-        const storage = await (() => {
-            return new Promise<StorePurchaseStorage>((resolve, reject) => {
-                const res = new StorePurchaseStorage(config.database, (err) => {
-                    if (err !== null) reject(err);
-                    else resolve(res);
-                });
-            });
-        })();
+        const storage = await StorePurchaseStorage.make(config.database);
         tx_pool.storage = storage;
     });
 

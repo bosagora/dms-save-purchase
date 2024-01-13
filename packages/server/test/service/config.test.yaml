@@ -27,7 +27,7 @@ database:
     path: ":memory:"
 
 contracts:
-    managerKey: "0x94bf5604b9eb7990985dfabbfd1298a16a3c94cb79a5fa39638279ba9ca48a80"
+    publisherKey: "0x94bf5604b9eb7990985dfabbfd1298a16a3c94cb79a5fa39638279ba9ca48a80"
     purchaseAddress: "0x0000000000000000000000000000000000000000"
 
 setting:

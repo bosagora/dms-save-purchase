@@ -36,7 +36,7 @@ database:
   path: "${DB_PATH}"
 
 contracts:
-  managerKey: "${MANAGER_KEY}"
+  publisherKey: "${PUBLISHER_KEY}"
   purchaseAddress: "${STORE_PURCHASE_CONTRACT_ADDRESS}"
 
 setting:

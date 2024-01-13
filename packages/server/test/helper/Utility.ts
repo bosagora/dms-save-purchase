@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
-import { handleNetworkError } from "./ErrorTypes";
 import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
+import { handleNetworkError } from "./ErrorTypes";
 
 export class TestRollupServer extends StorePurchaseServer {}
 
@@ -82,10 +82,4 @@ export class TestClient {
                 });
         });
     }
-}
-
-export function delay(interval: number): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        setTimeout(resolve, interval);
-    });
 }

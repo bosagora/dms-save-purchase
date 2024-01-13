@@ -1,9 +1,8 @@
 import { Config } from "../../src/service/common/Config";
 
 import * as assert from "assert";
-import path from "path";
-
 import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
+import path from "path";
 
 describe("Test of Config", () => {
     it("Test parsing the settings of a string", async () => {

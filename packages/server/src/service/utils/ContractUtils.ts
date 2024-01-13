@@ -9,6 +9,21 @@ export class ContractUtils {
     public static BufferToString(data: Buffer): string {
         return "0x" + data.toString("hex");
     }
+
+    public static getTimeStamp(): number {
+        return Math.floor(new Date().getTime() / 1000);
+    }
+
+    public static getTimeStamp10(): number {
+        return Math.floor(new Date().getTime() / 10000) * 10;
+    }
+
+    public static delay(interval: number): Promise<void> {
+        return new Promise<void>((resolve, _) => {
+            setTimeout(resolve, interval);
+        });
+    }
+
     private static find1_message = "execution reverted:";
     private static find1_length = ContractUtils.find1_message.length;
     private static find2_message = "reverted with reason string";

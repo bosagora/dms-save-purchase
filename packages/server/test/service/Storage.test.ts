@@ -1,9 +1,11 @@
-import * as assert from "assert";
-import { Block, Hash, NewTransaction, PurchaseDetails } from "dms-store-purchase-sdk";
-import { BigNumber } from "ethers";
-import path from "path";
 import { Config } from "../../src/service/common/Config";
 import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
+
+import { Block, Hash, NewTransaction, PurchaseDetails } from "dms-store-purchase-sdk";
+
+import assert from "assert";
+import { BigNumber } from "ethers";
+import path from "path";
 
 describe("Test of Storage", () => {
     let storage: StorePurchaseStorage;
@@ -11,7 +13,7 @@ describe("Test of Storage", () => {
         new NewTransaction(
             BigInt(0),
             "123456789",
-            1668044556,
+            1668044556n,
             BigNumber.from(123),
             BigNumber.from(123),
             "krw",
@@ -28,7 +30,7 @@ describe("Test of Storage", () => {
         new NewTransaction(
             BigInt(1),
             "987654321",
-            1313456756,
+            1313456756n,
             BigNumber.from(123),
             BigNumber.from(123),
             "krw",
@@ -45,14 +47,7 @@ describe("Test of Storage", () => {
         const config: Config = new Config();
         config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
 
-        storage = await (() => {
-            return new Promise<StorePurchaseStorage>((resolve, reject) => {
-                const res = new StorePurchaseStorage(config.database, (err) => {
-                    if (err !== null) reject(err);
-                    else resolve(res);
-                });
-            });
-        })();
+        storage = await StorePurchaseStorage.make(config.database);
     });
 
     context("Test of block", () => {
@@ -65,7 +60,7 @@ describe("Test of Storage", () => {
         const CID = "QmW3CT4SHmso5dRJdsjR8GL1qmt79HkdAebCn2uNaWXFYh";
 
         it("Insert block data", async () => {
-            assert.strictEqual(await storage.selectLastHeight(), null);
+            assert.strictEqual(await storage.selectLastHeight(), undefined);
             const res = await storage.insertBlock(block, CID);
             assert.strictEqual(await storage.selectLastHeight(), 1n);
         });
@@ -81,7 +76,7 @@ describe("Test of Storage", () => {
 
         it("Select transaction data by hash", async () => {
             const res1 = await storage.selectTxByHash(tx1?.hash);
-            assert.notStrictEqual(res1, null);
+            assert.notStrictEqual(res1, undefined);
             if (res1) {
                 assert.strictEqual(res1.sequence, tx1.sequence);
                 assert.strictEqual(res1.contents, tx1.contents);
@@ -107,7 +102,7 @@ describe("Test of Storage", () => {
             assert.strictEqual(res, true);
 
             const resS = await storage.selectTxByHash(tx1.hash);
-            assert.strictEqual(resS, null);
+            assert.strictEqual(resS, undefined);
 
             assert.strictEqual(await storage.selectTxsLength(), 1);
         });

@@ -1,19 +1,22 @@
-import { Config } from "../../src/service/common/Config";
+import { HardhatAccount } from "../../src/HardhatAccount";
 import { Scheduler } from "../../src/modules";
+import { Config } from "../../src/service/common/Config";
 import { LastBlockInfo } from "../../src/service/scheduler/LastBlockInfo";
 import { Node } from "../../src/service/scheduler/Node";
 import { SendBlock } from "../../src/service/scheduler/SendBlock";
 import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
 import { HardhatUtils } from "../../src/service/utils";
+import { ContractUtils } from "../../src/service/utils/ContractUtils";
 import { StorePurchase } from "../../typechain-types";
-import { delay, TestClient } from "../helper/Utility";
+import { TestClient } from "../helper/Utility";
 
 import { Utils } from "dms-store-purchase-sdk";
 
-import * as assert from "assert";
+import assert from "assert";
 import { Wallet } from "ethers";
-import * as path from "path";
+import { ethers } from "hardhat";
+import path from "path";
 import URI from "urijs";
 import { URL } from "url";
 
@@ -24,7 +27,6 @@ describe("Test of StorePurchase Server", function () {
     let server: StorePurchaseServer;
     let storage: StorePurchaseStorage;
     let serverURL: string;
-    let manager: Wallet;
     let contract: StorePurchase;
     const schedulers: Scheduler[] = [];
     let accessKey: string;
@@ -42,23 +44,14 @@ describe("Test of StorePurchase Server", function () {
         serverURL = new URL(`http://127.0.0.1:${config.server.port}`).toString();
     });
 
-    before("Create Manager's Wallet", () => {
-        manager = new Wallet(config.contracts.managerKey);
-    });
-
     before("Deploy Contract", async () => {
-        contract = await HardhatUtils.deployStorePurchaseContract(config, manager);
+        const deployer = new Wallet(HardhatAccount.keys[0], ethers.provider);
+        const publisher = new Wallet(HardhatAccount.keys[1], ethers.provider);
+        contract = await HardhatUtils.deployStorePurchaseContract(config, deployer, publisher);
     });
 
     before("Create Storage", async () => {
-        storage = await (() => {
-            return new Promise<StorePurchaseStorage>((resolve, reject) => {
-                const res = new StorePurchaseStorage(config.database, (err) => {
-                    if (err !== null) reject(err);
-                    else resolve(res);
-                });
-            });
-        })();
+        storage = await StorePurchaseStorage.make(config.database);
     });
 
     before("Init Scheduler's Config", () => {
@@ -131,7 +124,7 @@ describe("Test of StorePurchase Server", function () {
         });
 
         it("Delay", async () => {
-            await delay(2 * BLOCK_INTERVAL * 1000);
+            await ContractUtils.delay(2 * BLOCK_INTERVAL * 1000);
         });
 
         it("Check the height of the last block", async () => {
@@ -153,7 +146,7 @@ describe("Test of StorePurchase Server", function () {
         });
 
         it("Delay", async () => {
-            await delay(2 * BLOCK_INTERVAL * 1000);
+            await ContractUtils.delay(2 * BLOCK_INTERVAL * 1000);
         });
 
         it("Check the height of the last block", async () => {
@@ -201,7 +194,7 @@ describe("Test of StorePurchase Server", function () {
         });
 
         it("Delay", async () => {
-            await delay(2 * BLOCK_INTERVAL * 1000);
+            await ContractUtils.delay(2 * BLOCK_INTERVAL * 1000);
         });
 
         it("Check the height of the last block", async () => {

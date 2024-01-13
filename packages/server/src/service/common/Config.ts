@@ -458,12 +458,12 @@ export class DatabaseConfig implements IDatabaseConfig {
 }
 
 export interface IContractsConfig {
-    managerKey: string;
+    publisherKey: string;
     purchaseAddress: string;
 }
 
 export class ContractConfig implements IContractsConfig {
-    public managerKey: string;
+    public publisherKey: string;
     public purchaseAddress: string;
 
     /**
@@ -471,11 +471,12 @@ export class ContractConfig implements IContractsConfig {
      */
     constructor() {
         const defaults = ContractConfig.defaultValue();
-        this.managerKey = defaults.managerKey;
+        this.publisherKey = defaults.publisherKey;
         this.purchaseAddress = defaults.purchaseAddress;
     }
+
     public readFromObject(config: IContractsConfig) {
-        if (config.managerKey !== undefined) this.managerKey = config.managerKey;
+        if (config.publisherKey !== undefined) this.publisherKey = config.publisherKey;
         if (config.purchaseAddress !== undefined) this.purchaseAddress = config.purchaseAddress;
     }
     /**
@@ -483,7 +484,7 @@ export class ContractConfig implements IContractsConfig {
      */
     public static defaultValue(): IContractsConfig {
         return {
-            managerKey: "0x94bf5604b9eb7990985dfabbfd1298a16a3c94cb79a5fa39638279ba9ca48a80",
+            publisherKey: "0x94bf5604b9eb7990985dfabbfd1298a16a3c94cb79a5fa39638279ba9ca48a80",
             purchaseAddress: "0x0000000000000000000000000000000000000000",
         };
     }

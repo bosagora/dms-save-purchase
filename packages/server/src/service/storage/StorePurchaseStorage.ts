@@ -64,13 +64,13 @@ export class StorePurchaseStorage extends Storage {
         return new Promise((resolve, reject) => {
             if (_block?.header === undefined) reject("The data is not available.");
             if (_CID.length <= 0) reject("The CID is not valid.");
-            const cur_hash: Hash = hashFull(_block.header);
+            const curHash: Hash = hashFull(_block.header);
             const header: BlockHeader = _block.header;
             this.database.run(
                 insertBlockQuery,
                 [
                     header.height.toString(),
-                    cur_hash.toString(),
+                    curHash.toString(),
                     header.prevBlock.toString(),
                     header.merkleRoot.toString(),
                     header.timestamp.toString(),
@@ -126,11 +126,14 @@ export class StorePurchaseStorage extends Storage {
         });
     }
 
-    public selectTxByHash(hash: string): Promise<DBTransaction | null> {
-        return new Promise<DBTransaction | null>((resolve, reject) => {
+    public selectTxByHash(hash: string): Promise<DBTransaction | undefined> {
+        return new Promise<DBTransaction | undefined>((resolve, reject) => {
             this.database.all(selectTxByHashQuery, [hash], (err: Error | null, row: DBTransaction[]) => {
                 if (err) reject(err);
-                else resolve(row.length > 0 ? new DBTransaction(row[0].sequence, row[0].contents, row[0].hash) : null);
+                else
+                    resolve(
+                        row.length > 0 ? new DBTransaction(row[0].sequence, row[0].contents, row[0].hash) : undefined
+                    );
             });
         });
     }
@@ -153,15 +156,15 @@ export class StorePurchaseStorage extends Storage {
         });
     }
 
-    public selectLastHeight(): Promise<bigint | null> {
+    public selectLastHeight(): Promise<bigint | undefined> {
         return new Promise((resolve, reject) => {
             this.database.all(selectBlockLastHeight, [], (err: Error | null, row: any) => {
                 if (err) reject(err);
                 if (row?.length) {
                     if (row[0].height !== null) resolve(BigInt(row[0].height));
-                    else resolve(null);
+                    else resolve(undefined);
                 } else {
-                    resolve(null);
+                    resolve(undefined);
                 }
             });
         });

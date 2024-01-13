@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "sourceMap": true,
-        "target": "es2022",
+        "target": "es2020",
         "module": "commonjs",
         "lib": ["esnext"],
         "strict": true,

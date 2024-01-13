@@ -36,7 +36,7 @@ database:
   path: ":memory:"
 
 contracts:
-  managerKey: "${MANAGER_KEY}"
+  publisherKey: "${PUBLISHER_KEY}"
   purchaseAddress: "0x0000000000000000000000000000000000000000"
 
 setting:

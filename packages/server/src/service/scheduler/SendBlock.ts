@@ -42,11 +42,6 @@ export class SendBlock extends Scheduler {
     private _contract: StorePurchase | undefined;
 
     /**
-     * The signer needed to save the block information
-     */
-    private _managerSigner: NonceManager | undefined;
-
-    /**
      * This is the timestamp when the previous block was created
      */
     private old_time_stamp: number;
@@ -72,16 +67,8 @@ export class SendBlock extends Scheduler {
         }
     }
 
-    /**
-     * Returns the value if this._managerSigner is defined.
-     * Otherwise, make signer
-     */
-    private get managerSigner(): Signer {
-        if (this._managerSigner === undefined) {
-            const manager = new Wallet(this.config.contracts.managerKey);
-            this._managerSigner = new NonceManager(new GasPriceManager(ethers.provider.getSigner(manager.address)));
-        }
-        return this._managerSigner;
+    private get publisherSigner(): Signer {
+        return new NonceManager(new GasPriceManager(new Wallet(this.config.contracts.publisherKey, ethers.provider)));
     }
 
     /**
@@ -132,7 +119,7 @@ export class SendBlock extends Scheduler {
             const last_height: bigint = BigInt(last_height_org.toString());
             const db_last_height = await this.storage.selectLastHeight();
 
-            if (db_last_height === null) {
+            if (db_last_height === undefined) {
                 logger.info(`No block data in DB.`);
                 return;
             }
@@ -151,17 +138,12 @@ export class SendBlock extends Scheduler {
             if (data) {
                 try {
                     await this._contract
-                        .connect(this.managerSigner)
-                        .add(data.height, data.curBlock, data.prevBlock, data.merkleRoot, data.timestamp, data.CID)
-                        .then(() => {
-                            logger.info(`Successful in adding blocks to the blockchain. Height: ${data.height}`);
-                        });
+                        .connect(this.publisherSigner)
+                        .add(data.height, data.curBlock, data.prevBlock, data.merkleRoot, data.timestamp, data.CID);
+                    logger.info(`Successful in adding blocks to the blockchain. Height: ${data.height}`);
                 } catch (err) {
                     const msg = ResponseMessage.getEVMErrorMessage(err);
                     logger.error(`SendBlock : ${msg.error.message}`);
-
-                    const signer = this.managerSigner as NonceManager;
-                    signer.setTransactionCount(await signer.getTransactionCount());
                 }
             } else {
                 logger.info(`This block is not ready.`);

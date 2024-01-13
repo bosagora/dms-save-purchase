@@ -19,7 +19,6 @@
         "formatting:check": "prettier '**/*.{json,sol,ts,js}' -c",
         "formatting:write": "prettier '**/*.{json,sol,ts,js}' --write",
         "test:Config": "NODE_ENV=test hardhat test test/service/Config.test.ts",
-        "test:BOA": "NODE_ENV=test hardhat test test/service/BOA.test.ts",
         "test:blockchain:Node": "NODE_ENV=test hardhat test test/blockchain/Node.test.ts",
         "test:blockchain:SendBlock": "NODE_ENV=test hardhat test test/blockchain/SendBlock.test.ts",
         "test:blockchain:TransactionPool": "NODE_ENV=test hardhat test test/blockchain/TransactionPool.test.ts",

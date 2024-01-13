@@ -1,18 +1,20 @@
-import { Config } from "../../src/service/common/Config";
-
-import chai from "chai";
-import chaiHttp from "chai-http";
-
-import * as assert from "assert";
-import { CancelTransaction, NewTransaction, Transaction } from "dms-store-purchase-sdk";
-import { Wallet } from "ethers";
-import * as path from "path";
-import { URL } from "url";
+import { HardhatAccount } from "../../src/HardhatAccount";
 import { Amount } from "../../src/service/common/Amount";
+import { Config } from "../../src/service/common/Config";
 import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
 import { HardhatUtils } from "../../src/service/utils";
 import { TestClient } from "../helper/Utility";
+
+import { CancelTransaction, NewTransaction, Transaction } from "dms-store-purchase-sdk";
+
+import assert from "assert";
+import chai from "chai";
+import chaiHttp from "chai-http";
+import { Wallet } from "ethers";
+import { ethers } from "hardhat";
+import path from "path";
+import { URL } from "url";
 
 // tslint:disable-next-line:no-var-requires
 const URI = require("urijs");
@@ -31,19 +33,12 @@ describe("Test of StorePurchase Router", () => {
         config.readFromFile(path.resolve("config", "config_test.yaml"));
         accessKey = config.setting.accessKey;
 
-        const manager = new Wallet(config.contracts.managerKey || "");
-        await HardhatUtils.deployStorePurchaseContract(config, manager);
+        const deployer = new Wallet(HardhatAccount.keys[0], ethers.provider);
+        const publisher = new Wallet(HardhatAccount.keys[1], ethers.provider);
+        await HardhatUtils.deployStorePurchaseContract(config, deployer, publisher);
 
         serverURL = new URL(`http://127.0.0.1:${config.server.port}`).toString();
-        storage = await (() => {
-            return new Promise<StorePurchaseStorage>((resolve, reject) => {
-                const res = new StorePurchaseStorage(config.database, (err) => {
-                    if (err !== null) reject(err);
-                    else resolve(res);
-                });
-            });
-        })();
-
+        storage = await StorePurchaseStorage.make(config.database);
         server = new StorePurchaseServer(config, storage);
     });
 
