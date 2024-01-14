@@ -2,7 +2,7 @@
  *  Includes classes that store data in IPFS
  *
  *  Copyright:
- *      Copyright (c) 2022 BOSAGORA Foundation All rights reserved.
+ *      Copyright (c) 2024 BOSAGORA Foundation All rights reserved.
  *
  *  License:
  *       MIT License. See LICENSE for details.

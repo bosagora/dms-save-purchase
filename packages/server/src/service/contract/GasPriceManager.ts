@@ -2,7 +2,7 @@
  *  It's a signer that calculates the gas cost before sending a transaction
  *
  *  Copyright:
- *      Copyright (c) 2022 BOSAGORA Foundation All rights reserved.
+ *      Copyright (c) 2024 BOSAGORA Foundation All rights reserved.
  *
  *  License:
  *       MIT License. See LICENSE for details.
