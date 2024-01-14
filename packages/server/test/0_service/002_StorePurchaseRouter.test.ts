@@ -8,12 +8,12 @@ import { TestClient } from "../helper/Utility";
 
 import { CancelTransaction, NewTransaction, Transaction } from "dms-store-purchase-sdk";
 
-import assert from "assert";
+import * as assert from "assert";
 import chai from "chai";
 import chaiHttp from "chai-http";
 import { Wallet } from "ethers";
-import { ethers } from "hardhat";
-import path from "path";
+import { waffle } from "hardhat";
+import * as path from "path";
 import { URL } from "url";
 
 // tslint:disable-next-line:no-var-requires
@@ -29,12 +29,13 @@ describe("Test of StorePurchase Router", () => {
     const client = new TestClient();
     let accessKey: string;
 
+    const deployer = new Wallet(HardhatAccount.keys[0], waffle.provider);
+    const publisher = new Wallet(HardhatAccount.keys[1], waffle.provider);
+
     before("Create Test Server", async () => {
         config.readFromFile(path.resolve("config", "config_test.yaml"));
         accessKey = config.setting.accessKey;
 
-        const deployer = new Wallet(HardhatAccount.keys[0], ethers.provider);
-        const publisher = new Wallet(HardhatAccount.keys[1], ethers.provider);
         await HardhatUtils.deployStorePurchaseContract(config, deployer, publisher);
 
         serverURL = new URL(`http://127.0.0.1:${config.server.port}`).toString();
@@ -43,11 +44,13 @@ describe("Test of StorePurchase Router", () => {
     });
 
     before("Start Test StorePurchaseServer", async () => {
+        await storage.clearTestDB();
         await server.start();
     });
 
     after("Stop Test StorePurchaseServer", async () => {
         await server.stop();
+        await storage.dropTestDB();
     });
 
     let newTxParam: any;

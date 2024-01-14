@@ -7,19 +7,20 @@
  *  License:
  *       MIT License. See LICENSE for details.
  */
+
 import { HardhatAccount } from "../../src/HardhatAccount";
 import { Config } from "../../src/service/common/Config";
 import { IBlockExternalizer, Node } from "../../src/service/scheduler/Node";
 import { TransactionPool } from "../../src/service/scheduler/TransactionPool";
 import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 import { HardhatUtils } from "../../src/service/utils";
-import { ContractUtils } from "../../src/service/utils/ContractUtils";
+import { delay } from "../helper/Utility";
 
 import { Block, Hash, NewTransaction, PurchaseDetails, Utils } from "dms-store-purchase-sdk";
 
-import assert from "assert";
+import * as assert from "assert";
 import { BigNumber, Wallet } from "ethers";
-import { ethers } from "hardhat";
+import { waffle } from "hardhat";
 import path from "path";
 
 class BlockExternalizer implements IBlockExternalizer {
@@ -38,22 +39,28 @@ describe("Test of Node", function () {
     let externalizer: BlockExternalizer;
     const config = new Config();
     let storage: StorePurchaseStorage;
-    config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
-    const deployer = new Wallet(HardhatAccount.keys[0], ethers.provider);
-    const publisher = new Wallet(HardhatAccount.keys[1], ethers.provider);
+    const provider = waffle.provider;
+    const deployer = new Wallet(HardhatAccount.keys[0], provider);
+    const publisher = new Wallet(HardhatAccount.keys[1], provider);
 
     before("Deploy StorePurchase Contract", async () => {
+        config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
         await HardhatUtils.deployStorePurchaseContract(config, deployer, publisher);
     });
 
     before("Create Node", async () => {
         storage = await StorePurchaseStorage.make(config.database);
+        await storage.clearTestDB();
         node = new Node("*/1 * * * * *");
         const pool = new TransactionPool();
         pool.storage = storage;
         node.setOption({ config, storage, pool });
         externalizer = new BlockExternalizer();
         node.setExternalizer(externalizer);
+    });
+
+    after("Destroy storage", async () => {
+        await storage.dropTestDB();
     });
 
     it("Start Node", () => {
@@ -86,7 +93,7 @@ describe("Test of Node", function () {
         const block = Block.createBlock(prev_hash, prev_height, txs);
         for (const tx of txs) await node.receive(tx);
 
-        await ContractUtils.delay(6000);
+        await delay(6000);
 
         assert.ok(externalizer.block !== undefined);
         block.header.timestamp = externalizer.block.header.timestamp;

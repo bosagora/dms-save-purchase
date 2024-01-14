@@ -18,13 +18,13 @@
         "start": "NODE_ENV=production hardhat run src/main.ts --network production_net",
         "formatting:check": "prettier '**/*.{json,sol,ts,js}' -c",
         "formatting:write": "prettier '**/*.{json,sol,ts,js}' --write",
-        "test:Config": "NODE_ENV=test hardhat test test/service/Config.test.ts",
-        "test:blockchain:Node": "NODE_ENV=test hardhat test test/blockchain/Node.test.ts",
-        "test:blockchain:SendBlock": "NODE_ENV=test hardhat test test/blockchain/SendBlock.test.ts",
-        "test:blockchain:TransactionPool": "NODE_ENV=test hardhat test test/blockchain/TransactionPool.test.ts",
-        "test:service:Storage": "NODE_ENV=test hardhat test test/service/Storage.test.ts",
-        "test:service:StorePurchaseRouter": "NODE_ENV=test hardhat test test/service/StorePurchaseRouter.test.ts",
-        "test:service:StorePurchaseServer": "NODE_ENV=test hardhat test test/service/StorePurchaseServer.test.ts"
+        "test:blockchain:TransactionPool": "NODE_ENV=test hardhat test test/1_blockchain/100_TransactionPool.test.ts",
+        "test:blockchain:Node": "NODE_ENV=test hardhat test test/1_blockchain/101_Node.test.ts",
+        "test:blockchain:SendBlock": "NODE_ENV=test hardhat test test/1_blockchain/102_SendBlock.test.ts",
+        "test:Config": "NODE_ENV=test hardhat test test/0_service/000_Config.test.ts",
+        "test:service:StorePurchaseServer": "NODE_ENV=test hardhat test test/0_service/001_StorePurchaseServer.test.ts",
+        "test:service:StorePurchaseRouter": "NODE_ENV=test hardhat test test/0_service/002_StorePurchaseRouter.test.ts",
+        "test:service:Storage": "NODE_ENV=test hardhat test test/0_service/003_Storage.test.ts"
     },
     "repository": {
         "type": "git",
@@ -64,6 +64,7 @@
         "@types/urijs": "^1.19.12"
     },
     "dependencies": {
+        "@types/pg": "^8.10.9",
         "argparse": "^2.0.1",
         "assert": "^2.0.0",
         "axios": "^0.27.2",
@@ -87,7 +88,10 @@
         "ipfs-mini": "^1.1.5",
         "mkdirp": "^1.0.4",
         "mocha": "^8.0.1",
+        "mybatis-mapper": "^0.7.1",
         "node-cron": "^3.0.0",
+        "pg": "^8.11.3",
+        "pgtools": "^1.0.1",
         "prettier": "^2.5.1",
         "prettier-plugin-solidity": "^1.0.0",
         "smart-buffer": "^4.1.0",

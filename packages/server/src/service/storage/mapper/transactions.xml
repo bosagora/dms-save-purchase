@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="transactions">
+
+    <insert id="post">
+        INSERT INTO txs
+        (
+            "sequence",
+            "contents",
+            "hash"
+        )
+        VALUES
+        <foreach item="item" collection="txs" separator=",">
+        (
+            #{item.sequence}   ,
+            #{item.contents}   ,
+            #{item.hash}
+        )
+        </foreach>
+        ON CONFLICT ("sequence")
+        DO UPDATE
+        SET
+            "contents" = EXCLUDED."contents",
+            "hash" = EXCLUDED."hash";
+    </insert>
+
+    <select id="get">
+        SELECT * FROM txs WHERE "hash" = #{hash};
+    </select>
+
+    <delete id="delete">
+        DELETE FROM txs WHERE "hash" = #{hash};
+    </delete>
+
+    <delete id="length">
+        SELECT COUNT(sequence) as count FROM txs;
+    </delete>
+
+    <select id="getList">
+        SELECT * FROM txs ORDER BY sequence ASC LIMIT ${length};
+    </select>
+
+    <select id="getLastSequence">
+        SELECT last_value as value FROM txs_sequence;
+    </select>
+
+    <select id="getNextSequence">
+        SELECT nextval('txs_sequence') AS value
+    </select>
+</mapper>

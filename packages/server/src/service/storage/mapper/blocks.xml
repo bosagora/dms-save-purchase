@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="blocks">
+
+    <insert id="post">
+
+        INSERT INTO blocks
+        (
+            "height",
+            "curBlock",
+            "prevBlock",
+            "merkleRoot",
+            "timestamp",
+            "CID"
+        )
+        VALUES
+        (
+            #{height},
+            #{curBlock},
+            #{prevBlock},
+            #{merkleRoot},
+            #{timestamp},
+            #{CID}
+        )
+        ON CONFLICT ("height")
+            DO UPDATE
+            SET "curBlock"   = EXCLUDED."curBlock",
+                "prevBlock"  = EXCLUDED."prevBlock",
+                "merkleRoot" = EXCLUDED."merkleRoot",
+                "timestamp"  = EXCLUDED."timestamp",
+                "CID"        = EXCLUDED."CID";
+    </insert>
+
+    <select id="getLatestHeight">
+        SELECT "height"
+        FROM blocks
+        ORDER BY "height" DESC
+        LIMIT 1;
+    </select>
+
+    <select id="getByHeight">
+        SELECT *
+        FROM blocks
+        WHERE "height" = #{height};
+    </select>
+
+    <delete id="deleteByHeight">
+        DELETE
+        FROM blocks
+        WHERE "height" <![CDATA[<]]> #{height};
+    </delete>
+
+    <select id="getByHash">
+        SELECT *
+        FROM blocks
+        WHERE "curBlock" = #{curBlock};
+    </select>
+
+</mapper>

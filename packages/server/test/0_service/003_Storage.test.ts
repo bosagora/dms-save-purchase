@@ -3,7 +3,7 @@ import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/S
 
 import { Block, Hash, NewTransaction, PurchaseDetails } from "dms-store-purchase-sdk";
 
-import assert from "assert";
+import * as assert from "assert";
 import { BigNumber } from "ethers";
 import path from "path";
 
@@ -13,7 +13,7 @@ describe("Test of Storage", () => {
         new NewTransaction(
             BigInt(0),
             "123456789",
-            1668044556n,
+            BigInt("1668044556"),
             BigNumber.from(123),
             BigNumber.from(123),
             "krw",
@@ -30,7 +30,7 @@ describe("Test of Storage", () => {
         new NewTransaction(
             BigInt(1),
             "987654321",
-            1313456756n,
+            BigInt("1313456756"),
             BigNumber.from(123),
             BigNumber.from(123),
             "krw",
@@ -48,6 +48,11 @@ describe("Test of Storage", () => {
         config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
 
         storage = await StorePurchaseStorage.make(config.database);
+        await storage.clearTestDB();
+    });
+
+    after("Destroy storage", async () => {
+        await storage.dropTestDB();
     });
 
     context("Test of block", () => {
@@ -68,6 +73,8 @@ describe("Test of Storage", () => {
 
     context("Test of transaction", () => {
         it("Insert transaction data", async () => {
+            tx1.sequence = await storage.getNextSequence();
+            tx2.sequence = await storage.getNextSequence();
             assert.strictEqual(await storage.selectTxsLength(), 0);
             const res = await storage.insertTx([tx1, tx2]);
             assert.strictEqual(res, true);
@@ -82,7 +89,7 @@ describe("Test of Storage", () => {
                 assert.strictEqual(res1.contents, tx1.contents);
             }
             const res2 = await storage.selectTxByHash(tx2.hash);
-            assert.notStrictEqual(res2, null);
+            assert.notStrictEqual(res2, undefined);
             if (res2) {
                 assert.strictEqual(res2.sequence, tx2.sequence);
                 assert.strictEqual(res2.contents, tx2.contents);
@@ -105,30 +112,6 @@ describe("Test of Storage", () => {
             assert.strictEqual(resS, undefined);
 
             assert.strictEqual(await storage.selectTxsLength(), 1);
-        });
-    });
-
-    context("Test of getSetting & setSetting", () => {
-        it("getSetting & default", async () => {
-            const res = await storage.getSetting("key1", "default");
-            assert.strictEqual(res, "default");
-        });
-
-        it("setSetting & getSetting", async () => {
-            await storage.setSetting("key1", "value1");
-            const res = await storage.getSetting("key1", "default");
-            assert.strictEqual(res, "value1");
-        });
-
-        it("getLastReceiveSequence & default", async () => {
-            const res = await storage.getLastReceiveSequence();
-            assert.strictEqual(res, -1n);
-        });
-
-        it("setSetting & getSetting", async () => {
-            await storage.setLastReceiveSequence(45n);
-            const res = await storage.getLastReceiveSequence();
-            assert.strictEqual(res, 45n);
         });
     });
 });

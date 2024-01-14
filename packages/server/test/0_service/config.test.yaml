@@ -2,6 +2,16 @@ server:
     address: 127.0.0.1
     port: 3000
 
+database:
+    host: "${DATABASE_HOST}"
+    user: "${DATABASE_USER}"
+    password: "${DATABASE_PASSWORD}"
+    database: "${DATABASE_NAME}"
+    scheme: "${DATABASE_SCHEME}"
+    port: "${DATABASE_PORT}"
+    connectionTimeoutMillis: 2000
+    max: 100
+
 logging:
     level: debug
 
@@ -23,11 +33,8 @@ scheduler:
           enable: true
           expression: "*/1 * * * * *"
 
-database:
-    path: ":memory:"
-
 contracts:
-    publisherKey: "0x94bf5604b9eb7990985dfabbfd1298a16a3c94cb79a5fa39638279ba9ca48a80"
+    managerKey: "0x94bf5604b9eb7990985dfabbfd1298a16a3c94cb79a5fa39638279ba9ca48a80"
     purchaseAddress: "0x0000000000000000000000000000000000000000"
 
 setting:

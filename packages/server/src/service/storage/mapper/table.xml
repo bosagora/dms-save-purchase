@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="table">
+
+    <sql id="blocks">
+        CREATE TABLE IF NOT EXISTS blocks
+        (
+            "height"            BIGINT NOT NULL,
+            "curBlock"          VARCHAR(66) NOT NULL,
+            "prevBlock"         VARCHAR(66) NOT NULL,
+            "merkleRoot"        VARCHAR(66) NOT NULL,
+            "timestamp"         BIGINT NOT NULL,
+            "CID"               VARCHAR(66) NOT NULL,
+            PRIMARY KEY ("height")
+        );
+        CREATE INDEX IF NOT EXISTS "blocks_curBlock_index" ON blocks ("curBlock");
+
+    </sql>
+
+    <sql id="txs">
+        CREATE SEQUENCE IF NOT EXISTS txs_sequence MINVALUE 1;
+
+        CREATE TABLE IF NOT EXISTS txs
+        (
+            "sequence"          BIGINT NOT NULL,
+            "contents"          TEXT NOT NULL,
+            "hash"              VARCHAR(66) NOT NULL,
+            PRIMARY KEY ("sequence")
+        );
+        CREATE INDEX IF NOT EXISTS "txs_hash_index" ON txs ("hash");
+    </sql>
+
+    <select id="create_table">
+        <include refid="blocks"/>
+        <include refid="txs"/>
+    </select>
+
+    <select id="drop_table">
+        DROP TABLE blocks;
+        DROP TABLE txs;
+        DROP SEQUENCE txs_sequence;
+    </select>
+
+    <select id="clear_table">
+        TRUNCATE TABLE blocks;
+        TRUNCATE TABLE txs;
+    </select>
+
+</mapper>

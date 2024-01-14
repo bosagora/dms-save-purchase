@@ -432,28 +432,165 @@ export interface IConfig {
 }
 
 export interface IDatabaseConfig {
-    path: string;
+    /**
+     * The host of mysql
+     */
+    host: string;
+
+    /**
+     * The user of mysql
+     */
+    user: string;
+
+    /**
+     * The password of mysql
+     */
+    password: string;
+
+    /**
+     * The database name
+     */
+    database: string;
+
+    scheme: string;
+
+    /**
+     * The host database port
+     */
+    port: number;
+
+    /**
+     * number of milliseconds to wait before timing out when connecting a new client
+     * by default this is 0 which means no timeout
+     */
+    connectionTimeoutMillis: number;
+
+    /**
+     * maximum number of clients the pool should contain
+     * by default this is set to 10.
+     */
+    max: number;
 }
+
+/**
+ * Database config
+ */
 export class DatabaseConfig implements IDatabaseConfig {
-    public path: string;
+    /**
+     * The host of mysql
+     */
+    host: string;
+
+    /**
+     * The user of mysql
+     */
+    user: string;
+
+    /**
+     * The password of mysql
+     */
+    password: string;
+
+    /**
+     * The database name
+     */
+    database: string;
+
+    scheme: string;
+
+    /**
+     * The host database port
+     */
+    port: number;
+
+    /**
+     * number of milliseconds to wait before timing out when connecting a new client
+     * by default this is 0 which means no timeout
+     */
+    connectionTimeoutMillis: number;
+
+    /**
+     * maximum number of clients the pool should contain
+     * by default this is set to 10.
+     */
+    max: number;
 
     /**
      * Constructor
+     * @param host Postgresql database host
+     * @param user Postgresql database user
+     * @param password Postgresql database password
+     * @param database Postgresql database name
+     * @param scheme
+     * @param port Postgresql database port
+     * @param connectionTimeoutMillis Number of milliseconds to wait before
+     * timing out when connecting a new client.
+     * By default this is 0 which means no timeout.
+     * @param max Number of milliseconds to wait before timing out when
+     * connecting a new client by default this is 0 which means no timeout.
      */
-    constructor() {
-        const defaults = DatabaseConfig.defaultValue();
-        this.path = defaults.path;
+    constructor(
+        host?: string,
+        user?: string,
+        password?: string,
+        database?: string,
+        scheme?: string,
+        port?: number,
+        connectionTimeoutMillis?: number,
+        max?: number
+    ) {
+        const conf = extend(true, {}, DatabaseConfig.defaultValue());
+        extend(true, conf, {
+            host,
+            user,
+            password,
+            database,
+            scheme,
+            port,
+            connectionTimeoutMillis,
+            max,
+        });
+        this.host = conf.host;
+        this.user = conf.user;
+        this.password = conf.password;
+        this.database = conf.database;
+        this.scheme = conf.scheme;
+        this.port = conf.port;
+        this.connectionTimeoutMillis = conf.connectionTimeoutMillis;
+        this.max = conf.max;
     }
-    public readFromObject(config: IDatabaseConfig) {
-        if (config.path !== undefined) this.path = config.path;
-    }
+
     /**
      * Returns default value
      */
     public static defaultValue(): IDatabaseConfig {
         return {
-            path: "./db/purchase.db",
-        } as unknown as IDatabaseConfig;
+            host: "localhost",
+            user: "root",
+            password: "12345678",
+            database: "purchase",
+            scheme: "",
+            port: 5432,
+            connectionTimeoutMillis: 2000,
+            max: 20,
+        };
+    }
+
+    /**
+     * Reads from Object
+     * @param config The object of IDatabaseConfig
+     */
+    public readFromObject(config: IDatabaseConfig) {
+        const conf = extend(true, {}, DatabaseConfig.defaultValue());
+        extend(true, conf, config);
+        this.host = conf.host;
+        this.user = conf.user;
+        this.password = conf.password;
+        this.database = conf.database;
+        this.scheme = conf.scheme;
+        this.port = conf.port;
+        this.connectionTimeoutMillis = conf.connectionTimeoutMillis;
+        this.max = conf.max;
     }
 }
 

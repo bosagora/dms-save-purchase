@@ -1,13 +1,3 @@
-/**
- *  The class that creates, inserts and reads the data into the database.
- *
- *  Copyright:
- *      Copyright (c) 2022 BOSAGORA Foundation All rights reserved.
- *
- *  License:
- *       MIT License. See LICENSE for details.
- */
-
 import {
     Block,
     BlockHeader,
@@ -17,227 +7,129 @@ import {
     NewTransaction,
     Transaction,
     TransactionType,
+    Utils,
 } from "dms-store-purchase-sdk";
-import { Storage } from "../../modules/storage/Storage";
 import { IDatabaseConfig } from "../common/Config";
-import {
-    clearQuery,
-    createTablesQuery,
-    deleteBlockByHeightQuery,
-    deleteTxByHashQuery,
-    getSetting,
-    insertBlockQuery,
-    insertTxQuery,
-    selectBlockByHeightQuery,
-    selectBlockLastHeight,
-    selectTxByHashQuery,
-    selectTxByLengthQuery,
-    selectTxsLength,
-    setSetting,
-} from "./schema/Schema";
+import { Storage } from "./Storage";
 
+import MybatisMapper from "mybatis-mapper";
+
+import path from "path";
+
+/**
+ * The class that inserts and reads the ledger into the database.
+ */
 export class StorePurchaseStorage extends Storage {
-    constructor(databaseConfig: IDatabaseConfig, callback: (err: Error | null) => void) {
-        super(databaseConfig, callback);
+    constructor(config: IDatabaseConfig) {
+        super(config);
     }
 
-    public createTables(): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            this.database.exec(createTablesQuery, (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
+    public async initialize() {
+        await super.initialize();
+        MybatisMapper.createMapper([path.resolve(Utils.getInitCWD(), "src/service/storage/mapper/table.xml")]);
+        MybatisMapper.createMapper([path.resolve(Utils.getInitCWD(), "src/service/storage/mapper/blocks.xml")]);
+        MybatisMapper.createMapper([path.resolve(Utils.getInitCWD(), "src/service/storage/mapper/transactions.xml")]);
+        await this.createTables();
+    }
+
+    public static async make(config: IDatabaseConfig): Promise<StorePurchaseStorage> {
+        const storage = new StorePurchaseStorage(config);
+        await storage.initialize();
+        return storage;
+    }
+
+    public createTables(): Promise<any> {
+        return this.queryForMapper("table", "create_table", {});
+    }
+
+    public async clearTestDB(): Promise<any> {
+        await this.queryForMapper("table", "clear_table", {});
+    }
+
+    public async dropTestDB(): Promise<any> {
+        await this.queryForMapper("table", "drop_table", {});
+    }
+
+    public async insertBlock(block: Block, CID: string) {
+        if (block?.header === undefined) throw new Error("The data is not available.");
+        if (CID.length <= 0) throw new Error("The CID is not valid.");
+
+        const cur_hash: Hash = hashFull(block.header);
+        const header: BlockHeader = block.header;
+        await this.queryForMapper("blocks", "post", {
+            height: header.height.toString(),
+            curBlock: cur_hash.toString(),
+            prevBlock: header.prevBlock.toString(),
+            merkleRoot: header.merkleRoot.toString(),
+            timestamp: header.timestamp.toString(),
+            CID,
         });
     }
 
-    public static make(databaseConfig: IDatabaseConfig): Promise<StorePurchaseStorage> {
-        return new Promise<StorePurchaseStorage>((resolve, reject) => {
-            const result: StorePurchaseStorage = new StorePurchaseStorage(databaseConfig, async (err: Error | null) => {
-                if (err) reject(err);
-                else {
-                    return resolve(result);
-                }
-            });
-        });
+    public async deleteBlockByHeight(height: bigint) {
+        await this.queryForMapper("blocks", "deleteByHeight", { height: height.toString() });
     }
 
-    public insertBlock(_block: Block, _CID: string): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            if (_block?.header === undefined) reject("The data is not available.");
-            if (_CID.length <= 0) reject("The CID is not valid.");
-            const curHash: Hash = hashFull(_block.header);
-            const header: BlockHeader = _block.header;
-            this.database.run(
-                insertBlockQuery,
-                [
-                    header.height.toString(),
-                    curHash.toString(),
-                    header.prevBlock.toString(),
-                    header.merkleRoot.toString(),
-                    header.timestamp.toString(),
-                    _CID,
-                ],
-                (err: Error | null) => {
-                    if (err) reject(err);
-                    else resolve(true);
-                }
-            );
+    public async insertTx(txs: DBTransaction[]): Promise<boolean> {
+        if (txs.length < 1) throw new Error("The data is not available.");
+
+        await this.queryForMapper("transactions", "post", {
+            txs: txs.map((m) => {
+                return {
+                    sequence: m.sequence,
+                    contents: m.contents,
+                    hash: m.hash,
+                };
+            }) as any,
         });
+
+        return true;
     }
 
-    /**
-     * Deletes blocks with a block height less than the input value
-     * @param height
-     */
-    public deleteBlockByHeight(height: bigint): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.database.run(deleteBlockByHeightQuery, [height.toString()], (err: Error | null) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
+    public async selectTxByLength(length: number): Promise<DBTransaction[]> {
+        const res = await this.queryForMapper("transactions", "getList", { length });
+        return res.rows.map((m: any) => new DBTransaction(m.sequence, m.contents.replace(/[\\]/gi, ""), m.hash));
     }
 
-    public insertTx(params: DBTransaction[]): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            if (params.length < 1) reject("The data is not available.");
-            const statement = this.database.prepare(insertTxQuery);
-
-            params.forEach((row) => {
-                statement.run([row.sequence.toString(), row.contents, row.hash]);
-            });
-            statement.finalize((err) => {
-                if (err) reject(err);
-                else resolve(true);
-            });
-        });
+    public async selectTxByHash(hash: string): Promise<DBTransaction | undefined> {
+        const res = await this.queryForMapper("transactions", "get", { hash });
+        return res.rows.length === 0
+            ? undefined
+            : new DBTransaction(res.rows[0].sequence, res.rows[0].contents.replace(/[\\]/gi, ""), res.rows[0].hash);
     }
 
-    public selectTxByLength(length: number): Promise<DBTransaction[]> {
-        return new Promise<DBTransaction[]>((resolve, reject) => {
-            this.database.all(selectTxByLengthQuery, [length], (err: Error | null, row: DBTransaction[]) => {
-                if (err) reject(err);
-                else
-                    resolve(
-                        row.map((m: any) => {
-                            return new DBTransaction(m.sequence, m.contents, m.hash);
-                        })
-                    );
-            });
-        });
+    public async deleteTxByHash(hash: string): Promise<boolean> {
+        await this.queryForMapper("transactions", "delete", { hash });
+        return true;
     }
 
-    public selectTxByHash(hash: string): Promise<DBTransaction | undefined> {
-        return new Promise<DBTransaction | undefined>((resolve, reject) => {
-            this.database.all(selectTxByHashQuery, [hash], (err: Error | null, row: DBTransaction[]) => {
-                if (err) reject(err);
-                else
-                    resolve(
-                        row.length > 0 ? new DBTransaction(row[0].sequence, row[0].contents, row[0].hash) : undefined
-                    );
-            });
-        });
+    public async selectTxsLength(): Promise<number> {
+        const res = await this.queryForMapper("transactions", "length", {});
+        return res.rows.length === 0 ? 0 : Number(res.rows[0].count);
     }
 
-    public deleteTxByHash(hash: string): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            this.database.run(deleteTxByHashQuery, [hash], (err: Error | null) => {
-                if (err) reject(err);
-                else resolve(true);
-            });
-        });
+    public async selectLastHeight(): Promise<bigint | undefined> {
+        const res = await this.queryForMapper("blocks", "getLatestHeight", {});
+        return res.rows.length === 0 ? undefined : BigInt(res.rows[0].height);
     }
 
-    public selectTxsLength(): Promise<number> {
-        return new Promise<number>((resolve, reject) => {
-            this.database.all(selectTxsLength, [], (err: Error | null, row: any) => {
-                if (err) reject(err);
-                else resolve(row?.length ? row[0].count : null);
-            });
-        });
+    public async selectBlockByHeight(height: bigint): Promise<any> {
+        const res = await this.queryForMapper("blocks", "getByHeight", { height: height.toString() });
+        return res.rows.length === 0 ? undefined : res.rows[0];
     }
 
-    public selectLastHeight(): Promise<bigint | undefined> {
-        return new Promise((resolve, reject) => {
-            this.database.all(selectBlockLastHeight, [], (err: Error | null, row: any) => {
-                if (err) reject(err);
-                if (row?.length) {
-                    if (row[0].height !== null) resolve(BigInt(row[0].height));
-                    else resolve(undefined);
-                } else {
-                    resolve(undefined);
-                }
-            });
-        });
+    public async getLastSequence(): Promise<bigint> {
+        const res = await this.queryForMapper("transactions", "getLastSequence", {});
+        return res.rows.length === 0 ? BigInt(0) : BigInt(res.rows[0].value);
     }
 
-    public selectBlockByHeight(height: bigint): Promise<any> {
-        return new Promise<any>((resolve, reject) => {
-            this.database.all(selectBlockByHeightQuery, [height.toString()], (err: Error | null, row: any) => {
-                if (err) reject(err);
-                else resolve(row[0]);
-            });
-        });
+    public async getNextSequence(): Promise<bigint> {
+        const res = await this.queryForMapper("transactions", "getNextSequence", {});
+        return res.rows.length === 0 ? BigInt(0) : BigInt(res.rows[0].value);
     }
 
-    /**
-     * Returns the settings stored in the database.
-     * @param key   Key to Settings
-     * @param defaultValue 기본값
-     */
-    public getSetting(key: string, defaultValue: string): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            this.database.all(getSetting, [key], (err: Error | null, row: any) => {
-                if (err) reject(err);
-                else resolve(row.length === 0 ? defaultValue : row[0].value);
-            });
-        });
-    }
-
-    /**
-     * Save the settings to the database
-     * @param key Key to Settings
-     * @param value Value to set
-     */
-    public setSetting(key: string, value: string): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            this.database.all(setSetting, [key, value], (err: Error | null, row: any) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-    }
-
-    /**
-     * Return the last sequence received
-     */
-    public async getLastReceiveSequence(): Promise<bigint> {
-        return new Promise<bigint>((resolve, reject) => {
-            this.getSetting("last_receive_sequence", "-1")
-                .then((value) => resolve(BigInt(value)))
-                .catch((e) => reject(e));
-        });
-    }
-
-    /**
-     * Save the last received sequence as a database
-     * @param value Value to set
-     */
-    public async setLastReceiveSequence(value: bigint): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            this.setSetting("last_receive_sequence", value.toString())
-                .then(() => resolve())
-                .catch((e) => reject(e));
-        });
-    }
-
-    public clear(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            this.database.all(clearQuery, [], (err: Error | null) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
+    public async clear() {
+        await this.queryForMapper("table", "clear_table", {});
     }
 }
 

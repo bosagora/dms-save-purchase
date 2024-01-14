@@ -7,16 +7,15 @@ import { SendBlock } from "../../src/service/scheduler/SendBlock";
 import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
 import { HardhatUtils } from "../../src/service/utils";
-import { ContractUtils } from "../../src/service/utils/ContractUtils";
 import { StorePurchase } from "../../typechain-types";
-import { TestClient } from "../helper/Utility";
+import { delay, TestClient } from "../helper/Utility";
 
 import { Utils } from "dms-store-purchase-sdk";
 
-import assert from "assert";
+import * as assert from "assert";
 import { Wallet } from "ethers";
-import { ethers } from "hardhat";
-import path from "path";
+import { waffle } from "hardhat";
+import * as path from "path";
 import URI from "urijs";
 import { URL } from "url";
 
@@ -38,6 +37,9 @@ describe("Test of StorePurchase Server", function () {
     let client: TestClient;
     let sendURL: string;
 
+    const deployer = new Wallet(HardhatAccount.keys[0], waffle.provider);
+    const publisher = new Wallet(HardhatAccount.keys[1], waffle.provider);
+
     before("Load Config", () => {
         config.readFromFile(path.resolve("config", "config_test.yaml"));
         config.server.port = 9595;
@@ -45,8 +47,6 @@ describe("Test of StorePurchase Server", function () {
     });
 
     before("Deploy Contract", async () => {
-        const deployer = new Wallet(HardhatAccount.keys[0], ethers.provider);
-        const publisher = new Wallet(HardhatAccount.keys[1], ethers.provider);
         contract = await HardhatUtils.deployStorePurchaseContract(config, deployer, publisher);
     });
 
@@ -73,11 +73,13 @@ describe("Test of StorePurchase Server", function () {
     });
 
     before("Start Test Server", async () => {
+        await storage.clearTestDB();
         await server.start();
     });
 
     after("Stop Test Server", async () => {
         await server.stop();
+        await storage.dropTestDB();
     });
 
     before("Create Client", async () => {
@@ -124,7 +126,7 @@ describe("Test of StorePurchase Server", function () {
         });
 
         it("Delay", async () => {
-            await ContractUtils.delay(2 * BLOCK_INTERVAL * 1000);
+            await delay(2 * BLOCK_INTERVAL * 1000);
         });
 
         it("Check the height of the last block", async () => {
@@ -146,7 +148,7 @@ describe("Test of StorePurchase Server", function () {
         });
 
         it("Delay", async () => {
-            await ContractUtils.delay(2 * BLOCK_INTERVAL * 1000);
+            await delay(2 * BLOCK_INTERVAL * 1000);
         });
 
         it("Check the height of the last block", async () => {
@@ -194,7 +196,7 @@ describe("Test of StorePurchase Server", function () {
         });
 
         it("Delay", async () => {
-            await ContractUtils.delay(2 * BLOCK_INTERVAL * 1000);
+            await delay(2 * BLOCK_INTERVAL * 1000);
         });
 
         it("Check the height of the last block", async () => {

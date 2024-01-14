@@ -83,3 +83,9 @@ export class TestClient {
         });
     }
 }
+
+export function delay(interval: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        setTimeout(resolve, interval);
+    });
+}

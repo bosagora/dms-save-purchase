@@ -8,6 +8,19 @@ server:
     port: 3000
 
 ################################################################################
+##                               Database options                             ##
+################################################################################
+database:
+  host: "${DATABASE_HOST}"
+  user: "${DATABASE_USER}"
+  password: "${DATABASE_PASSWORD}"
+  database: "${DATABASE_NAME}"
+  scheme: "${DATABASE_SCHEME}"
+  port: "${DATABASE_PORT}"
+  connectionTimeoutMillis: 2000
+  max: 100
+
+################################################################################
 ##                               Logging options                              ##
 ################################################################################
 logging:
@@ -31,9 +44,6 @@ scheduler:
     - name: send_block
       enable: true
       expression: "*/14 * * * * *"
-
-database:
-  path: "${DB_PATH}"
 
 contracts:
   publisherKey: "${PUBLISHER_KEY}"

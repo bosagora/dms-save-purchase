@@ -8,19 +8,20 @@
  *       MIT License. See LICENSE for details.
  */
 
+import { BigNumber, Wallet } from "ethers";
+import { waffle } from "hardhat";
+
 import { Block, Hash, hashFull } from "dms-store-purchase-sdk";
-import { HardhatAccount } from "../../src/HardhatAccount";
 import { Config } from "../../src/service/common/Config";
 import { SendBlock } from "../../src/service/scheduler/SendBlock";
-import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 import { HardhatUtils } from "../../src/service/utils";
-import { ContractUtils } from "../../src/service/utils/ContractUtils";
 import { StorePurchase } from "../../typechain-types";
+import { delay } from "../helper/Utility";
 
 import * as assert from "assert";
-import { BigNumber, Wallet } from "ethers";
-import { ethers } from "hardhat";
 import path from "path";
+import { HardhatAccount } from "../../src/HardhatAccount";
+import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 
 describe("Test of SendBlock", () => {
     let sendBlock: SendBlock;
@@ -28,30 +29,30 @@ describe("Test of SendBlock", () => {
     const config = new Config();
     let storage: StorePurchaseStorage;
 
-    config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
-    const deployer = new Wallet(HardhatAccount.keys[0], ethers.provider);
-    const publisher = new Wallet(HardhatAccount.keys[1], ethers.provider);
+    const provider = waffle.provider;
+    const deployer = new Wallet(HardhatAccount.keys[0], provider);
+    const publisher = new Wallet(HardhatAccount.keys[1], provider);
 
     before("Deploy StorePurchase Contract", async () => {
+        config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
         contract = await HardhatUtils.deployStorePurchaseContract(config, deployer, publisher);
-    });
-
-    after(() => {
-        sendBlock.stop();
     });
 
     before("Create SendBlock", async () => {
         storage = await StorePurchaseStorage.make(config.database);
+        await storage.clearTestDB();
         const send_block_scheduler = config.scheduler.getScheduler("send_block");
         if (send_block_scheduler && send_block_scheduler.enable) {
             sendBlock = new SendBlock("*/1 * * * * *");
         }
         sendBlock.setOption({ config, storage });
+        await sendBlock.start();
+        assert.ok(sendBlock.isRunning());
     });
 
-    it("Start SendBlock", () => {
-        sendBlock.start();
-        assert.ok(sendBlock.isRunning());
+    after("Destroy storage", async () => {
+        await sendBlock.stop();
+        await storage.dropTestDB();
     });
 
     it("Test of Insert Blocks & Send Block", async () => {
@@ -62,7 +63,7 @@ describe("Test of SendBlock", () => {
 
         // Test Block height 0
         await storage.insertBlock(block_0, cid);
-        await ContractUtils.delay(5000);
+        await delay(5000);
         assert.deepStrictEqual(await contract.connect(publisher).getLastHeight(), BigNumber.from(1));
         assert.deepStrictEqual(await contract.size(), BigNumber.from(2));
         const sc_block_0 = await contract.connect(publisher).getByHeight(BigNumber.from(1));
@@ -75,7 +76,7 @@ describe("Test of SendBlock", () => {
         assert.deepStrictEqual(sc_block_0[5], db_block_0.CID);
         // Test Block height 1
         await storage.insertBlock(block_1, cid);
-        await ContractUtils.delay(5000);
+        await delay(5000);
         assert.deepStrictEqual(await contract.connect(publisher).getLastHeight(), BigNumber.from(2));
         assert.deepStrictEqual(await contract.size(), BigNumber.from(3));
         const sc_block_1 = await contract.connect(publisher).getByHeight(BigNumber.from(2));

@@ -95,8 +95,6 @@ export class SendBlock extends Scheduler {
         }
     }
 
-    public override async onStart() {}
-
     /**
      * Look up the new block in the DB and add the block to the StorePurchase contract.
      * @protected

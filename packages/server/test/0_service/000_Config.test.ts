@@ -1,13 +1,14 @@
 import { Config } from "../../src/service/common/Config";
 
 import * as assert from "assert";
-import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
 import path from "path";
+
+import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
 
 describe("Test of Config", () => {
     it("Test parsing the settings of a string", async () => {
         const config: Config = new Config();
-        config.readFromFile(path.resolve("test", "service", "config.test.yaml"));
+        config.readFromFile(path.resolve("test", "0_service", "config.test.yaml"));
         assert.strictEqual(config.server.address, "127.0.0.1");
         assert.strictEqual(config.server.port.toString(), "3000");
         assert.strictEqual(config.logging.level, "debug");
@@ -25,8 +26,6 @@ describe("Test of Config", () => {
         assert.strictEqual(config.node.ipfs_api_url, "http://localhost:5001");
         assert.strictEqual(config.node.ipfs_gateway_url, "http://localhost:8080");
         assert.strictEqual(config.node.ipfs_test, true);
-
-        assert.strictEqual(config.database.path, ":memory:");
 
         assert.strictEqual(config.contracts.purchaseAddress, "0x0000000000000000000000000000000000000000");
 

@@ -63,12 +63,6 @@ export class StorePurchaseRouter {
     private static accessKey: string;
 
     /**
-     * Sequence of the last received transaction
-     * @private
-     */
-    private lastReceiveSequence: bigint;
-
-    /**
      * The signer needed to save the block information
      */
     private _publisherSigner: Wallet | undefined;
@@ -90,7 +84,6 @@ export class StorePurchaseRouter {
         this.storage = storage;
 
         StorePurchaseRouter.accessKey = config.setting.accessKey;
-        this.lastReceiveSequence = -1n;
     }
 
     private get app(): express.Application {
@@ -168,7 +161,7 @@ export class StorePurchaseRouter {
         logger.http(`GET /v1/tx/sequence`);
 
         try {
-            const sequence = await this.storage.getLastReceiveSequence();
+            const sequence = await this.storage.getLastSequence();
             return res.status(200).json(StorePurchaseRouter.makeResponseData(0, { sequence }));
         } catch (error) {
             logger.error("GET /v1/tx/sequence , " + error);
@@ -214,10 +207,6 @@ export class StorePurchaseRouter {
         }
 
         try {
-            if (this.lastReceiveSequence === -1n) {
-                this.lastReceiveSequence = await this.storage.getLastReceiveSequence();
-            }
-
             const details: PurchaseDetails[] = [];
             for (const elem of req.body.details) {
                 if (elem.productId !== undefined && elem.amount !== undefined && elem.providePercent !== undefined) {
@@ -238,8 +227,9 @@ export class StorePurchaseRouter {
                 return res.status(200).json(ResponseMessage.getErrorMessage("2004"));
             }
             const userPhoneHash = ContractUtils.getPhoneHash(userPhone);
+            const nextSequence = await this.storage.getNextSequence();
             const tx: NewTransaction = new NewTransaction(
-                this.lastReceiveSequence + 1n,
+                nextSequence,
                 String(req.body.purchaseId).trim(),
                 BigInt(req.body.timestamp),
                 totalAmount,
@@ -251,12 +241,8 @@ export class StorePurchaseRouter {
                 details,
                 this.publisherSigner.address
             );
-
             await tx.sign(this.publisherSigner);
-
             await this.pool.add(DBTransaction.make(tx));
-            await this.storage.setLastReceiveSequence(tx.sequence);
-            this.lastReceiveSequence = tx.sequence;
 
             let loyalty = this.getLoyaltyInTransaction(tx);
             if (loyalty.gt(1)) {
@@ -366,12 +352,10 @@ export class StorePurchaseRouter {
         }
 
         try {
-            if (this.lastReceiveSequence === -1n) {
-                this.lastReceiveSequence = await this.storage.getLastReceiveSequence();
-            }
+            const nextSequence = await this.storage.getNextSequence();
 
             const tx: CancelTransaction = new CancelTransaction(
-                this.lastReceiveSequence + 1n,
+                nextSequence,
                 String(req.body.purchaseId).trim(),
                 BigInt(req.body.timestamp),
                 this.publisherSigner.address
@@ -380,8 +364,6 @@ export class StorePurchaseRouter {
             await tx.sign(this.publisherSigner);
 
             await this.pool.add(DBTransaction.make(tx));
-            await this.storage.setLastReceiveSequence(tx.sequence);
-            this.lastReceiveSequence = tx.sequence;
             return res.json(StorePurchaseRouter.makeResponseData(0, tx.toJSON()));
         } catch (error) {
             logger.error("POST /v1/tx/purchase/cancel , " + error);

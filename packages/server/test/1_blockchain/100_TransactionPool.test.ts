@@ -8,11 +8,10 @@
  *       MIT License. See LICENSE for details.
  */
 
+import { NewTransaction, PurchaseDetails, Utils } from "dms-store-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { TransactionPool } from "../../src/service/scheduler/TransactionPool";
 import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
-
-import { NewTransaction, PurchaseDetails, Utils } from "dms-store-purchase-sdk";
 
 import * as assert from "assert";
 import { BigNumber } from "ethers";
@@ -45,13 +44,22 @@ describe("TransactionPool", () => {
     let tx_pool: TransactionPool;
     let txs: NewTransaction[];
     let dbTxs: DBTransaction[];
+    let storage: StorePurchaseStorage;
 
-    it("Create TransactionPool", async () => {
-        tx_pool = new TransactionPool();
+    before("Create storage", async () => {
         const config: Config = new Config();
         config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
 
-        const storage = await StorePurchaseStorage.make(config.database);
+        storage = await StorePurchaseStorage.make(config.database);
+        await storage.clearTestDB();
+    });
+
+    after("Destroy storage", async () => {
+        await storage.dropTestDB();
+    });
+
+    it("Create TransactionPool", async () => {
+        tx_pool = new TransactionPool();
         tx_pool.storage = storage;
     });
 
