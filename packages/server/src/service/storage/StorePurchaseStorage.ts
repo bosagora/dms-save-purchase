@@ -21,6 +21,7 @@ import {
 import { Storage } from "../../modules/storage/Storage";
 import { IDatabaseConfig } from "../common/Config";
 import {
+    clearQuery,
     createTablesQuery,
     deleteBlockByHeightQuery,
     deleteTxByHashQuery,
@@ -227,6 +228,15 @@ export class StorePurchaseStorage extends Storage {
             this.setSetting("last_receive_sequence", value.toString())
                 .then(() => resolve())
                 .catch((e) => reject(e));
+        });
+    }
+
+    public clear(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            this.database.all(clearQuery, [], (err: Error | null) => {
+                if (err) reject(err);
+                else resolve();
+            });
         });
     }
 }

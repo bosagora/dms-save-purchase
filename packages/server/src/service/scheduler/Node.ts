@@ -8,14 +8,16 @@
  *       MIT License. See LICENSE for details.
  */
 
+import { StorePurchase } from "../../../typechain-types";
 import { IPFSManager, Scheduler } from "../../modules";
 import { Config } from "../common/Config";
 import { logger } from "../common/Logger";
+import { DBTransaction, StorePurchaseStorage } from "../storage/StorePurchaseStorage";
+import { LastBlockInfo } from "./LastBlockInfo";
 import { TransactionPool } from "./TransactionPool";
 
 import { Block, Hash, hashFull, Transaction, Utils } from "dms-store-purchase-sdk";
-import { DBTransaction, StorePurchaseStorage } from "../storage/StorePurchaseStorage";
-import { LastBlockInfo } from "./LastBlockInfo";
+import { ethers } from "hardhat";
 
 /**
  * Definition of event type
@@ -149,6 +151,27 @@ export class Node extends Scheduler {
      * Called when the scheduler starts.
      */
     public async onStart() {
+        const factory = await ethers.getContractFactory("StorePurchase");
+        const contract = factory.attach(this.config.contracts.purchaseAddress) as StorePurchase;
+
+        const latestHeightContract = BigInt((await contract.getLastHeight()).toString());
+        logger.info(`The latest height recorded in the contract is ${latestHeightContract.toString()}`);
+
+        const latestHeightDatabase = await this.storage.selectLastHeight();
+        if (latestHeightDatabase === undefined) {
+            logger.info(`The information in the block does not exist in the database.`);
+        } else {
+            logger.info(`The latest height recorded in the database is ${latestHeightDatabase.toString()}`);
+
+            if (latestHeightDatabase > latestHeightContract) {
+                const data = await this.storage.selectBlockByHeight(latestHeightContract + 1n);
+                if (data === undefined) {
+                    logger.error(`Lost blocks exists in the database, not stored in the blockchain.`);
+                    await this.storage.clear();
+                }
+            }
+        }
+
         // Initialize the information of the previous block.
         const lastInfo = await LastBlockInfo.getInfo(this.storage, this.config);
         if (lastInfo !== undefined) {
@@ -202,6 +225,9 @@ export class Node extends Scheduler {
                         logger.info(`Saved block to IPFS - height: ${block.header.height.toString()}, CID: ${cid}`);
                     } catch {
                         success = false;
+                        logger.error(
+                            `Failed to save block to IPFS - height: ${block.header.height.toString()}, CID: ${cid}`
+                        );
                     }
 
                     if (success) {

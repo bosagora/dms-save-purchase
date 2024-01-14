@@ -98,3 +98,9 @@ export const setSetting = `
     VALUES
         ( ?, ? )
 `;
+
+export const clearQuery = `
+    DELETE FROM blocks;
+    DELETE FROM tx;
+    DELETE FROM setting;
+`;

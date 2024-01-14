@@ -18,7 +18,6 @@ import { Config } from "../common/Config";
 import { logger } from "../common/Logger";
 import { GasPriceManager } from "../contract/GasPriceManager";
 import { StorePurchaseStorage } from "../storage/StorePurchaseStorage";
-
 import { ResponseMessage } from "../utils/Errors";
 
 /**
@@ -96,6 +95,8 @@ export class SendBlock extends Scheduler {
         }
     }
 
+    public override async onStart() {}
+
     /**
      * Look up the new block in the DB and add the block to the StorePurchase contract.
      * @protected
@@ -115,24 +116,17 @@ export class SendBlock extends Scheduler {
                 this._contract = contractFactory.attach(this.config.contracts.purchaseAddress) as StorePurchase;
             }
 
-            const last_height_org = await this._contract.getLastHeight();
-            const last_height: bigint = BigInt(last_height_org.toString());
-            const db_last_height = await this.storage.selectLastHeight();
+            const latestHeightContract = BigInt((await this._contract.getLastHeight()).toString());
+            const latestHeightDatabase = await this.storage.selectLastHeight();
 
-            if (db_last_height === undefined) {
-                logger.info(`No block data in DB.`);
-                return;
-            }
-
-            if (last_height >= db_last_height) {
-                logger.info(
-                    `The last block height of the DB is equal to or lower than the last block height of the contract.`
-                );
-            }
+            if (latestHeightDatabase === undefined) return;
 
             let data: any = null;
-            if (db_last_height > last_height) {
-                data = await this.storage.selectBlockByHeight(last_height + 1n);
+            if (latestHeightDatabase > latestHeightContract) {
+                data = await this.storage.selectBlockByHeight(latestHeightContract + 1n);
+                if (data === undefined) {
+                    logger.error(`Lost blocks exists in the database, not stored in the blockchain.`);
+                }
             }
 
             if (data) {
@@ -150,7 +144,7 @@ export class SendBlock extends Scheduler {
             }
 
             // Delete blocks stored in the contract from the database
-            await this.storage.deleteBlockByHeight(last_height);
+            await this.storage.deleteBlockByHeight(latestHeightContract);
         } catch (error) {
             logger.error(`Failed to execute the Send Block: ${error}`);
         }
