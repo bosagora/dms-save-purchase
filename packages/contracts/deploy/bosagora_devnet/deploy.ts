@@ -25,6 +25,7 @@ interface IAccount {
 type FnDeployer = (accounts: IAccount, deployment: Deployments) => void;
 
 class Deployments {
+    public static publisher: string = "0xb9De33A8be2F913F6AFA3a64849c86F18410fF05";
     public deployments: Map<string, IDeployedContract>;
     public deployers: FnDeployer[];
     public accounts: IAccount;
@@ -125,6 +126,10 @@ async function deployStorePurchase(accounts: IAccount, deployment: Deployments) 
     await contract.deployed();
     deployment.addContract(contractName, contract.address, contract);
     console.log(`Deployed ${contractName} to ${contract.address}`);
+
+    const tx = await contract.connect(accounts.deployer).transferOwnership(Deployments.publisher);
+    console.log(`Waiting for transferOwnership ${tx.hash}`);
+    await tx.wait();
 }
 
 async function main() {

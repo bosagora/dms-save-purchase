@@ -17,14 +17,14 @@ function getAccounts() {
     const reg_bytes64: RegExp = /^(0x)[0-9a-f]{64}$/i;
 
     if (
-        process.env.MANAGER_KEY !== undefined &&
-        process.env.MANAGER_KEY.trim() !== "" &&
-        reg_bytes64.test(process.env.MANAGER_KEY)
+        process.env.DEPLOYER_KEY !== undefined &&
+        process.env.DEPLOYER_KEY.trim() !== "" &&
+        reg_bytes64.test(process.env.DEPLOYER_KEY)
     ) {
-        accounts.push(process.env.MANAGER_KEY);
+        accounts.push(process.env.DEPLOYER_KEY);
     } else {
-        process.env.MANAGER_KEY = Wallet.createRandom().privateKey;
-        accounts.push(process.env.MANAGER_KEY);
+        process.env.DEPLOYER_KEY = Wallet.createRandom().privateKey;
+        accounts.push(process.env.DEPLOYER_KEY);
     }
 
     while (accounts.length < 50) {
