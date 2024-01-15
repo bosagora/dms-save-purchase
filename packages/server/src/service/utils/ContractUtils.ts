@@ -1,4 +1,5 @@
 import { defaultAbiCoder } from "@ethersproject/abi";
+import { BigNumber } from "@ethersproject/bignumber";
 import { keccak256 } from "@ethersproject/keccak256";
 
 export class ContractUtils {
@@ -74,4 +75,12 @@ export class ContractUtils {
         const encodedResult = defaultAbiCoder.encode(["string", "string"], ["BOSagora Phone Number", phone]);
         return keccak256(encodedResult);
     }
+
+    public static zeroGWEI(value: BigNumber): BigNumber {
+        return value.div(1000000000).mul(1000000000);
+    }
 }
+
+(BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+};

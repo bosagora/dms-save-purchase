@@ -11,7 +11,7 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 
-import { CancelTransaction, NewTransaction, PurchaseDetails, TransactionType } from "dms-store-purchase-sdk";
+import { CancelTransaction, NewTransaction, PurchaseDetails } from "dms-store-purchase-sdk";
 import { Wallet } from "ethers";
 import { WebService } from "../../modules";
 import { Amount, BOACoin } from "../common/Amount";
@@ -25,12 +25,25 @@ import { ResponseMessage } from "../utils/Errors";
 import { BigNumber } from "@ethersproject/bignumber";
 import { AddressZero } from "@ethersproject/constants";
 
+import extend from "extend";
 import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
 import { RelayClient } from "../relay/RelayClient";
 import { HTTPClient } from "../utils/HTTPClient";
 
 // tslint:disable-next-line:no-var-requires
 const URI = require("urijs");
+
+interface ILoyaltyResponse {
+    loyaltyValue: BigNumber;
+    loyaltyPoint: BigNumber;
+    account: {
+        accountType: string;
+        account: string;
+        loyaltyType: number;
+        currentBalance: BigNumber;
+        loyaltyToBeProvided: BigNumber;
+    };
+}
 
 export class StorePurchaseRouter {
     /**
@@ -174,7 +187,9 @@ export class StorePurchaseRouter {
      * @private
      */
     private async postNewPurchase(req: express.Request, res: express.Response) {
-        logger.http(`POST /v1/tx/purchase/new ${req.ip}:${JSON.stringify(req.body)}`);
+        const params = extend(true, {}, req.body);
+        params.accessKey = undefined;
+        logger.http(`POST /v1/tx/purchase/new ${req.ip}:${JSON.stringify(params)}`);
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -228,13 +243,14 @@ export class StorePurchaseRouter {
             }
             const userPhoneHash = ContractUtils.getPhoneHash(userPhone);
             const nextSequence = await this.storage.getNextSequence();
+            const currency = String(req.body.currency).trim();
             const tx: NewTransaction = new NewTransaction(
                 nextSequence,
                 String(req.body.purchaseId).trim(),
                 BigInt(req.body.timestamp),
                 totalAmount,
                 cashAmount,
-                String(req.body.currency).trim(),
+                currency,
                 String(req.body.shopId).trim(),
                 userAccount,
                 userPhoneHash,
@@ -244,57 +260,140 @@ export class StorePurchaseRouter {
             await tx.sign(this.publisherSigner);
             await this.pool.add(DBTransaction.make(tx));
 
-            let loyalty = this.getLoyaltyInTransaction(tx);
-            if (loyalty.gt(1)) {
-                const client = new RelayClient(this._config);
+            let loyaltyResponse: ILoyaltyResponse | undefined;
+
+            const client = new RelayClient(this._config);
+            const loyaltyValue = this.getLoyaltyInTransaction(tx);
+            let success = true;
+            let loyaltyPoint: BigNumber | undefined;
+            if (currency === "krw") {
+                loyaltyPoint = loyaltyValue;
+            } else {
+                const value = await client.convertCurrency(loyaltyValue, currency, "point");
+                if (value === undefined) success = false;
+            }
+
+            if (success && loyaltyPoint !== undefined) {
                 if (userAccount !== AddressZero) {
                     const result = await client.getBalanceOfAccount(userAccount);
                     if (result !== undefined) {
+                        let loyalty: BigNumber = loyaltyPoint;
                         if (result.loyaltyType === 1) {
                             const value = await client.convertCurrency(
-                                loyalty,
+                                loyaltyPoint,
                                 "point",
                                 this._config.setting.tokenSymbol
                             );
                             if (value !== undefined) loyalty = value;
+                            else {
+                                result.loyaltyType = 1;
+                                loyalty = loyaltyPoint;
+                            }
                         }
-                        const unit = result.loyaltyType === 0 ? "포인트" : result.loyaltyType === 1 ? "토큰" : "";
-                        const precision = result.loyaltyType === 0 ? 0 : 2;
-                        const loyaltyAmount = new BOACoin(BigNumber.from(loyalty));
-                        const currentBalance = new BOACoin(BigNumber.from(result.balance));
-                        const contents =
-                            `결제가 완료되는 8일 뒤에 ${loyaltyAmount.toDisplayString(
-                                true,
-                                precision
-                            )} ${unit} 적립됩니다.` +
-                            `현제 잔액은 ${currentBalance.toDisplayString(
-                                true,
-                                precision
-                            )} ${unit} 입니다. 토큰은 시세에 따라서 다소 차이가 생길 수 있습니다.`;
-                        if (this._config.setting.messageEnable)
-                            await client.sendPushMessage(userAccount, 0, "로열티 적립", contents);
-                        logger.info("[NOTIFICATION]" + contents);
+                        loyaltyResponse = {
+                            loyaltyValue,
+                            loyaltyPoint,
+                            account: {
+                                accountType: "address",
+                                account: userAccount,
+                                loyaltyType: result.loyaltyType,
+                                currentBalance: BigNumber.from(result.balance),
+                                loyaltyToBeProvided: loyalty,
+                            },
+                        };
                     }
                 } else if (userPhone !== "") {
                     const result = await client.getBalanceOfPhone(userPhoneHash);
                     if (result !== undefined) {
-                        const unit = "포인트";
-                        const precision = 0;
-                        const loyaltyAmount = new BOACoin(BigNumber.from(loyalty));
-                        const currentBalance = new BOACoin(BigNumber.from(result.balance));
-                        const contents =
-                            `결제가 완료되는 8일 뒤에 ${loyaltyAmount.toDisplayString(
-                                true,
-                                precision
-                            )} ${unit}가 적립됩니다.\n` +
-                            `현제 잔액은 ${currentBalance.toDisplayString(true, precision)} ${unit} 입니다.`;
-                        if (this._config.setting.messageEnable)
-                            await client.sendSMSMessage(contents, "+82 10-9520-1803");
-                        logger.info("[SMS]" + contents);
+                        loyaltyResponse = {
+                            loyaltyValue,
+                            loyaltyPoint,
+                            account: {
+                                accountType: "phone",
+                                account: userPhoneHash,
+                                loyaltyType: 0,
+                                currentBalance: BigNumber.from(result.balance),
+                                loyaltyToBeProvided: loyaltyPoint,
+                            },
+                        };
                     }
                 }
+
+                if (loyaltyResponse) {
+                    if (loyaltyResponse.loyaltyValue.gte(1)) {
+                        if (loyaltyResponse.account.accountType === "address") {
+                            const unit =
+                                loyaltyResponse.account.loyaltyType === 0
+                                    ? "포인트"
+                                    : loyaltyResponse.account.loyaltyType === 1
+                                    ? "토큰"
+                                    : "";
+                            const precision = loyaltyResponse.account.loyaltyType === 0 ? 0 : 2;
+                            const loyaltyAmount = new BOACoin(
+                                BigNumber.from(loyaltyResponse.account.loyaltyToBeProvided)
+                            );
+                            const currentBalance = new BOACoin(BigNumber.from(loyaltyResponse.account.currentBalance));
+                            const contents =
+                                `결제가 완료되는 8일 뒤에 ${loyaltyAmount.toDisplayString(
+                                    true,
+                                    precision
+                                )} ${unit} 적립됩니다.` +
+                                `현제 잔액은 ${currentBalance.toDisplayString(
+                                    true,
+                                    precision
+                                )} ${unit} 입니다. 토큰은 시세에 따라서 다소 차이가 생길 수 있습니다.`;
+                            if (this._config.setting.messageEnable)
+                                await client.sendPushMessage(userAccount, 0, "로열티 적립", contents);
+                            logger.info("[NOTIFICATION]" + contents);
+                        } else {
+                            const unit = "포인트";
+                            const precision = 0;
+                            const loyaltyToBeProvided = new BOACoin(
+                                BigNumber.from(loyaltyResponse.account.loyaltyToBeProvided)
+                            );
+                            const currentBalance = new BOACoin(BigNumber.from(loyaltyResponse.account.currentBalance));
+                            const contents =
+                                `결제가 완료되는 8일 뒤에 ${loyaltyToBeProvided.toDisplayString(
+                                    true,
+                                    precision
+                                )} ${unit}가 적립됩니다.\n` +
+                                `현제 잔액은 ${currentBalance.toDisplayString(true, precision)} ${unit} 입니다.`;
+                            if (this._config.setting.messageEnable) await client.sendSMSMessage(contents, userPhone);
+                            logger.info("[SMS]" + contents);
+                        }
+                    }
+
+                    return res.json(
+                        StorePurchaseRouter.makeResponseData(0, {
+                            tx: tx.toJSON(),
+                            loyalty: {
+                                loyaltyValue: loyaltyResponse.loyaltyValue.toString(),
+                                loyaltyPoint: loyaltyResponse.loyaltyPoint.toString(),
+                                account: {
+                                    accountType: loyaltyResponse.account.accountType,
+                                    account: loyaltyResponse.account.account,
+                                    loyaltyType: loyaltyResponse.account.loyaltyType,
+                                    currentBalance: loyaltyResponse.account.currentBalance.toString(),
+                                    loyaltyToBeProvided: loyaltyResponse.account.loyaltyToBeProvided.toString(),
+                                },
+                            },
+                        })
+                    );
+                } else {
+                    return res.json(
+                        StorePurchaseRouter.makeResponseData(0, {
+                            tx: tx.toJSON(),
+                            res: { loyalty: loyaltyPoint.toString() },
+                        })
+                    );
+                }
+            } else {
+                return res.json(
+                    StorePurchaseRouter.makeResponseData(0, {
+                        tx: tx.toJSON(),
+                    })
+                );
             }
-            return res.json(StorePurchaseRouter.makeResponseData(0, tx.toJSON()));
         } catch (error) {
             logger.error("POST /v1/tx/purchase/new , " + error);
             return res.status(200).json(ResponseMessage.getErrorMessage("6000"));
@@ -308,7 +407,7 @@ export class StorePurchaseRouter {
         for (const elem of tx.details) {
             sum = sum.add(elem.amount.mul(elem.providePercent));
         }
-        const loyalty = sum.mul(tx.cashAmount).div(tx.totalAmount).div(10000);
+        const loyalty = ContractUtils.zeroGWEI(sum.mul(tx.cashAmount).div(tx.totalAmount).div(10000));
         return loyalty;
     }
 
@@ -339,7 +438,9 @@ export class StorePurchaseRouter {
      * @private
      */
     private async postCancelPurchase(req: express.Request, res: express.Response) {
-        logger.http(`POST /v1/tx/purchase/cancel ${req.ip}:${JSON.stringify(req.body)}`);
+        const params = extend(true, {}, req.body);
+        params.accessKey = undefined;
+        logger.http(`POST /v1/tx/purchase/cancel ${req.ip}:${JSON.stringify(params)}`);
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -364,7 +465,7 @@ export class StorePurchaseRouter {
             await tx.sign(this.publisherSigner);
 
             await this.pool.add(DBTransaction.make(tx));
-            return res.json(StorePurchaseRouter.makeResponseData(0, tx.toJSON()));
+            return res.json(StorePurchaseRouter.makeResponseData(0, { tx: tx.toJSON() }));
         } catch (error) {
             logger.error("POST /v1/tx/purchase/cancel , " + error);
             return res.status(200).json(ResponseMessage.getErrorMessage("6000"));

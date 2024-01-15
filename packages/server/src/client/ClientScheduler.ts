@@ -161,6 +161,7 @@ export class StorePurchaseClientScheduler extends Scheduler {
             return res;
         }
     }
+
     private async makeCancelTransactions(): Promise<ICancelPurchaseData | undefined> {
         const purchaseId = this.purchases.shift();
         if (purchaseId !== undefined) {
