@@ -411,28 +411,6 @@ export class StorePurchaseRouter {
         return loyalty;
     }
 
-    private async getBalanceOfAccount(account: string): Promise<{ loyaltyType: number; balance: BigNumber }> {
-        const client = new HTTPClient();
-        const url = URI(this._config.setting.relayEndpoint)
-            .directory("/v1/payment/user")
-            .filename("balance")
-            .addQuery("account", account)
-            .toString();
-        const response = await client.get(url);
-        return { loyaltyType: response.data.data.loyaltyType, balance: BigNumber.from(response.data.data.balance) };
-    }
-
-    private async getBalanceOfPhone(phone: string): Promise<BigNumber> {
-        const client = new HTTPClient();
-        const url = URI(this._config.setting.relayEndpoint)
-            .directory("/v1/payment/phone")
-            .filename("balance")
-            .addQuery("account", phone)
-            .toString();
-        const response = await client.get(url);
-        return BigNumber.from(response.data.data.balance);
-    }
-
     /**
      * POST /v1/tx/purchase/cancel
      * @private
