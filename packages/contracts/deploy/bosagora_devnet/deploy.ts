@@ -25,7 +25,7 @@ interface IAccount {
 type FnDeployer = (accounts: IAccount, deployment: Deployments) => void;
 
 class Deployments {
-    public static publisher: string = "0xb9De33A8be2F913F6AFA3a64849c86F18410fF05";
+    public static publisher: string = "0x1D02184923Aa505153DbD0397f382d608042CBB2";
     public deployments: Map<string, IDeployedContract>;
     public deployers: FnDeployer[];
     public accounts: IAccount;
