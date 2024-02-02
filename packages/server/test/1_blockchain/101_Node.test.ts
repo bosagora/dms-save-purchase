@@ -82,7 +82,8 @@ describe("Test of Node", function () {
                     "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
                     "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                     "a5c19fed89739383",
-                    [new PurchaseDetails("PID001", BigNumber.from(idx + 1), BigNumber.from(300))]
+                    [new PurchaseDetails("PID001", BigNumber.from(idx + 1), BigNumber.from(300))],
+                    "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
                 )
             );
         }

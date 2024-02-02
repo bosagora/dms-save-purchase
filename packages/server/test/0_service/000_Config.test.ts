@@ -29,10 +29,12 @@ describe("Test of Config", () => {
 
         assert.strictEqual(config.contracts.purchaseAddress, "0x0000000000000000000000000000000000000000");
 
+        assert.strictEqual(config.setting.accessKey.length, 1);
         assert.strictEqual(
-            config.setting.accessKey,
-            "9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54"
+            config.setting.accessKey[0].key,
+            "0x9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54"
         );
+        assert.strictEqual(config.setting.accessKey[0].sender, "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d");
     });
     it("Test Phone Number", async () => {
         const phoneUtil = PhoneNumberUtil.getInstance();

@@ -60,7 +60,7 @@ describe("Test of StorePurchase Server", function () {
         config.node.ipfs_test = true;
         config.node.send_interval = SEND_INTERVAL;
 
-        accessKey = config.setting.accessKey;
+        accessKey = config.setting.accessKey[0].key;
     });
 
     before("Create Schedulers", () => {

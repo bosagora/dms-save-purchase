@@ -50,7 +50,11 @@ contracts:
   purchaseAddress: "${STORE_PURCHASE_CONTRACT_ADDRESS}"
 
 setting:
-  accessKey: "${ACCESS_KEY}"
+  accessKey:
+    - key: "${ACCESS_KEY0}"
+      sender: "${SENDER0}"
+    - key: "${ACCESS_KEY1}"
+      sender: "${SENDER1}"
   relayEndpoint: "${RELAY_ENDPOINT}"
   relayAccessKey: "${RELAY_ACCESS_KEY}"
   smsEndpoint: "${SMS_ENDPOINT}"

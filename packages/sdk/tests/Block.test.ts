@@ -32,7 +32,8 @@ describe("Test of Block", () => {
                     "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
                     "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                     phoneHash,
-                    [new PurchaseDetails("PID001", BigNumber.from(idx + 1), BigNumber.from(300))]
+                    [new PurchaseDetails("PID001", BigNumber.from(idx + 1), BigNumber.from(300))],
+                    "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
                 )
             );
             txs_hash.push(hashFull(txs[idx]));
@@ -54,7 +55,8 @@ describe("Test of Block", () => {
                 "0x0000000000000000000000000000000000000000",
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash,
-                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
+                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))],
+                "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
             ),
             new NewTransaction(
                 BigInt(1),
@@ -66,7 +68,8 @@ describe("Test of Block", () => {
                 "0x0000000000000000000000000000000000000000",
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash,
-                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
+                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))],
+                "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
             ),
             new NewTransaction(
                 BigInt(2),
@@ -78,7 +81,8 @@ describe("Test of Block", () => {
                 "0x0000000000000000000000000000000000000000",
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash,
-                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
+                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))],
+                "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
             ),
             new NewTransaction(
                 BigInt(3),
@@ -90,7 +94,8 @@ describe("Test of Block", () => {
                 "0x0000000000000000000000000000000000000000",
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash,
-                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
+                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))],
+                "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
             ),
             new NewTransaction(
                 BigInt(4),
@@ -102,9 +107,15 @@ describe("Test of Block", () => {
                 "0x0000000000000000000000000000000000000000",
                 "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
                 phoneHash,
-                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))]
+                [new PurchaseDetails("PID001", BigNumber.from(1000000000), BigNumber.from(300))],
+                "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
             ),
-            new CancelTransaction(BigInt(4), "00000004", BigInt(1668044556)),
+            new CancelTransaction(
+                BigInt(4),
+                "00000004",
+                BigInt(1668044556),
+                "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
+            ),
         ];
         const signer = new Wallet("0xf6dda8e03f9dce37c081e5d178c1fda2ebdb90b5b099de1a555a658270d8c47d");
         const prev_hash = Hash.Null;

@@ -628,7 +628,7 @@ export class ContractConfig implements IContractsConfig {
 }
 
 export interface ISetting {
-    accessKey: string;
+    accessKey: IAccessKeyItem[];
     relayAccessKey: string;
     relayEndpoint: string;
     smsAccessKey: string;
@@ -638,8 +638,13 @@ export interface ISetting {
     messageEnable: boolean;
 }
 
+export interface IAccessKeyItem {
+    key: string;
+    sender: string;
+}
+
 export class Setting implements ISetting {
-    public accessKey: string;
+    public accessKey: IAccessKeyItem[];
     public relayAccessKey: string;
     public relayEndpoint: string;
     public smsAccessKey: string;
@@ -653,7 +658,12 @@ export class Setting implements ISetting {
      */
     constructor() {
         const defaults = Setting.defaultValue();
-        this.accessKey = defaults.accessKey;
+        this.accessKey = defaults.accessKey.map((m) => {
+            return {
+                key: m.key,
+                sender: m.sender,
+            };
+        });
         this.relayAccessKey = defaults.relayAccessKey;
         this.relayEndpoint = defaults.relayEndpoint;
         this.smsAccessKey = defaults.smsAccessKey;
@@ -664,7 +674,14 @@ export class Setting implements ISetting {
     }
 
     public readFromObject(config: ISetting) {
-        if (config.accessKey !== undefined) this.accessKey = config.accessKey;
+        if (config.accessKey !== undefined) {
+            this.accessKey = config.accessKey.map((m) => {
+                return {
+                    key: m.key,
+                    sender: m.sender,
+                };
+            });
+        }
         if (config.relayAccessKey !== undefined) this.relayAccessKey = config.relayAccessKey;
         if (config.relayEndpoint !== undefined) this.relayEndpoint = config.relayEndpoint;
         if (config.smsAccessKey !== undefined) this.smsAccessKey = config.smsAccessKey;
@@ -680,7 +697,7 @@ export class Setting implements ISetting {
      */
     public static defaultValue(): ISetting {
         return {
-            accessKey: "",
+            accessKey: [],
             relayAccessKey: "",
             relayEndpoint: "",
             smsAccessKey: "",

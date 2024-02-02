@@ -34,6 +34,7 @@ export interface INewTransaction {
     userAccount: string;
     userPhoneHash: string;
     details: IPurchaseDetails[];
+    sender: string;
     signer: string;
     signature: string;
 }
@@ -43,6 +44,7 @@ export interface ICancelTransaction {
     sequence: bigint;
     purchaseId: string;
     timestamp: bigint;
+    sender: string;
     signer: string;
     signature: string;
 }
@@ -64,6 +66,7 @@ export class NewTransaction implements INewTransaction {
     public userAccount: string;
     public userPhoneHash: string;
     public details: PurchaseDetails[];
+    public sender: string;
     public signer: string;
     public signature: string;
 
@@ -81,6 +84,7 @@ export class NewTransaction implements INewTransaction {
         userAccount: string,
         userPhoneHash: string,
         details: PurchaseDetails[],
+        sender: string,
         signer?: string,
         signature?: string
     ) {
@@ -94,6 +98,7 @@ export class NewTransaction implements INewTransaction {
         this.shopId = shopId;
         this.userAccount = userAccount;
         this.userPhoneHash = userPhoneHash;
+        this.sender = sender;
         if (signer !== undefined) this.signer = signer;
         else this.signer = "";
         if (signature !== undefined) this.signature = signature;
@@ -133,6 +138,7 @@ export class NewTransaction implements INewTransaction {
             value.userAccount,
             value.userPhoneHash,
             details,
+            value.sender,
             value.signer,
             value.signature
         );
@@ -153,6 +159,7 @@ export class NewTransaction implements INewTransaction {
         hashPart(this.shopId, buffer);
         hashPart(this.userAccount, buffer);
         hashPart(this.userPhoneHash, buffer);
+        hashPart(this.sender, buffer);
         hashPart(this.signer, buffer);
         hashPart(this.details.length, buffer);
         for (const elem of this.details) {
@@ -175,6 +182,7 @@ export class NewTransaction implements INewTransaction {
             shopId: this.shopId,
             userAccount: this.userAccount,
             userPhoneHash: this.userPhoneHash,
+            sender: this.sender,
             signer: this.signer,
             signature: this.signature,
             details: this.details,
@@ -196,6 +204,7 @@ export class NewTransaction implements INewTransaction {
             this.userAccount,
             this.userPhoneHash,
             this.details,
+            this.sender,
             this.signer,
             this.signature
         );
@@ -233,17 +242,26 @@ export class CancelTransaction implements ICancelTransaction {
     public sequence: bigint;
     public purchaseId: string;
     public timestamp: bigint;
+    public sender: string;
     public signer: string;
     public signature: string;
 
     /**
      * Constructor
      */
-    constructor(sequence: string | bigint, purchaseId: string, timestamp: bigint, signer?: string, signature?: string) {
+    constructor(
+        sequence: string | bigint,
+        purchaseId: string,
+        timestamp: bigint,
+        sender: string,
+        signer?: string,
+        signature?: string
+    ) {
         this.type = TransactionType.CANCEL;
         this.sequence = BigInt(sequence);
         this.purchaseId = purchaseId;
         this.timestamp = timestamp;
+        this.sender = sender;
         if (signer !== undefined) this.signer = signer;
         else this.signer = "";
         if (signature !== undefined) this.signature = signature;
@@ -269,6 +287,7 @@ export class CancelTransaction implements ICancelTransaction {
             value.sequence,
             value.purchaseId,
             BigInt(value.timestamp),
+            value.sender,
             value.signer,
             value.signature
         );
@@ -283,6 +302,7 @@ export class CancelTransaction implements ICancelTransaction {
         hashPart(this.sequence, buffer);
         hashPart(this.purchaseId, buffer);
         hashPart(this.timestamp, buffer);
+        hashPart(this.sender, buffer);
         hashPart(this.signer, buffer);
     }
 
@@ -295,6 +315,7 @@ export class CancelTransaction implements ICancelTransaction {
             sequence: this.sequence.toString(),
             purchaseId: this.purchaseId,
             timestamp: this.timestamp.toString(),
+            sender: this.sender,
             signer: this.signer,
             signature: this.signature,
         };
@@ -304,7 +325,14 @@ export class CancelTransaction implements ICancelTransaction {
      * Creates and returns a copy of this object.
      */
     public clone(): CancelTransaction {
-        return new CancelTransaction(this.sequence, this.purchaseId, this.timestamp, this.signer, this.signature);
+        return new CancelTransaction(
+            this.sequence,
+            this.purchaseId,
+            this.timestamp,
+            this.sender,
+            this.signer,
+            this.signature
+        );
     }
 
     /**

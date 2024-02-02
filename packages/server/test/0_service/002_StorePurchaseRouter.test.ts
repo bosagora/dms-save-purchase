@@ -34,7 +34,7 @@ describe("Test of StorePurchase Router", () => {
 
     before("Create Test Server", async () => {
         config.readFromFile(path.resolve("config", "config_test.yaml"));
-        accessKey = config.setting.accessKey;
+        accessKey = config.setting.accessKey[0].key;
 
         await HardhatUtils.deployStorePurchaseContract(config, deployer, publisher);
 
@@ -76,11 +76,20 @@ describe("Test of StorePurchase Router", () => {
         url = URI(serverURL).directory("/v1/tx/purchase").filename("new").toString();
     });
 
-    it("Send transaction data to api server", async () => {
-        const response = await client.post(url, { accessKey, ...newTxParam });
+    it("Send transaction data to api server 1", async () => {
+        const response = await client.post(url, { accessKey: config.setting.accessKey[0].key, ...newTxParam });
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 0, response.data?.error?.message);
         assert.ok(response.data.data !== undefined);
+        assert.deepStrictEqual(response.data.data.tx.sender, "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d");
+    });
+
+    it("Send transaction data to api server 2", async () => {
+        const response = await client.post(url, { accessKey: config.setting.accessKey[1].key, ...newTxParam });
+        assert.deepStrictEqual(response.status, 200);
+        assert.deepStrictEqual(response.data.code, 0, response.data?.error?.message);
+        assert.ok(response.data.data !== undefined);
+        assert.deepStrictEqual(response.data.data.tx.sender, "0xEaeB90D77f7756fBf177D6E0E1BB794639e6097f");
     });
 
     it("Test calls without setting settings", async () => {

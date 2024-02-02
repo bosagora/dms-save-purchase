@@ -15,7 +15,7 @@ import { CancelTransaction, NewTransaction, PurchaseDetails } from "dms-store-pu
 import { Wallet } from "ethers";
 import { WebService } from "../../modules";
 import { Amount, BOACoin } from "../common/Amount";
-import { Config } from "../common/Config";
+import { Config, IAccessKeyItem } from "../common/Config";
 import { logger } from "../common/Logger";
 import { TransactionPool } from "../scheduler/TransactionPool";
 import { DBTransaction, StorePurchaseStorage } from "../storage/StorePurchaseStorage";
@@ -73,7 +73,7 @@ export class StorePurchaseRouter {
      * Authorization pass key
      * @private
      */
-    private static accessKey: string;
+    private accessKey: IAccessKeyItem[];
 
     /**
      * The signer needed to save the block information
@@ -96,7 +96,12 @@ export class StorePurchaseRouter {
         this.pool = pool;
         this.storage = storage;
 
-        StorePurchaseRouter.accessKey = config.setting.accessKey;
+        this.accessKey = config.setting.accessKey.map((m) => {
+            return {
+                key: m.key,
+                sender: m.sender,
+            };
+        });
     }
 
     private get app(): express.Application {
@@ -217,7 +222,8 @@ export class StorePurchaseRouter {
         }
 
         const accessKey: string = String(req.body.accessKey).trim();
-        if (accessKey !== this._config.setting.accessKey) {
+        const accessKeyItem = this.accessKey.find((m) => m.key === accessKey);
+        if (accessKeyItem === undefined) {
             return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
         }
 
@@ -255,6 +261,7 @@ export class StorePurchaseRouter {
                 userAccount,
                 userPhoneHash,
                 details,
+                accessKeyItem.sender,
                 this.publisherSigner.address
             );
             await tx.sign(this.publisherSigner);
@@ -426,7 +433,8 @@ export class StorePurchaseRouter {
         }
 
         const accessKey: string = String(req.body.accessKey).trim();
-        if (accessKey !== this._config.setting.accessKey) {
+        const accessKeyItem = this.accessKey.find((m) => m.key === accessKey);
+        if (accessKeyItem === undefined) {
             return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
         }
 
@@ -437,7 +445,8 @@ export class StorePurchaseRouter {
                 nextSequence,
                 String(req.body.purchaseId).trim(),
                 BigInt(req.body.timestamp),
-                this.publisherSigner.address
+                this.publisherSigner.address,
+                accessKeyItem.sender
             );
 
             await tx.sign(this.publisherSigner);

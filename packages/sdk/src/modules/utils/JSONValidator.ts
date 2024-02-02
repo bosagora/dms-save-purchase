@@ -115,6 +115,9 @@ export class JSONValidator {
                         },
                         type: "array",
                     },
+                    sender: {
+                        type: "string",
+                    },
                     signer: {
                         type: "string",
                     },
@@ -135,6 +138,7 @@ export class JSONValidator {
                     "userAccount",
                     "userPhoneHash",
                     "details",
+                    "sender",
                     "signer",
                     "signature",
                 ],
@@ -158,6 +162,9 @@ export class JSONValidator {
                     timestamp: {
                         type: "string",
                     },
+                    sender: {
+                        type: "string",
+                    },
                     signer: {
                         type: "string",
                     },
@@ -166,7 +173,7 @@ export class JSONValidator {
                     },
                 },
                 additionalProperties: false,
-                required: ["type", "sequence", "purchaseId", "timestamp", "signer", "signature"],
+                required: ["type", "sequence", "purchaseId", "timestamp", "sender", "signer", "signature"],
             },
         ],
         [
