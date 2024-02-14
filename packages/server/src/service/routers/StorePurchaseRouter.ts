@@ -212,13 +212,17 @@ export class StorePurchaseRouter {
         }
 
         let userPhone = String(req.body.userPhone).trim();
-        if (userPhone !== "") {
-            const number = this._phoneUtil.parseAndKeepRawInput(userPhone, "ZZ");
-            if (!this._phoneUtil.isValidNumber(number)) {
-                return res.status(200).json(ResponseMessage.getErrorMessage("2003"));
-            } else {
-                userPhone = this._phoneUtil.format(number, PhoneNumberFormat.INTERNATIONAL);
+        try {
+            if (userPhone !== "") {
+                const number = this._phoneUtil.parseAndKeepRawInput(userPhone, "ZZ");
+                if (!this._phoneUtil.isValidNumber(number)) {
+                    return res.status(200).json(ResponseMessage.getErrorMessage("2003"));
+                } else {
+                    userPhone = this._phoneUtil.format(number, PhoneNumberFormat.INTERNATIONAL);
+                }
             }
+        } catch (error) {
+            return res.status(200).json(ResponseMessage.getErrorMessage("2003"));
         }
 
         const accessKey: string = String(req.body.accessKey).trim();
