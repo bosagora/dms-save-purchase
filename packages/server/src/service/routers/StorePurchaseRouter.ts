@@ -270,6 +270,7 @@ export class StorePurchaseRouter {
             );
             await tx.sign(this.publisherSigner);
             await this.pool.add(DBTransaction.make(tx));
+            logger.http(`POST /v1/tx/purchase/new transaction: ${JSON.stringify(tx)}`);
 
             let loyaltyResponse: ILoyaltyResponse | undefined;
 
