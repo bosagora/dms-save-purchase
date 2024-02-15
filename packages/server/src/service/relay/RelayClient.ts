@@ -13,6 +13,18 @@ export interface IRelayBalance {
     balance: BigNumber;
 }
 
+export interface IShopInfo {
+    shopId: string;
+    name: string;
+    currency: string;
+    status: number;
+    account: string;
+    providedAmount: string;
+    usedAmount: string;
+    settledAmount: string;
+    withdrawnAmount: string;
+}
+
 export class RelayClient {
     private readonly config: Config;
     private client: HTTPClient;
@@ -82,6 +94,26 @@ export class RelayClient {
             return BigNumber.from(response.data.data.amount);
         } catch (error) {
             logger.error(`릴레이서버에서 환률변환을 실패했습니다.-[${error}]`);
+        }
+    }
+
+    public async getShopInfo(shopId: string): Promise<IShopInfo | undefined> {
+        const url = URI(this.config.setting.relayEndpoint)
+            .directory("/v1/payment/shop")
+            .filename("info")
+            .addQuery("shopId", shopId)
+            .toString();
+        try {
+            const response = await this.client.get(url);
+            if (response.data.code !== 0) {
+                logger.error(
+                    `릴레이서버에서 상점정보요청에 실패했습니다.-[${response.data.code}-${response.data?.error?.message}]`
+                );
+                return undefined;
+            }
+            return response.data.data;
+        } catch (error) {
+            logger.error(`릴레이서버에서 상점정보요청에 실패했습니다.-[${error}]`);
         }
     }
 

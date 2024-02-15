@@ -244,6 +244,14 @@ export class StorePurchaseRouter {
                     );
                 }
             }
+            const client = new RelayClient(this._config);
+            const shopId = String(req.body.shopId).trim();
+            const shopInfo = await client.getShopInfo(shopId);
+            if (shopInfo !== undefined) {
+                if (shopInfo.status !== 1) {
+                    return res.status(200).json(ResponseMessage.getErrorMessage("2005"));
+                }
+            }
 
             const totalAmount = Amount.make(String(req.body.totalAmount).trim(), 18).value;
             const cashAmount = Amount.make(String(req.body.cashAmount).trim(), 18).value;
@@ -261,7 +269,7 @@ export class StorePurchaseRouter {
                 totalAmount,
                 cashAmount,
                 currency,
-                String(req.body.shopId).trim(),
+                shopId,
                 userAccount,
                 userPhoneHash,
                 details,
@@ -274,7 +282,6 @@ export class StorePurchaseRouter {
 
             let loyaltyResponse: ILoyaltyResponse | undefined;
 
-            const client = new RelayClient(this._config);
             const loyaltyValue = this.getLoyaltyInTransaction(tx);
             let success = true;
             let loyaltyPoint: BigNumber | undefined;
@@ -350,7 +357,7 @@ export class StorePurchaseRouter {
                                     true,
                                     precision
                                 )} ${unit} 적립됩니다.` +
-                                `현제 잔액은 ${currentBalance.toDisplayString(
+                                `현재 잔액은 ${currentBalance.toDisplayString(
                                     true,
                                     precision
                                 )} ${unit} 입니다. 토큰은 시세에 따라서 다소 차이가 생길 수 있습니다.`;
@@ -369,7 +376,7 @@ export class StorePurchaseRouter {
                                     true,
                                     precision
                                 )} ${unit}가 적립됩니다.\n` +
-                                `현제 잔액은 ${currentBalance.toDisplayString(true, precision)} ${unit} 입니다.`;
+                                `현재 잔액은 ${currentBalance.toDisplayString(true, precision)} ${unit} 입니다.`;
                             if (this._config.setting.messageEnable) await client.sendSMSMessage(contents, userPhone);
                             logger.info("[SMS]" + contents);
                         }
