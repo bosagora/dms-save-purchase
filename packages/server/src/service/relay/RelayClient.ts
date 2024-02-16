@@ -117,7 +117,13 @@ export class RelayClient {
         }
     }
 
-    public async sendPushMessage(account: string, type: number, title: string, contents: string): Promise<boolean> {
+    public async sendPushMessage(
+        account: string,
+        type: number,
+        title: string,
+        contents: string,
+        contentType: string
+    ): Promise<boolean> {
         const url = URI(this.config.setting.relayEndpoint).directory("/v1/mobile").filename("send").toString();
         const params = {
             accessKey: this.config.setting.relayAccessKey,
@@ -125,6 +131,7 @@ export class RelayClient {
             type,
             title,
             contents,
+            contentType,
         };
 
         try {

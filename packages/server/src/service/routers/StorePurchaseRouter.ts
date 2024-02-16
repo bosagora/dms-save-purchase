@@ -362,7 +362,7 @@ export class StorePurchaseRouter {
                                     precision
                                 )} ${unit} 입니다. 토큰은 시세에 따라서 다소 차이가 생길 수 있습니다.`;
                             if (this._config.setting.messageEnable)
-                                await client.sendPushMessage(userAccount, 0, "로열티 적립", contents);
+                                await client.sendPushMessage(userAccount, 0, "로열티 적립", contents, "provide");
                             logger.info("[NOTIFICATION]" + contents);
                         } else {
                             const unit = "포인트";
