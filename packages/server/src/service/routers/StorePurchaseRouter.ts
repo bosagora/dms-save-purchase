@@ -343,9 +343,9 @@ export class StorePurchaseRouter {
                         if (loyaltyResponse.account.accountType === "address") {
                             const unit =
                                 loyaltyResponse.account.loyaltyType === 0
-                                    ? "포인트"
+                                    ? "POINT"
                                     : loyaltyResponse.account.loyaltyType === 1
-                                    ? "토큰"
+                                    ? "TOKEN"
                                     : "";
                             const precision = loyaltyResponse.account.loyaltyType === 0 ? 0 : 2;
                             const loyaltyAmount = new BOACoin(
@@ -365,7 +365,7 @@ export class StorePurchaseRouter {
                                 await client.sendPushMessage(userAccount, 0, "로열티 적립", contents, "provide");
                             logger.info("[NOTIFICATION]" + contents);
                         } else {
-                            const unit = "포인트";
+                            const unit = "POINT";
                             const precision = 0;
                             const loyaltyToBeProvided = new BOACoin(
                                 BigNumber.from(loyaltyResponse.account.loyaltyToBeProvided)
