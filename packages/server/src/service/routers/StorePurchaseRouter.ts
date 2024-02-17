@@ -283,16 +283,14 @@ export class StorePurchaseRouter {
             let loyaltyResponse: ILoyaltyResponse | undefined;
 
             const loyaltyValue = this.getLoyaltyInTransaction(tx);
-            let success = true;
             let loyaltyPoint: BigNumber | undefined;
             if (currency === "krw") {
                 loyaltyPoint = loyaltyValue;
             } else {
-                const value = await client.convertCurrency(loyaltyValue, currency, "point");
-                if (value === undefined) success = false;
+                loyaltyPoint = await client.convertCurrency(loyaltyValue, currency, "point");
             }
 
-            if (success && loyaltyPoint !== undefined) {
+            if (loyaltyPoint !== undefined) {
                 if (userAccount !== AddressZero) {
                     const result = await client.getBalanceOfAccount(userAccount);
                     if (result !== undefined) {
