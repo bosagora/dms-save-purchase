@@ -9,6 +9,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { logger } from "../common/Logger";
 
 export interface IRelayBalance {
+    account?: string;
     loyaltyType: number;
     balance: BigNumber;
 }
@@ -48,7 +49,11 @@ export class RelayClient {
                 );
                 return undefined;
             }
-            return { loyaltyType: response.data.data.loyaltyType, balance: BigNumber.from(response.data.data.balance) };
+            return {
+                account: response.data.data.account,
+                loyaltyType: response.data.data.loyaltyType,
+                balance: BigNumber.from(response.data.data.balance),
+            };
         } catch (error) {
             logger.error(`릴레이서버에서 지갑주소의 잔고를 조회하는데 실패했습니다.-[${error}]`);
             return undefined;
@@ -69,7 +74,11 @@ export class RelayClient {
                 );
                 return undefined;
             }
-            return { loyaltyType: 0, balance: BigNumber.from(response.data.data.balance) };
+            return {
+                account: response.data.data.account,
+                loyaltyType: response.data.data.loyaltyType,
+                balance: BigNumber.from(response.data.data.balance),
+            };
         } catch (error) {
             logger.error(`릴레이서버에서 잔고를 조회하는데 실패했습니다.-[${error}]`);
         }

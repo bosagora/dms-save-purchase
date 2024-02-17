@@ -324,17 +324,45 @@ export class StorePurchaseRouter {
                 } else if (userPhone !== "") {
                     const result = await client.getBalanceOfPhone(userPhoneHash);
                     if (result !== undefined) {
-                        loyaltyResponse = {
-                            loyaltyValue,
-                            loyaltyPoint,
-                            account: {
-                                accountType: "phone",
-                                account: userPhoneHash,
-                                loyaltyType: 0,
-                                currentBalance: BigNumber.from(result.balance),
-                                loyaltyToBeProvided: loyaltyPoint,
-                            },
-                        };
+                        if (result.account !== undefined) {
+                            userAccount = result.account;
+                            let loyalty: BigNumber = loyaltyPoint;
+                            if (result.loyaltyType === 1) {
+                                const value = await client.convertCurrency(
+                                    loyaltyPoint,
+                                    "point",
+                                    this._config.setting.tokenSymbol
+                                );
+                                if (value !== undefined) loyalty = value;
+                                else {
+                                    result.loyaltyType = 1;
+                                    loyalty = loyaltyPoint;
+                                }
+                            }
+                            loyaltyResponse = {
+                                loyaltyValue,
+                                loyaltyPoint,
+                                account: {
+                                    accountType: "address",
+                                    account: userAccount,
+                                    loyaltyType: result.loyaltyType,
+                                    currentBalance: BigNumber.from(result.balance),
+                                    loyaltyToBeProvided: loyalty,
+                                },
+                            };
+                        } else {
+                            loyaltyResponse = {
+                                loyaltyValue,
+                                loyaltyPoint,
+                                account: {
+                                    accountType: "phone",
+                                    account: userPhoneHash,
+                                    loyaltyType: 0,
+                                    currentBalance: BigNumber.from(result.balance),
+                                    loyaltyToBeProvided: loyaltyPoint,
+                                },
+                            };
+                        }
                     }
                 }
 
