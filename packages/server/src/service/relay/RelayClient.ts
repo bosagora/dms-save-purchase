@@ -181,4 +181,62 @@ export class RelayClient {
             return false;
         }
     }
+
+    public async sendNewStorePurchase(
+        purchaseId: string,
+        timestamp: string,
+        account: string,
+        phone: string,
+        shopId: string,
+        loyaltyValue: string,
+        currency: string
+    ): Promise<boolean> {
+        const url = URI(this.config.setting.relayEndpoint).directory("v1/purchase").filename("save").toString();
+        const params = {
+            accessKey: this.config.setting.relayAccessKey,
+            purchaseId,
+            timestamp,
+            account,
+            phone,
+            shopId,
+            loyaltyValue,
+            currency,
+        };
+
+        try {
+            const response = await this.client.post(url, params);
+            if (response.data.code !== 0) {
+                logger.error(
+                    `릴레이서버로 신규 구매정보를 전달하는데 실패하였습니다.-[${response.data.code}-${response.data?.error?.message}]`
+                );
+                return false;
+            }
+            return true;
+        } catch (error) {
+            logger.error(`릴레이서버로 신규 구매정보를 전달하는데 실패하였습니다.-[${error}]`);
+            return false;
+        }
+    }
+
+    public async sendCancelStorePurchase(purchaseId: string): Promise<boolean> {
+        const url = URI(this.config.setting.relayEndpoint).directory("v1/purchase").filename("cancel").toString();
+        const params = {
+            accessKey: this.config.setting.relayAccessKey,
+            purchaseId,
+        };
+
+        try {
+            const response = await this.client.post(url, params);
+            if (response.data.code !== 0) {
+                logger.error(
+                    `릴레이서버로 취소 구매정보를 전달하는데 실패하였습니다.-[${response.data.code}-${response.data?.error?.message}]`
+                );
+                return false;
+            }
+            return true;
+        } catch (error) {
+            logger.error(`릴레이서버로 취소 구매정보를 전달하는데 실패하였습니다.-[${error}]`);
+            return false;
+        }
+    }
 }

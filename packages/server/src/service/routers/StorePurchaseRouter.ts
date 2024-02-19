@@ -408,6 +408,16 @@ export class StorePurchaseRouter {
                         }
                     }
 
+                    await client.sendNewStorePurchase(
+                        tx.purchaseId,
+                        tx.timestamp.toString(),
+                        tx.userAccount,
+                        tx.userPhoneHash,
+                        tx.shopId,
+                        loyaltyValue.toString(),
+                        tx.currency
+                    );
+
                     return res.json(
                         StorePurchaseRouter.makeResponseData(0, {
                             tx: tx.toJSON(),
@@ -490,6 +500,10 @@ export class StorePurchaseRouter {
             await tx.sign(this.publisherSigner);
 
             await this.pool.add(DBTransaction.make(tx));
+
+            const client = new RelayClient(this._config);
+            await client.sendCancelStorePurchase(String(req.body.purchaseId).trim());
+
             return res.json(StorePurchaseRouter.makeResponseData(0, { tx: tx.toJSON() }));
         } catch (error) {
             logger.error("POST /v1/tx/purchase/cancel , " + error);
