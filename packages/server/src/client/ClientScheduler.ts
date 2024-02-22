@@ -162,6 +162,39 @@ export class StorePurchaseClientScheduler extends Scheduler {
         }
     }
 
+    private async makeTransactionPhone(): Promise<INewPurchaseData> {
+        const purchaseId = "91313" + new Date().getTime().toString();
+        const products = this.makeProductInPurchase();
+        let totalAmount: number = 0;
+        for (const elem of products) {
+            totalAmount += elem.product.amount * elem.count;
+        }
+        const details: INewPurchaseDetails[] = products.map((m) => {
+            return {
+                productId: m.product.productId,
+                amount: m.product.amount * m.count,
+                providePercent: m.product.providerPercent,
+            };
+        });
+        const cashAmount = totalAmount;
+
+        const userIndex = Math.floor(Math.random() * this.users.length);
+        const shopIndex = Math.floor(Math.random() * this.shops.length);
+
+        const res: INewPurchaseData = {
+            purchaseId,
+            timestamp: Utils.getTimeStampBigInt().toString(),
+            totalAmount,
+            cashAmount,
+            currency: "krw",
+            shopId: this.shops[shopIndex].shopId,
+            userAccount: "",
+            userPhone: "+82 10-9520-1803",
+            details,
+        };
+        return res;
+    }
+
     private async makeCancelTransactions(): Promise<ICancelPurchaseData | undefined> {
         const purchaseId = this.purchases.shift();
         if (purchaseId !== undefined) {

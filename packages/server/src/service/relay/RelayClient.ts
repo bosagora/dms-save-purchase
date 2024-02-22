@@ -31,8 +31,12 @@ export class RelayClient {
     private client: HTTPClient;
 
     constructor(config: Config) {
-        this.client = new HTTPClient();
         this.config = config;
+        this.client = new HTTPClient({
+            headers: {
+                Authorization: this.config.setting.relayAccessKey,
+            },
+        });
     }
 
     public async getBalanceOfAccount(account: string): Promise<IRelayBalance | undefined> {
@@ -135,7 +139,6 @@ export class RelayClient {
     ): Promise<boolean> {
         const url = URI(this.config.setting.relayEndpoint).directory("/v1/mobile").filename("send").toString();
         const params = {
-            accessKey: this.config.setting.relayAccessKey,
             account,
             type,
             title,
@@ -161,14 +164,18 @@ export class RelayClient {
     public async sendSMSMessage(msg: string, receiver: string): Promise<boolean> {
         const url = URI(this.config.setting.smsEndpoint).filename("send").toString();
         const params = {
-            accessKey: this.config.setting.smsAccessKey,
             msg,
             sender: this.config.setting.smsSender,
             receiver,
         };
 
+        const client = new HTTPClient({
+            headers: {
+                Authorization: this.config.setting.smsAccessKey,
+            },
+        });
         try {
-            const response = await this.client.post(url, params);
+            const response = await client.post(url, params);
             if (response.data.code !== 200) {
                 logger.error(
                     `SMS 메세지를 전달하는데 실패하였습니다.-[${response.data.code}-${response.data?.error?.message}]`
@@ -193,7 +200,6 @@ export class RelayClient {
     ): Promise<boolean> {
         const url = URI(this.config.setting.relayEndpoint).directory("v1/purchase").filename("save").toString();
         const params = {
-            accessKey: this.config.setting.relayAccessKey,
             purchaseId,
             timestamp,
             account,
@@ -221,7 +227,6 @@ export class RelayClient {
     public async sendCancelStorePurchase(purchaseId: string): Promise<boolean> {
         const url = URI(this.config.setting.relayEndpoint).directory("v1/purchase").filename("cancel").toString();
         const params = {
-            accessKey: this.config.setting.relayAccessKey,
             purchaseId,
         };
 

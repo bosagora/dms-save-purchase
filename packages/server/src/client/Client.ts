@@ -12,7 +12,11 @@ export class StorePurchaseClient {
     constructor() {
         this.accessKey = process.env.ACCESS_KEY || "";
         this.serverURL = process.env.SERVER_URL || "";
-        this.client = axios.create();
+        this.client = axios.create({
+            headers: {
+                Authorization: this.accessKey,
+            },
+        });
     }
 
     private get(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
@@ -77,7 +81,7 @@ export class StorePurchaseClient {
         const sendTx = tx;
         return new Promise<number>((resolve, reject) => {
             this.client
-                .post(url, { accessKey: this.accessKey, ...sendTx })
+                .post(url, sendTx)
                 .then((res) => {
                     console.log("Response:", JSON.stringify(res.data));
                     return resolve(res.status);
@@ -93,7 +97,7 @@ export class StorePurchaseClient {
         const sendTx = tx;
         return new Promise<number>((resolve, reject) => {
             this.client
-                .post(url, { accessKey: this.accessKey, ...sendTx })
+                .post(url, sendTx)
                 .then((res) => {
                     console.log("Response:", JSON.stringify(res.data));
                     return resolve(res.status);

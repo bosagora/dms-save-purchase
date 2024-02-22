@@ -13,7 +13,6 @@ import cors from "cors";
 import { Scheduler } from "../modules/scheduler/Scheduler";
 import { WebService } from "../modules/service/WebService";
 import { Config } from "./common/Config";
-import { cors_options } from "./option/cors";
 import { StorePurchaseRouter } from "./routers/StorePurchaseRouter";
 import { TransactionPool } from "./scheduler/TransactionPool";
 import { StorePurchaseStorage } from "./storage/StorePurchaseStorage";
@@ -74,7 +73,15 @@ export class StorePurchaseServer extends WebService {
         this.app.use(bodyParser.urlencoded({ extended: false, limit: "1mb" }));
         // parse application/json
         this.app.use(bodyParser.json({ limit: "1mb" }));
-        this.app.use(cors(cors_options));
+        this.app.use(
+            cors({
+                origin: "*",
+                methods: "GET, POST, OPTIONS",
+                allowedHeaders: "Content-Type, Authorization",
+                credentials: true,
+                preflightContinue: false,
+            })
+        );
 
         this.router.registerRoutes();
 

@@ -14,11 +14,16 @@
 
 `POST /v1/tx/purchase/new`
 
+#### - HTTP Header
+
+| 키               | 설명           |
+|-----------------|--------------|
+| Authorization   | 접근 비밀키       |
+
 #### - 입력 파라메타들
 
 | 파라메타명       |                 | 유형     | 필수 | 설명                                                          |
 |-------------|-----------------|--------| ---- |-------------------------------------------------------------|
-| accessKey   |                 | string | Yes  | 접근키                                                         |
 | purchaseId  |                 | string | Yes  | 구매 아이디                                                      |
 | timestamp   |                 | string | Yes  | 타임스탬프                                                       |
 | totalAmount |                 | number | Yes  | 구매 총금액 (소수점 포함, 1000원 -> 1000, 1.56USD -> 1.56)             |
@@ -178,11 +183,16 @@
 
 `POST /v1/tx/purchase/cancel`
 
+#### - HTTP Header
+
+| 키               | 설명           |
+|-----------------|--------------|
+| Authorization   | 접근 비밀키       |
+
 #### - 입력 파라메타들
 
 | 파라메타명       |                 | 유형     | 필수 | 설명         |
 |-------------|-----------------|--------| ---- |------------|
-| accessKey   |                 | string | Yes  | 접근키        |
 | purchaseId  |                 | string | Yes  | 취소할 구매 아이디 |
 | timestamp   |                 | string | Yes  | 타임스탬프      |
 

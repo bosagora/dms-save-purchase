@@ -25,13 +25,8 @@ import { ResponseMessage } from "../utils/Errors";
 import { BigNumber } from "@ethersproject/bignumber";
 import { AddressZero } from "@ethersproject/constants";
 
-import extend from "extend";
 import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
 import { RelayClient } from "../relay/RelayClient";
-import { HTTPClient } from "../utils/HTTPClient";
-
-// tslint:disable-next-line:no-var-requires
-const URI = require("urijs");
 
 interface ILoyaltyResponse {
     loyaltyValue: BigNumber;
@@ -140,7 +135,6 @@ export class StorePurchaseRouter {
         this.app.post(
             "/v1/tx/purchase/new",
             [
-                body("accessKey").exists(),
                 body("purchaseId").exists().not().isEmpty(),
                 body("timestamp").exists().isNumeric(),
                 body("totalAmount").exists().trim().isNumeric(),
@@ -158,11 +152,7 @@ export class StorePurchaseRouter {
         );
         this.app.post(
             "/v1/tx/purchase/cancel",
-            [
-                body("accessKey").exists(),
-                body("purchaseId").exists().not().isEmpty(),
-                body("timestamp").exists().isNumeric(),
-            ],
+            [body("purchaseId").exists().not().isEmpty(), body("timestamp").exists().isNumeric()],
             this.postCancelPurchase.bind(this)
         );
     }
@@ -192,9 +182,7 @@ export class StorePurchaseRouter {
      * @private
      */
     private async postNewPurchase(req: express.Request, res: express.Response) {
-        const params = extend(true, {}, req.body);
-        params.accessKey = undefined;
-        logger.http(`POST /v1/tx/purchase/new ${req.ip}:${JSON.stringify(params)}`);
+        logger.http(`POST /v1/tx/purchase/new ${req.ip}:${JSON.stringify(req.body)}`);
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
@@ -225,7 +213,8 @@ export class StorePurchaseRouter {
             return res.status(200).json(ResponseMessage.getErrorMessage("2003"));
         }
 
-        const accessKey: string = String(req.body.accessKey).trim();
+        let accessKey = req.get("Authorization");
+        if (accessKey === undefined) accessKey = String(req.body.accessKey).trim();
         const accessKeyItem = this.accessKey.find((m) => m.key === accessKey);
         if (accessKeyItem === undefined) {
             return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
@@ -471,16 +460,15 @@ export class StorePurchaseRouter {
      * @private
      */
     private async postCancelPurchase(req: express.Request, res: express.Response) {
-        const params = extend(true, {}, req.body);
-        params.accessKey = undefined;
-        logger.http(`POST /v1/tx/purchase/cancel ${req.ip}:${JSON.stringify(params)}`);
+        logger.http(`POST /v1/tx/purchase/cancel ${req.ip}:${JSON.stringify(req.body)}`);
 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(200).json(ResponseMessage.getErrorMessage("2001", { validation: errors.array() }));
         }
 
-        const accessKey: string = String(req.body.accessKey).trim();
+        let accessKey = req.get("Authorization");
+        if (accessKey === undefined) accessKey = String(req.body.accessKey).trim();
         const accessKeyItem = this.accessKey.find((m) => m.key === accessKey);
         if (accessKeyItem === undefined) {
             return res.status(200).json(ResponseMessage.getErrorMessage("3051"));

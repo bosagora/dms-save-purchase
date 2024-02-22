@@ -77,7 +77,15 @@ describe("Test of StorePurchase Router", () => {
     });
 
     it("Send transaction data to api server 1", async () => {
-        const response = await client.post(url, { accessKey: config.setting.accessKey[0].key, ...newTxParam });
+        const response = await client.post(
+            url,
+            { ...newTxParam },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 0, response.data?.error?.message);
         assert.ok(response.data.data !== undefined);
@@ -85,7 +93,15 @@ describe("Test of StorePurchase Router", () => {
     });
 
     it("Send transaction data to api server 2", async () => {
-        const response = await client.post(url, { accessKey: config.setting.accessKey[1].key, ...newTxParam });
+        const response = await client.post(
+            url,
+            { ...newTxParam },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[1].key,
+                },
+            }
+        );
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 0, response.data?.error?.message);
         assert.ok(response.data.data !== undefined);
@@ -95,7 +111,7 @@ describe("Test of StorePurchase Router", () => {
     it("Test calls without setting settings", async () => {
         const response = await client.post(url, { ...newTxParam });
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 2001);
+        assert.deepStrictEqual(response.data.code, 3051);
     });
 
     it("Verifying values recorded by API in database ", async () => {
@@ -110,71 +126,158 @@ describe("Test of StorePurchase Router", () => {
     });
 
     it("Invalid parameter validation test of purchaseId", async () => {
-        const response = await client.post(url, { accessKey, ...newTxParam, purchaseId: "" });
+        const response = await client.post(
+            url,
+            { ...newTxParam, purchaseId: "" },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of userAccount", async () => {
-        let response = await client.post(url, { accessKey, ...newTxParam, userAccount: undefined });
+        let response = await client.post(
+            url,
+            { ...newTxParam, userAccount: undefined },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
 
-        response = await client.post(url, {
-            accessKey,
-            ...newTxParam,
-            userAccount: "0x00",
-        });
+        response = await client.post(
+            url,
+            {
+                ...newTxParam,
+                userAccount: "0x00",
+            },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2002);
     });
 
     it("Invalid parameter validation test of userPhone", async () => {
-        let response = await client.post(url, { accessKey, ...newTxParam, userPhone: undefined });
+        let response = await client.post(
+            url,
+            { ...newTxParam, userPhone: undefined },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
 
-        response = await client.post(url, { accessKey, ...newTxParam, userPhone: "+82 10-1000-2000" });
+        response = await client.post(
+            url,
+            { ...newTxParam, userPhone: "+82 10-1000-2000" },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 0);
 
-        response = await client.post(url, { accessKey, ...newTxParam, userPhone: "+821010002000" });
+        response = await client.post(
+            url,
+            { ...newTxParam, userPhone: "+821010002000" },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 0);
     });
 
     it("Invalid parameter validation test of currency", async () => {
-        const response = await client.post(url, { accessKey, ...newTxParam, currency: undefined });
+        const response = await client.post(
+            url,
+            { ...newTxParam, currency: undefined },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of timestamp", async () => {
-        const response = await client.post(url, { accessKey, ...newTxParam, timestamp: undefined });
+        const response = await client.post(
+            url,
+            { ...newTxParam, timestamp: undefined },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of shopId", async () => {
-        const response = await client.post(url, { accessKey, ...newTxParam, shopId: "" });
+        const response = await client.post(
+            url,
+            { ...newTxParam, shopId: "" },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of totalAmount", async () => {
-        let response = await client.post(url, { accessKey, ...newTxParam, totalAmount: undefined });
+        let response = await client.post(
+            url,
+            { ...newTxParam, totalAmount: undefined },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
 
-        response = await client.post(url, { accessKey, ...newTxParam, totalAmount: "1,234.5678" });
+        response = await client.post(
+            url,
+            { ...newTxParam, totalAmount: "1,234.5678" },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
@@ -190,7 +293,15 @@ describe("Test of StorePurchase Router", () => {
     });
 
     it("Send cancel transaction data to api server", async () => {
-        const response = await client.post(url, { accessKey, ...cancelTxParam });
+        const response = await client.post(
+            url,
+            { ...cancelTxParam },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 0, response.data?.error?.message);
         assert.ok(response.data.data !== undefined);
@@ -199,7 +310,7 @@ describe("Test of StorePurchase Router", () => {
     it("Test calls without setting settings", async () => {
         const response = await client.post(url, { ...cancelTxParam });
         assert.deepStrictEqual(response.status, 200);
-        assert.deepStrictEqual(response.data.code, 2001);
+        assert.deepStrictEqual(response.data.code, 3051);
     });
 
     it("Verifying values recorded by API in database ", async () => {
@@ -212,14 +323,30 @@ describe("Test of StorePurchase Router", () => {
     });
 
     it("Invalid parameter validation test of purchaseId", async () => {
-        const response = await client.post(url, { accessKey, ...cancelTxParam, purchaseId: "" });
+        const response = await client.post(
+            url,
+            { ...cancelTxParam, purchaseId: "" },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);
     });
 
     it("Invalid parameter validation test of timestamp", async () => {
-        const response = await client.post(url, { accessKey, ...cancelTxParam, timestamp: undefined });
+        const response = await client.post(
+            url,
+            { ...cancelTxParam, timestamp: undefined },
+            {
+                headers: {
+                    Authorization: config.setting.accessKey[0].key,
+                },
+            }
+        );
 
         assert.deepStrictEqual(response.status, 200);
         assert.deepStrictEqual(response.data.code, 2001);

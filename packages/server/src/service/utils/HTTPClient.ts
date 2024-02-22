@@ -3,8 +3,8 @@ import { handleNetworkError } from "../../modules/network/ErrorTypes";
 
 export class HTTPClient {
     private client: AxiosInstance;
-    constructor() {
-        this.client = axios.create();
+    constructor(config?: AxiosRequestConfig) {
+        this.client = axios.create(config);
     }
 
     public get(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
