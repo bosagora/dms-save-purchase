@@ -95,6 +95,7 @@ export class StorePurchaseRouter {
             return {
                 key: m.key,
                 sender: m.sender,
+                waiting: m.waiting,
             };
         });
     }
@@ -251,10 +252,12 @@ export class StorePurchaseRouter {
             const userPhoneHash = ContractUtils.getPhoneHash(userPhone);
             const nextSequence = await this.storage.getNextSequence();
             const currency = String(req.body.currency).trim();
+            const waiting = req.body.waiting !== undefined ? Number(req.body.waiting) : accessKeyItem.waiting;
             const tx: NewTransaction = new NewTransaction(
                 nextSequence,
                 String(req.body.purchaseId).trim(),
                 BigInt(req.body.timestamp),
+                BigInt(waiting),
                 totalAmount,
                 cashAmount,
                 currency,
@@ -473,6 +476,7 @@ export class StorePurchaseRouter {
         if (accessKeyItem === undefined) {
             return res.status(200).json(ResponseMessage.getErrorMessage("3051"));
         }
+        const waiting = req.body.waiting !== undefined ? Number(req.body.waiting) : accessKeyItem.waiting;
 
         try {
             const nextSequence = await this.storage.getNextSequence();
@@ -481,6 +485,7 @@ export class StorePurchaseRouter {
                 nextSequence,
                 String(req.body.purchaseId).trim(),
                 BigInt(req.body.timestamp),
+                BigInt(waiting),
                 this.publisherSigner.address,
                 accessKeyItem.sender
             );

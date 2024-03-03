@@ -53,8 +53,10 @@ setting:
   accessKey:
     - key: "${ACCESS_KEY0}"
       sender: "${SENDER0}"
+      waiting: "${WAITING0}"
     - key: "${ACCESS_KEY1}"
       sender: "${SENDER1}"
+      waiting: "${WAITING1}"
   relayEndpoint: "${RELAY_ENDPOINT}"
   relayAccessKey: "${RELAY_ACCESS_KEY}"
   smsEndpoint: "${SMS_ENDPOINT}"

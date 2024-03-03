@@ -91,6 +91,9 @@ export class JSONValidator {
                     timestamp: {
                         type: "string",
                     },
+                    waiting: {
+                        type: "string",
+                    },
                     totalAmount: {
                         type: "string",
                     },
@@ -160,6 +163,9 @@ export class JSONValidator {
                         type: "string",
                     },
                     timestamp: {
+                        type: "string",
+                    },
+                    waiting: {
                         type: "string",
                     },
                     sender: {

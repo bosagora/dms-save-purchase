@@ -27,6 +27,7 @@ export interface INewTransaction {
     sequence: bigint;
     purchaseId: string;
     timestamp: bigint;
+    waiting: bigint;
     totalAmount: BigNumber;
     cashAmount: BigNumber;
     currency: string;
@@ -44,6 +45,7 @@ export interface ICancelTransaction {
     sequence: bigint;
     purchaseId: string;
     timestamp: bigint;
+    waiting: bigint;
     sender: string;
     signer: string;
     signature: string;
@@ -59,6 +61,7 @@ export class NewTransaction implements INewTransaction {
     public sequence: bigint;
     public purchaseId: string;
     public timestamp: bigint;
+    public waiting: bigint;
     public totalAmount: BigNumber;
     public cashAmount: BigNumber;
     public currency: string;
@@ -77,6 +80,7 @@ export class NewTransaction implements INewTransaction {
         sequence: string | bigint,
         purchaseId: string,
         timestamp: bigint,
+        waiting: bigint,
         totalAmount: BigNumber,
         cashAmount: BigNumber,
         currency: string,
@@ -92,6 +96,7 @@ export class NewTransaction implements INewTransaction {
         this.sequence = BigInt(sequence);
         this.purchaseId = purchaseId;
         this.timestamp = timestamp;
+        this.waiting = waiting;
         this.totalAmount = BigNumber.from(totalAmount);
         this.cashAmount = BigNumber.from(cashAmount);
         this.currency = currency;
@@ -131,6 +136,7 @@ export class NewTransaction implements INewTransaction {
             value.sequence,
             value.purchaseId,
             BigInt(value.timestamp),
+            BigInt(value.waiting),
             BigNumber.from(value.totalAmount),
             BigNumber.from(value.cashAmount),
             value.currency,
@@ -153,6 +159,7 @@ export class NewTransaction implements INewTransaction {
         hashPart(this.sequence, buffer);
         hashPart(this.purchaseId, buffer);
         hashPart(this.timestamp, buffer);
+        hashPart(this.waiting, buffer);
         hashPart(this.totalAmount, buffer);
         hashPart(this.cashAmount, buffer);
         hashPart(this.currency, buffer);
@@ -176,6 +183,7 @@ export class NewTransaction implements INewTransaction {
             sequence: this.sequence.toString(),
             purchaseId: this.purchaseId,
             timestamp: this.timestamp.toString(),
+            waiting: this.waiting.toString(),
             totalAmount: this.totalAmount.toString(),
             cashAmount: this.cashAmount.toString(),
             currency: this.currency,
@@ -197,6 +205,7 @@ export class NewTransaction implements INewTransaction {
             this.sequence,
             this.purchaseId,
             this.timestamp,
+            this.waiting,
             this.totalAmount,
             this.cashAmount,
             this.currency,
@@ -242,6 +251,7 @@ export class CancelTransaction implements ICancelTransaction {
     public sequence: bigint;
     public purchaseId: string;
     public timestamp: bigint;
+    public waiting: bigint;
     public sender: string;
     public signer: string;
     public signature: string;
@@ -253,6 +263,7 @@ export class CancelTransaction implements ICancelTransaction {
         sequence: string | bigint,
         purchaseId: string,
         timestamp: bigint,
+        waiting: bigint,
         sender: string,
         signer?: string,
         signature?: string
@@ -261,6 +272,7 @@ export class CancelTransaction implements ICancelTransaction {
         this.sequence = BigInt(sequence);
         this.purchaseId = purchaseId;
         this.timestamp = timestamp;
+        this.waiting = waiting;
         this.sender = sender;
         if (signer !== undefined) this.signer = signer;
         else this.signer = "";
@@ -287,6 +299,7 @@ export class CancelTransaction implements ICancelTransaction {
             value.sequence,
             value.purchaseId,
             BigInt(value.timestamp),
+            BigInt(value.waiting),
             value.sender,
             value.signer,
             value.signature
@@ -302,6 +315,7 @@ export class CancelTransaction implements ICancelTransaction {
         hashPart(this.sequence, buffer);
         hashPart(this.purchaseId, buffer);
         hashPart(this.timestamp, buffer);
+        hashPart(this.waiting, buffer);
         hashPart(this.sender, buffer);
         hashPart(this.signer, buffer);
     }
@@ -315,6 +329,7 @@ export class CancelTransaction implements ICancelTransaction {
             sequence: this.sequence.toString(),
             purchaseId: this.purchaseId,
             timestamp: this.timestamp.toString(),
+            waiting: this.waiting.toString(),
             sender: this.sender,
             signer: this.signer,
             signature: this.signature,
@@ -329,6 +344,7 @@ export class CancelTransaction implements ICancelTransaction {
             this.sequence,
             this.purchaseId,
             this.timestamp,
+            this.waiting,
             this.sender,
             this.signer,
             this.signature

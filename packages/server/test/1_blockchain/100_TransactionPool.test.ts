@@ -71,6 +71,7 @@ describe("TransactionPool", () => {
                     BigInt(index),
                     "transaction_" + index,
                     Utils.getTimeStampBigInt(),
+                    BigInt("86400"),
                     BigNumber.from(10000),
                     BigNumber.from(10000),
                     "krw",

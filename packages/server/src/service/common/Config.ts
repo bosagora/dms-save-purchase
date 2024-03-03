@@ -641,6 +641,7 @@ export interface ISetting {
 export interface IAccessKeyItem {
     key: string;
     sender: string;
+    waiting: number;
 }
 
 export class Setting implements ISetting {
@@ -662,6 +663,7 @@ export class Setting implements ISetting {
             return {
                 key: m.key,
                 sender: m.sender,
+                waiting: Number(m.waiting),
             };
         });
         this.relayAccessKey = defaults.relayAccessKey;
@@ -679,6 +681,7 @@ export class Setting implements ISetting {
                 return {
                     key: m.key,
                     sender: m.sender,
+                    waiting: Number(m.waiting),
                 };
             });
         }

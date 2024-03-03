@@ -26,6 +26,7 @@ describe("NewTransaction", () => {
             "0",
             "12345678",
             BigInt(1668044556),
+            BigInt(0),
             BigNumber.from(123),
             BigNumber.from(123),
             "krw",
@@ -39,7 +40,7 @@ describe("NewTransaction", () => {
 
         assert.strictEqual(
             hashFull(tx).toString(),
-            "0x76711573851cf7b495392a77180d01f7918c16a902ae059c6849a06c611844cd"
+            "0x0960db890fa88d501406ba80ee1c773fb8de7e1416983e51d7e026fe3f5f6098"
         );
     });
 
@@ -48,6 +49,7 @@ describe("NewTransaction", () => {
             "0",
             "12345678",
             BigInt(1668044556),
+            BigInt(0),
             BigNumber.from(123),
             BigNumber.from(123),
             "krw",
@@ -68,6 +70,7 @@ describe("NewTransaction", () => {
             BigInt(0),
             "12345678",
             BigInt(1668044556),
+            BigInt(0),
             BigNumber.from(123),
             BigNumber.from(123),
             "krw",
@@ -81,7 +84,7 @@ describe("NewTransaction", () => {
         await tx.sign(signer1);
         assert.strictEqual(
             tx.signature,
-            "0x83a011490a59cfccc1aeff52751d44a9f15cf8f2d2b360e32aceaa55372a4c2b523eeb527f5b89907b6b755e6b1ccb0024f7e5b43c15834e187a05ad5b7175f81b"
+            "0x27309c39b1d98f2b0a4cb60a0280aee382729c729313b535595ec317176d26411976238b5f0963ffe6659726b4949ac88a2c6ce9bc70b498fd1d3df2034e2cc91c"
         );
         assert.ok(!tx.verify(signer2.address));
         assert.ok(tx.verify(signer1.address));
@@ -90,7 +93,7 @@ describe("NewTransaction", () => {
         await tx.sign(signer2);
         assert.strictEqual(
             tx.signature,
-            "0x1be3709ec6d09ad5dc0f32e42436b7bc232287aa9c8e7459a89a90ab5c70058f4eab94ddb0c9adacc4ccd8ed7ecca55539f785d3e865121e1c84be8e6a06af791c"
+            "0x40100e021082bdceaa2a3aea67a0ad11012d1c4a2044d70e35c4221d8d3d6f48363831e0abb765429714874d22ce456c4bc3a0a392eed04bb0891f5adc2592151b"
         );
         assert.ok(!tx.verify(signer1.address));
         assert.ok(tx.verify(signer2.address));
