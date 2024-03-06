@@ -403,6 +403,7 @@ export class StorePurchaseRouter {
                     await client.sendNewStorePurchase(
                         tx.purchaseId,
                         tx.timestamp.toString(),
+                        tx.waiting.toString(),
                         tx.userAccount,
                         tx.userPhoneHash,
                         tx.shopId,

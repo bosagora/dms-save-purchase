@@ -192,6 +192,7 @@ export class RelayClient {
     public async sendNewStorePurchase(
         purchaseId: string,
         timestamp: string,
+        waiting: string,
         account: string,
         phone: string,
         shopId: string,
@@ -202,6 +203,7 @@ export class RelayClient {
         const params = {
             purchaseId,
             timestamp,
+            waiting,
             account,
             phone,
             shopId,
