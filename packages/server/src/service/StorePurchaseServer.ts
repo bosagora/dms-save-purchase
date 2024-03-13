@@ -17,6 +17,9 @@ import { StorePurchaseRouter } from "./routers/StorePurchaseRouter";
 import { TransactionPool } from "./scheduler/TransactionPool";
 import { StorePurchaseStorage } from "./storage/StorePurchaseStorage";
 
+import { register } from "prom-client";
+import { Metrics } from "./metrics/Metrics";
+
 export class StorePurchaseServer extends WebService {
     /**
      * The collection of schedulers
@@ -29,6 +32,7 @@ export class StorePurchaseServer extends WebService {
      * @private
      */
     private readonly config: Config;
+    private readonly metrics: Metrics;
 
     public readonly router: StorePurchaseRouter;
 
@@ -44,13 +48,19 @@ export class StorePurchaseServer extends WebService {
      */
     constructor(config: Config, storage: StorePurchaseStorage, schedules?: Scheduler[]) {
         super(config.server.port, config.server.address);
+        register.clear();
+        this.metrics = new Metrics();
+        this.metrics.create("gauge", "status", "serve status");
+        this.metrics.create("gauge", "sequence", "transaction sequence");
+        this.metrics.create("summary", "success", "request success");
+        this.metrics.create("summary", "failure", "request failure");
 
         this.config = config;
         this.storage = storage;
         this.pool = new TransactionPool();
         this.pool.storage = storage;
 
-        this.router = new StorePurchaseRouter(this, config, this.pool, this.storage);
+        this.router = new StorePurchaseRouter(this, config, this.pool, this.storage, this.metrics);
 
         if (schedules) {
             schedules.forEach((m) => this.schedules.push(m));

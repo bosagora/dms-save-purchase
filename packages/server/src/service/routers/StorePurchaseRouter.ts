@@ -26,6 +26,7 @@ import { BigNumber } from "@ethersproject/bignumber";
 import { AddressZero } from "@ethersproject/constants";
 
 import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
+import { Metrics } from "../metrics/Metrics";
 import { RelayClient } from "../relay/RelayClient";
 
 interface ILoyaltyResponse {
@@ -52,6 +53,7 @@ export class StorePurchaseRouter {
      * @private
      */
     private readonly _config: Config;
+    private readonly _metrics: Metrics;
 
     /**
      * The transaction pool
@@ -83,11 +85,19 @@ export class StorePurchaseRouter {
      * @param config Configuration
      * @param pool TransactionPool
      * @param storage RollupStorage
+     * @param metrics Metrics
      */
-    constructor(service: WebService, config: Config, pool: TransactionPool, storage: StorePurchaseStorage) {
+    constructor(
+        service: WebService,
+        config: Config,
+        pool: TransactionPool,
+        storage: StorePurchaseStorage,
+        metrics: Metrics
+    ) {
         this._phoneUtil = PhoneNumberUtil.getInstance();
         this._web_service = service;
         this._config = config;
+        this._metrics = metrics;
         this.pool = pool;
         this.storage = storage;
 
@@ -156,6 +166,7 @@ export class StorePurchaseRouter {
             [body("purchaseId").exists().not().isEmpty(), body("timestamp").exists().isNumeric()],
             this.postCancelPurchase.bind(this)
         );
+        this.app.get("/metrics", [], this.getMetrics.bind(this));
     }
 
     private static async getHealthStatus(req: express.Request, res: express.Response) {
@@ -176,6 +187,17 @@ export class StorePurchaseRouter {
             logger.error("GET /v1/tx/sequence , " + error);
             return res.status(200).json(ResponseMessage.getErrorMessage("6000"));
         }
+    }
+
+    private getLoyaltyInTransaction(tx: NewTransaction): BigNumber {
+        if (tx.totalAmount.eq(0)) return BigNumber.from(0);
+        if (tx.cashAmount.eq(0)) return BigNumber.from(0);
+        let sum: BigNumber = BigNumber.from(0);
+        for (const elem of tx.details) {
+            sum = sum.add(elem.amount.mul(elem.providePercent));
+        }
+        const loyalty = ContractUtils.zeroGWEI(sum.mul(tx.cashAmount).div(tx.totalAmount).div(10000));
+        return loyalty;
     }
 
     /**
@@ -270,6 +292,7 @@ export class StorePurchaseRouter {
             );
             await tx.sign(this.publisherSigner);
             await this.pool.add(DBTransaction.make(tx));
+            this._metrics.add("sequence", Number(nextSequence));
             logger.http(`POST /v1/tx/purchase/new transaction: ${JSON.stringify(tx)}`);
 
             let loyaltyResponse: ILoyaltyResponse | undefined;
@@ -428,6 +451,7 @@ export class StorePurchaseRouter {
                         })
                     );
                 } else {
+                    this._metrics.add("success", 1);
                     return res.json(
                         StorePurchaseRouter.makeResponseData(0, {
                             tx: tx.toJSON(),
@@ -436,6 +460,7 @@ export class StorePurchaseRouter {
                     );
                 }
             } else {
+                this._metrics.add("success", 1);
                 return res.json(
                     StorePurchaseRouter.makeResponseData(0, {
                         tx: tx.toJSON(),
@@ -444,19 +469,9 @@ export class StorePurchaseRouter {
             }
         } catch (error) {
             logger.error("POST /v1/tx/purchase/new , " + error);
+            this._metrics.add("failure", 1);
             return res.status(200).json(ResponseMessage.getErrorMessage("6000"));
         }
-    }
-
-    private getLoyaltyInTransaction(tx: NewTransaction): BigNumber {
-        if (tx.totalAmount.eq(0)) return BigNumber.from(0);
-        if (tx.cashAmount.eq(0)) return BigNumber.from(0);
-        let sum: BigNumber = BigNumber.from(0);
-        for (const elem of tx.details) {
-            sum = sum.add(elem.amount.mul(elem.providePercent));
-        }
-        const loyalty = ContractUtils.zeroGWEI(sum.mul(tx.cashAmount).div(tx.totalAmount).div(10000));
-        return loyalty;
     }
 
     /**
@@ -494,14 +509,27 @@ export class StorePurchaseRouter {
             await tx.sign(this.publisherSigner);
 
             await this.pool.add(DBTransaction.make(tx));
+            this._metrics.add("sequence", Number(nextSequence));
 
             const client = new RelayClient(this._config);
             await client.sendCancelStorePurchase(String(req.body.purchaseId).trim());
 
+            this._metrics.add("success", 1);
             return res.json(StorePurchaseRouter.makeResponseData(0, { tx: tx.toJSON() }));
         } catch (error) {
             logger.error("POST /v1/tx/purchase/cancel , " + error);
+            this._metrics.add("failure", 1);
             return res.status(200).json(ResponseMessage.getErrorMessage("6000"));
         }
+    }
+
+    /**
+     * GET /metrics
+     * @private
+     */
+    private async getMetrics(req: express.Request, res: express.Response) {
+        res.set("Content-Type", this._metrics.contentType());
+        this._metrics.add("status", 1);
+        res.end(await this._metrics.metrics());
     }
 }
