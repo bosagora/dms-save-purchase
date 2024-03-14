@@ -292,7 +292,6 @@ export class StorePurchaseRouter {
             );
             await tx.sign(this.publisherSigner);
             await this.pool.add(DBTransaction.make(tx));
-            this._metrics.add("sequence", Number(nextSequence));
             logger.http(`POST /v1/tx/purchase/new transaction: ${JSON.stringify(tx)}`);
 
             let loyaltyResponse: ILoyaltyResponse | undefined;
@@ -509,7 +508,6 @@ export class StorePurchaseRouter {
             await tx.sign(this.publisherSigner);
 
             await this.pool.add(DBTransaction.make(tx));
-            this._metrics.add("sequence", Number(nextSequence));
 
             const client = new RelayClient(this._config);
             await client.sendCancelStorePurchase(String(req.body.purchaseId).trim());

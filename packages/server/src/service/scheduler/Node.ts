@@ -18,6 +18,7 @@ import { TransactionPool } from "./TransactionPool";
 
 import { Block, Hash, hashFull, Transaction, Utils } from "dms-store-purchase-sdk";
 import { ethers } from "hardhat";
+import { Metrics } from "../metrics/Metrics";
 
 /**
  * Definition of event type
@@ -34,6 +35,8 @@ export class Node extends Scheduler {
      * The object containing the settings required to run
      */
     private _config: Config | undefined;
+
+    private _metrics: Metrics | undefined;
 
     /**
      * The object needed to store data in IPFS
@@ -92,6 +95,18 @@ export class Node extends Scheduler {
     }
 
     /**
+     * Returns the value if this._metrics is defined.
+     * Otherwise, exit the process.
+     */
+    private get metrics(): Metrics {
+        if (this._metrics !== undefined) return this._metrics;
+        else {
+            logger.error("Metrics is not ready yet.");
+            process.exit(1);
+        }
+    }
+
+    /**
      * Returns the value if this._ipfs is defined.
      * Otherwise, exit the process.
      */
@@ -134,6 +149,7 @@ export class Node extends Scheduler {
     public setOption(options: any) {
         if (options) {
             if (options.config && options.config instanceof Config) this._config = options.config;
+            if (options.metrics && options.metrics instanceof Metrics) this._metrics = options.metrics;
             if (options.storage && options.storage instanceof StorePurchaseStorage) {
                 this._storage = options.storage;
             }
@@ -225,6 +241,7 @@ export class Node extends Scheduler {
                         logger.info(`Saved block to IPFS - height: ${block.header.height.toString()}, CID: ${cid}`);
                     } catch {
                         success = false;
+                        this.metrics.add("failure", 1);
                         logger.error(
                             `Failed to save block to IPFS - height: ${block.header.height.toString()}, CID: ${cid}`
                         );
@@ -234,8 +251,11 @@ export class Node extends Scheduler {
                         try {
                             // Save block info to the database
                             await this.storage.insertBlock(block, cid);
+                            this.metrics.add("block", Number(block.header.height));
+                            this.metrics.add("sequence", Number(txs[txs.length - 1].sequence));
                             logger.info(`Saved block to DB - height: ${block.header.height.toString()}, CID: ${cid}`);
                         } catch {
+                            this.metrics.add("failure", 1);
                             success = false;
                         }
                     }

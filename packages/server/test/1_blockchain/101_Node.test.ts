@@ -22,6 +22,8 @@ import * as assert from "assert";
 import { BigNumber, Wallet } from "ethers";
 import { waffle } from "hardhat";
 import path from "path";
+import { register } from "prom-client";
+import { Metrics } from "../../src/service/metrics/Metrics";
 
 class BlockExternalizer implements IBlockExternalizer {
     public block: Block | undefined;
@@ -38,6 +40,7 @@ describe("Test of Node", function () {
     let node: Node;
     let externalizer: BlockExternalizer;
     const config = new Config();
+    const metrics = new Metrics();
     let storage: StorePurchaseStorage;
     const provider = waffle.provider;
     const deployer = new Wallet(HardhatAccount.keys[0], provider);
@@ -46,6 +49,13 @@ describe("Test of Node", function () {
     before("Deploy StorePurchase Contract", async () => {
         config.readFromFile(path.resolve(process.cwd(), "config/config_test.yaml"));
         await HardhatUtils.deployStorePurchaseContract(config, deployer, publisher);
+
+        register.clear();
+        metrics.create("gauge", "status", "serve status");
+        metrics.create("gauge", "block", "block number");
+        metrics.create("gauge", "sequence", "transaction sequence");
+        metrics.create("summary", "success", "request success");
+        metrics.create("summary", "failure", "request failure");
     });
 
     before("Create Node", async () => {
@@ -54,7 +64,7 @@ describe("Test of Node", function () {
         node = new Node("*/1 * * * * *");
         const pool = new TransactionPool();
         pool.storage = storage;
-        node.setOption({ config, storage, pool });
+        node.setOption({ config, storage, pool, metrics });
         externalizer = new BlockExternalizer();
         node.setExternalizer(externalizer);
     });

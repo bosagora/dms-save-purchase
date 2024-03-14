@@ -51,6 +51,7 @@ export class StorePurchaseServer extends WebService {
         register.clear();
         this.metrics = new Metrics();
         this.metrics.create("gauge", "status", "serve status");
+        this.metrics.create("gauge", "block", "block number");
         this.metrics.create("gauge", "sequence", "transaction sequence");
         this.metrics.create("summary", "success", "request success");
         this.metrics.create("summary", "failure", "request failure");
@@ -67,6 +68,7 @@ export class StorePurchaseServer extends WebService {
             this.schedules.forEach((m) =>
                 m.setOption({
                     config: this.config,
+                    metrics: this.metrics,
                     router: this.router,
                     storage: this.storage,
                     pool: this.pool,
