@@ -22,20 +22,21 @@
 
 #### - 입력 파라메타들
 
-| 파라메타명       |                 | 유형     | 필수 | 설명                                                          |
-|-------------|-----------------|--------| ---- |-------------------------------------------------------------|
-| purchaseId  |                 | string | Yes  | 구매 아이디                                                      |
-| timestamp   |                 | string | Yes  | 타임스탬프                                                       |
-| totalAmount |                 | number | Yes  | 구매 총금액 (소수점 포함, 1000원 -> 1000, 1.56USD -> 1.56)             |
-| cashAmount  |                 | number | Yes  | 구매에 사용된 현금또는 카드결제  (소수점 포함, 1000원 -> 1000, 1.56USD -> 1.56) |
-| currency    |                 | string | Yes  | 환률코드(usd, krw, the9, point...)                              |
-| shopId      |                 | string | Yes  | 상점 아이디                                                      |
-| userAccount |                 | string | Yes  | 마일리지가 적립될 사용자의 지갑주소                                         |
-| userPhone   |                 | string | Yes  | 마일리지가 적립될 구매자의 전화번호,  국제표기법 +82 10-1000-2000 으로 해야 합니다.     |
-| details     |                 | array  | Yes  | 상품별 상세내역, 이 항목은 배열입니다. 레코드는 반복됩니다.                          |
-| details     | productId       | string | Yes  | 상품의 고유 아이디                                                  |
-| details     | amount          | number | Yes  | 상품의 구매에 사용된 금액  (소수점 포함, 1000원 -> 1000, 1.56USD -> 1.56)    |
-| details     | providePercent  | number | Yes  | 상품의 적립 퍼센트 (3.5% 이면 3.5)                                    |
+| 파라메타명       |                | 유형     | 필수  | 설명                                                                  |
+|-------------|----------------|--------|-----|---------------------------------------------------------------------|
+| purchaseId  |                | string | Yes | 구매 아이디                                                              |
+| timestamp   |                | string | Yes | 타임스탬프                                                               |
+| totalAmount |                | number | Yes | 구매 총금액 (소수점 포함, 1000원 -> 1000, 1.56USD -> 1.56)                     |
+| cashAmount  |                | number | Yes | 구매에 사용된 현금또는 카드결제  (소수점 포함, 1000원 -> 1000, 1.56USD -> 1.56)         |
+| currency    |                | string | Yes | 환률코드(usd, krw, the9, point...)                                      |
+| waiting     |                | number | No  | 구매데이타 발생후 포인트 적립시 까지 대기시간(초) - 취소에 대한 대응을 위해 사용되며 입력되지 않으면 기본값을 사용함 | 
+| shopId      |                | string | Yes | 상점 아이디                                                              |
+| userAccount |                | string | Yes | 마일리지가 적립될 사용자의 지갑주소                                                 |
+| userPhone   |                | string | Yes | 마일리지가 적립될 구매자의 전화번호,  국제표기법 +82 10-1000-2000 으로 해야 합니다.             |
+| details     |                | array  | Yes | 상품별 상세내역, 이 항목은 배열입니다. 레코드는 반복됩니다.                                  |
+| details     | productId      | string | Yes | 상품의 고유 아이디                                                          |
+| details     | amount         | number | Yes | 상품의 구매에 사용된 금액  (소수점 포함, 1000원 -> 1000, 1.56USD -> 1.56)            |
+| details     | providePercent | number | Yes | 상품의 적립 퍼센트 (3.5% 이면 3.5)                                            |
 
 #### - 입력 예시
 ```json
@@ -45,6 +46,7 @@
   "totalAmount": 44400,
   "cashAmount": 44400,
   "currency": "krw",
+  "waiting" : 0,
   "shopId": "0x04ef11be936f49f6388dd20d062e43170fd7ce9e968e51426317e284b9309361",
   "userAccount": "0x89e3b2D91ecaf08016eEDb966c1fecA1e326714e",
   "userPhone": "",
