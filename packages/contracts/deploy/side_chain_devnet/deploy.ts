@@ -84,7 +84,7 @@ class Deployments {
         }
     }
 
-    static filename = "./deploy/bosagora_devnet/deployed_contracts.json";
+    static filename = "./deploy/side_chain_devnet/deployed_contracts.json";
 
     public async loadContractInfo() {
         if (!fs.existsSync(Deployments.filename)) return;
