@@ -307,6 +307,8 @@ export class StorePurchaseRouter {
             if (loyaltyPoint !== undefined) {
                 if (userAccount !== AddressZero) {
                     const result = await client.getBalanceOfAccount(userAccount);
+                    console.log("client.getBalanceOfAccount(userAccount)", result);
+
                     if (result !== undefined) {
                         let loyalty: BigNumber = loyaltyPoint;
                         if (result.loyaltyType === 1) {
@@ -334,7 +336,9 @@ export class StorePurchaseRouter {
                         };
                     }
                 } else if (userPhone !== "") {
-                    const result = await client.getBalanceOfPhone(userPhoneHash);
+                    const result = await client.getBalanceOfPhoneHash(userPhoneHash);
+                    console.log("client.getBalanceOfPhoneHash(userPhoneHash)", result);
+
                     if (result !== undefined) {
                         if (result.account !== undefined) {
                             userAccount = result.account;
@@ -393,17 +397,14 @@ export class StorePurchaseRouter {
                             );
                             const currentBalance = new BOACoin(BigNumber.from(loyaltyResponse.account.currentBalance));
                             const contents =
-                                `결제가 완료되는 8일 뒤에 ${loyaltyAmount.toDisplayString(
-                                    true,
-                                    precision
-                                )} ${unit} 적립됩니다.` +
-                                `현재 잔액은 ${currentBalance.toDisplayString(
-                                    true,
-                                    precision
-                                )} ${unit} 입니다. 토큰은 시세에 따라서 다소 차이가 생길 수 있습니다.`;
+                                `Time to be provided: ${new Date(
+                                    new Date().getTime() + waiting * 1000
+                                ).toUTCString()}\n` +
+                                `Amount to be provided: ${loyaltyAmount.toDisplayString(true, precision)} ${unit}\n` +
+                                `Current balance: ${currentBalance.toDisplayString(true, precision)} ${unit}`;
                             if (this._config.setting.messageEnable)
-                                await client.sendPushMessage(userAccount, 0, "로열티 적립", contents, "provide");
-                            logger.info("[NOTIFICATION]" + contents);
+                                await client.sendPushMessage(userAccount, 0, "Loyalty provided", contents, "provide");
+                            logger.info(`[NOTIFICATION] ${userAccount} ${contents}`);
                         } else {
                             const unit = "POINT";
                             const precision = 0;
@@ -412,13 +413,16 @@ export class StorePurchaseRouter {
                             );
                             const currentBalance = new BOACoin(BigNumber.from(loyaltyResponse.account.currentBalance));
                             const contents =
-                                `결제가 완료되는 8일 뒤에 ${loyaltyToBeProvided.toDisplayString(
+                                `Time to be provided: ${new Date(
+                                    new Date().getTime() + waiting * 1000
+                                ).toUTCString()}\n` +
+                                `Amount to be provided: ${loyaltyToBeProvided.toDisplayString(
                                     true,
                                     precision
-                                )} ${unit}가 적립됩니다.\n` +
-                                `현재 잔액은 ${currentBalance.toDisplayString(true, precision)} ${unit} 입니다.`;
+                                )} ${unit}\n` +
+                                `Current balance: ${currentBalance.toDisplayString(true, precision)} ${unit}`;
                             if (this._config.setting.messageEnable) await client.sendSMSMessage(contents, userPhone);
-                            logger.info("[SMS]" + contents);
+                            logger.info(`[SMS] ${userPhone} ${contents}`);
                         }
                     }
 
