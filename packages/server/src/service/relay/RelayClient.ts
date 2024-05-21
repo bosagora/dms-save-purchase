@@ -41,9 +41,8 @@ export class RelayClient {
 
     public async getBalanceOfAccount(account: string): Promise<IRelayBalance | undefined> {
         const url = URI(this.config.setting.relayEndpoint)
-            .directory("/v1/payment/user")
-            .filename("balance")
-            .addQuery("account", account)
+            .directory("/v1/ledger/balance/account")
+            .filename(account)
             .toString();
         try {
             const response = await this.client.get(url);
@@ -56,7 +55,10 @@ export class RelayClient {
             return {
                 account: response.data.data.account,
                 loyaltyType: response.data.data.loyaltyType,
-                balance: BigNumber.from(response.data.data.balance),
+                balance:
+                    response.data.data.loyaltyType === 0
+                        ? BigNumber.from(response.data.data.point.balance)
+                        : BigNumber.from(response.data.data.token.balance),
             };
         } catch (error) {
             logger.error(`릴레이서버에서 지갑주소의 잔고를 조회하는데 실패했습니다.-[${error}]`);
@@ -64,11 +66,10 @@ export class RelayClient {
         }
     }
 
-    public async getBalanceOfPhone(phone: string): Promise<IRelayBalance | undefined> {
+    public async getBalanceOfPhoneHash(phoneHash: string): Promise<IRelayBalance | undefined> {
         const url = URI(this.config.setting.relayEndpoint)
-            .directory("/v1/payment/phone")
-            .filename("balance")
-            .addQuery("phone", phone)
+            .directory("/v1/ledger/balance/phoneHash")
+            .filename(phoneHash)
             .toString();
         try {
             const response = await this.client.get(url);
@@ -81,7 +82,10 @@ export class RelayClient {
             return {
                 account: response.data.data.account,
                 loyaltyType: response.data.data.loyaltyType,
-                balance: BigNumber.from(response.data.data.balance),
+                balance:
+                    response.data.data.loyaltyType === 0
+                        ? BigNumber.from(response.data.data.point.balance)
+                        : BigNumber.from(response.data.data.token.balance),
             };
         } catch (error) {
             logger.error(`릴레이서버에서 잔고를 조회하는데 실패했습니다.-[${error}]`);
@@ -90,8 +94,8 @@ export class RelayClient {
 
     public async convertCurrency(amount: BigNumber, from: string, to: string): Promise<BigNumber | undefined> {
         const url = URI(this.config.setting.relayEndpoint)
-            .directory("/v1/payment/convert")
-            .filename("currency")
+            .directory("/v1/currency")
+            .filename("convert")
             .addQuery("amount", amount.toString())
             .addQuery("from", from)
             .addQuery("to", to)
@@ -111,11 +115,7 @@ export class RelayClient {
     }
 
     public async getShopInfo(shopId: string): Promise<IShopInfo | undefined> {
-        const url = URI(this.config.setting.relayEndpoint)
-            .directory("/v1/payment/shop")
-            .filename("info")
-            .addQuery("shopId", shopId)
-            .toString();
+        const url = URI(this.config.setting.relayEndpoint).directory("/v1/shop/info").filename(shopId).toString();
         try {
             const response = await this.client.get(url);
             if (response.data.code !== 0) {
