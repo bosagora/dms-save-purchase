@@ -340,7 +340,7 @@ export class StorePurchaseRouter {
                     console.log("client.getBalanceOfPhoneHash(userPhoneHash)", result);
 
                     if (result !== undefined) {
-                        if (result.account !== undefined) {
+                        if (result.account !== undefined && result.account !== AddressZero) {
                             userAccount = result.account;
                             let loyalty: BigNumber = loyaltyPoint;
                             if (result.loyaltyType === 1) {
