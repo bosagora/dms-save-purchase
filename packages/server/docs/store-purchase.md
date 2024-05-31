@@ -108,9 +108,8 @@
 | loyalty | loyaltyPoint  |                      | string | Yes  | 지급받을 예상 로열티(포인트)                                     |
 | loyalty | account       | accountType          | string | Yes  | 사용자의 계좌종류("address": 지갑주소, "phone": 전화번호 해시)         |
 | loyalty | account       | account              | string | Yes  | 사용자의 계좌번호, 지갑주소 또는 전화번호 해시                           |
-| loyalty | account       | loyaltyType          | number | Yes  | 사용자의 지갑의 로열티 종류 (0: 포인트, 1: 토큰)                      |
 | loyalty | account       | currentBalance       | string | Yes  | 사용자의 현재 잔고                                           |
-| loyalty | account       | loyaltyToBeProvided  | string | Yes  | 사용자에게 지급될 예상 로얄티(포인트 또는 토큰 으로 loyaltyType에 의해 결정된다)  |
+| loyalty | account       | loyaltyToBeProvided  | string | Yes  | 사용자에게 지급될 예상 로얄티  |
 
 ```json
 {
@@ -168,7 +167,6 @@
       "account": {
         "accountType": "address",
         "account": "0x89e3b2D91ecaf08016eEDb966c1fecA1e326714e",
-        "loyaltyType": 0,
         "currentBalance": "7394300000000000000000",
         "loyaltyToBeProvided": "1895600000000000000000"
       }

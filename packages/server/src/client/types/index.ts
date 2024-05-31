@@ -10,7 +10,6 @@ export interface IUserData {
     phone: string;
     address: string;
     privateKey: string;
-    loyaltyType: number;
 }
 
 export interface IProductData {
@@ -32,6 +31,7 @@ export interface INewPurchaseData {
     cashAmount: number;
     currency: string;
     shopId: string;
+    waiting: number;
     userAccount: string;
     userPhone: string;
     details: INewPurchaseDetails[];

@@ -62,4 +62,3 @@ setting:
   smsEndpoint: "${SMS_ENDPOINT}"
   smsAccessKey: "${SMS_ACCESS_KEY}"
   smsSender: "${SMS_SENDER}"
-  tokenSymbol: "${TOKEN_SYMBOL}"

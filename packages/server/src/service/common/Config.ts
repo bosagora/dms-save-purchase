@@ -634,7 +634,6 @@ export interface ISetting {
     smsAccessKey: string;
     smsEndpoint: string;
     smsSender: string;
-    tokenSymbol: string;
     messageEnable: boolean;
 }
 
@@ -651,7 +650,6 @@ export class Setting implements ISetting {
     public smsAccessKey: string;
     public smsEndpoint: string;
     public smsSender: string;
-    public tokenSymbol: string;
     public messageEnable: boolean;
 
     /**
@@ -671,7 +669,6 @@ export class Setting implements ISetting {
         this.smsAccessKey = defaults.smsAccessKey;
         this.smsEndpoint = defaults.smsEndpoint;
         this.smsSender = defaults.smsSender;
-        this.tokenSymbol = defaults.tokenSymbol;
         this.messageEnable = defaults.messageEnable;
     }
 
@@ -690,7 +687,6 @@ export class Setting implements ISetting {
         if (config.smsAccessKey !== undefined) this.smsAccessKey = config.smsAccessKey;
         if (config.smsEndpoint !== undefined) this.smsEndpoint = config.smsEndpoint;
         if (config.smsSender !== undefined) this.smsSender = config.smsSender;
-        if (config.tokenSymbol !== undefined) this.tokenSymbol = config.tokenSymbol;
         if (config.messageEnable !== undefined)
             this.messageEnable = config.messageEnable.toString().toLowerCase() === "true";
     }
@@ -706,7 +702,6 @@ export class Setting implements ISetting {
             smsAccessKey: "",
             smsEndpoint: "",
             smsSender: "",
-            tokenSymbol: "",
             messageEnable: "false",
         } as unknown as ISetting;
     }

@@ -23,6 +23,7 @@ export class StorePurchaseClientScheduler extends Scheduler {
     private readonly maxInterval: number;
     private randInterval: number;
     private blockInterval: number;
+    private useCancel: boolean;
 
     private products: IProductData[];
     private shops: IShopData[];
@@ -34,6 +35,7 @@ export class StorePurchaseClientScheduler extends Scheduler {
         this.maxInterval = Number(process.env.MAXINTERVAL || "500");
         this.minInterval = Number(process.env.MININTERVAL || "5");
         this.blockInterval = Number(process.env.BLOCK_INTERVAL || "600");
+        this.useCancel = Boolean(process.env.USE_CALCEL || "false");
 
         this.randInterval = 10;
         this.client = new StorePurchaseClient();
@@ -141,6 +143,7 @@ export class StorePurchaseClientScheduler extends Scheduler {
                 cashAmount,
                 currency: "krw",
                 shopId: this.shops[shopIndex].shopId,
+                waiting: 10,
                 userAccount: "",
                 userPhone: this.users[userIndex].phone,
                 details,
@@ -154,45 +157,13 @@ export class StorePurchaseClientScheduler extends Scheduler {
                 cashAmount,
                 currency: "krw",
                 shopId: this.shops[shopIndex].shopId,
+                waiting: 10,
                 userAccount: this.users[userIndex].address,
                 userPhone: "",
                 details,
             };
             return res;
         }
-    }
-
-    private async makeTransactionPhone(): Promise<INewPurchaseData> {
-        const purchaseId = "91313" + new Date().getTime().toString();
-        const products = this.makeProductInPurchase();
-        let totalAmount: number = 0;
-        for (const elem of products) {
-            totalAmount += elem.product.amount * elem.count;
-        }
-        const details: INewPurchaseDetails[] = products.map((m) => {
-            return {
-                productId: m.product.productId,
-                amount: m.product.amount * m.count,
-                providePercent: m.product.providerPercent,
-            };
-        });
-        const cashAmount = totalAmount;
-
-        const userIndex = Math.floor(Math.random() * this.users.length);
-        const shopIndex = Math.floor(Math.random() * this.shops.length);
-
-        const res: INewPurchaseData = {
-            purchaseId,
-            timestamp: Utils.getTimeStampBigInt().toString(),
-            totalAmount,
-            cashAmount,
-            currency: "krw",
-            shopId: this.shops[shopIndex].shopId,
-            userAccount: "",
-            userPhone: "+82 10-9520-1803",
-            details,
-        };
-        return res;
     }
 
     private async makeCancelTransactions(): Promise<ICancelPurchaseData | undefined> {

@@ -27,7 +27,7 @@ import { AddressZero } from "@ethersproject/constants";
 
 import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
 import { Metrics } from "../metrics/Metrics";
-import { RelayClient } from "../relay/RelayClient";
+import { ISystemInfo, RelayClient } from "../relay/RelayClient";
 
 interface ILoyaltyResponse {
     loyaltyValue: BigNumber;
@@ -35,7 +35,6 @@ interface ILoyaltyResponse {
     account: {
         accountType: string;
         account: string;
-        loyaltyType: number;
         currentBalance: BigNumber;
         loyaltyToBeProvided: BigNumber;
     };
@@ -78,6 +77,8 @@ export class StorePurchaseRouter {
     private _publisherSigner: Wallet | undefined;
 
     private _phoneUtil: PhoneNumberUtil;
+
+    private systemInfo: ISystemInfo | undefined;
 
     /**
      *
@@ -257,6 +258,7 @@ export class StorePurchaseRouter {
                 }
             }
             const client = new RelayClient(this._config);
+            if (this.systemInfo === undefined) this.systemInfo = await client.getSystemInfo();
             const shopId = String(req.body.shopId).trim();
             const shopInfo = await client.getShopInfo(shopId);
             if (shopInfo !== undefined) {
@@ -307,63 +309,33 @@ export class StorePurchaseRouter {
             if (loyaltyPoint !== undefined) {
                 if (userAccount !== AddressZero) {
                     const result = await client.getBalanceOfAccount(userAccount);
-                    console.log("client.getBalanceOfAccount(userAccount)", result);
 
                     if (result !== undefined) {
-                        let loyalty: BigNumber = loyaltyPoint;
-                        if (result.loyaltyType === 1) {
-                            const value = await client.convertCurrency(
-                                loyaltyPoint,
-                                "point",
-                                this._config.setting.tokenSymbol
-                            );
-                            if (value !== undefined) loyalty = value;
-                            else {
-                                result.loyaltyType = 1;
-                                loyalty = loyaltyPoint;
-                            }
-                        }
                         loyaltyResponse = {
                             loyaltyValue,
                             loyaltyPoint,
                             account: {
                                 accountType: "address",
                                 account: userAccount,
-                                loyaltyType: result.loyaltyType,
                                 currentBalance: BigNumber.from(result.balance),
-                                loyaltyToBeProvided: loyalty,
+                                loyaltyToBeProvided: loyaltyPoint,
                             },
                         };
                     }
                 } else if (userPhone !== "") {
                     const result = await client.getBalanceOfPhoneHash(userPhoneHash);
-                    console.log("client.getBalanceOfPhoneHash(userPhoneHash)", result);
 
                     if (result !== undefined) {
                         if (result.account !== undefined && result.account !== AddressZero) {
                             userAccount = result.account;
-                            let loyalty: BigNumber = loyaltyPoint;
-                            if (result.loyaltyType === 1) {
-                                const value = await client.convertCurrency(
-                                    loyaltyPoint,
-                                    "point",
-                                    this._config.setting.tokenSymbol
-                                );
-                                if (value !== undefined) loyalty = value;
-                                else {
-                                    result.loyaltyType = 1;
-                                    loyalty = loyaltyPoint;
-                                }
-                            }
                             loyaltyResponse = {
                                 loyaltyValue,
                                 loyaltyPoint,
                                 account: {
                                     accountType: "address",
                                     account: userAccount,
-                                    loyaltyType: result.loyaltyType,
                                     currentBalance: BigNumber.from(result.balance),
-                                    loyaltyToBeProvided: loyalty,
+                                    loyaltyToBeProvided: loyaltyPoint,
                                 },
                             };
                         } else {
@@ -373,7 +345,6 @@ export class StorePurchaseRouter {
                                 account: {
                                     accountType: "phone",
                                     account: userPhoneHash,
-                                    loyaltyType: 0,
                                     currentBalance: BigNumber.from(result.balance),
                                     loyaltyToBeProvided: loyaltyPoint,
                                 },
@@ -385,42 +356,62 @@ export class StorePurchaseRouter {
                 if (loyaltyResponse) {
                     if (loyaltyResponse.loyaltyValue.gte(1)) {
                         if (loyaltyResponse.account.accountType === "address") {
-                            const unit =
-                                loyaltyResponse.account.loyaltyType === 0
-                                    ? "POINT"
-                                    : loyaltyResponse.account.loyaltyType === 1
-                                    ? "TOKEN"
-                                    : "";
-                            const precision = loyaltyResponse.account.loyaltyType === 0 ? 0 : 2;
-                            const loyaltyAmount = new BOACoin(
-                                BigNumber.from(loyaltyResponse.account.loyaltyToBeProvided)
-                            );
-                            const currentBalance = new BOACoin(BigNumber.from(loyaltyResponse.account.currentBalance));
-                            const contents =
-                                `Time to be provided: ${new Date(
-                                    new Date().getTime() + waiting * 1000
-                                ).toUTCString()}\n` +
-                                `Amount to be provided: ${loyaltyAmount.toDisplayString(true, precision)} ${unit}\n` +
-                                `Current balance: ${currentBalance.toDisplayString(true, precision)} ${unit}`;
-                            if (this._config.setting.messageEnable)
-                                await client.sendPushMessage(userAccount, 0, "Loyalty provided", contents, "provide");
-                            logger.info(`[NOTIFICATION] ${userAccount} ${contents}`);
-                        } else {
-                            const unit = "POINT";
-                            const precision = 0;
+                            const mobileInfo = await client.getMobileInfo(loyaltyResponse.account.account);
+                            const precision = this.systemInfo !== undefined ? this.systemInfo.point.precision : 2;
+                            const language =
+                                mobileInfo !== undefined
+                                    ? mobileInfo.language
+                                    : this.systemInfo !== undefined
+                                    ? this.systemInfo.language
+                                    : "kr";
                             const loyaltyToBeProvided = new BOACoin(
                                 BigNumber.from(loyaltyResponse.account.loyaltyToBeProvided)
                             );
                             const currentBalance = new BOACoin(BigNumber.from(loyaltyResponse.account.currentBalance));
-                            const contents =
-                                `Time to be provided: ${new Date(
-                                    new Date().getTime() + waiting * 1000
-                                ).toUTCString()}\n` +
-                                `Amount to be provided: ${loyaltyToBeProvided.toDisplayString(
-                                    true,
-                                    precision
-                                )} ${unit}\n` +
-                                `Current balance: ${currentBalance.toDisplayString(true, precision)} ${unit}`;
+                            let contents;
+                            if (language === "kr") {
+                                contents =
+                                    `제공될 일시: ${new Date(new Date().getTime() + waiting * 1000).toUTCString()}\n` +
+                                    `제공될 포인트의 량: ${loyaltyToBeProvided.toDisplayString(true, precision)}\n` +
+                                    `현재 포인트 잔고: ${currentBalance.toDisplayString(true, precision)}`;
+                            } else {
+                                contents =
+                                    `Time to be provided: ${new Date(
+                                        new Date().getTime() + waiting * 1000
+                                    ).toUTCString()}\n` +
+                                    `Amount to be provided: ${loyaltyToBeProvided.toDisplayString(
+                                        true,
+                                        precision
+                                    )} POINT\n` +
+                                    `Current balance: ${currentBalance.toDisplayString(true, precision)} POINT`;
+                            }
+                            if (this._config.setting.messageEnable)
+                                await client.sendPushMessage(userAccount, 0, "Loyalty provided", contents, "provide");
+                            logger.info(`[NOTIFICATION] ${userAccount} ${contents}`);
+                        } else {
+                            const precision = this.systemInfo !== undefined ? this.systemInfo.point.precision : 2;
+                            const language = this.systemInfo !== undefined ? this.systemInfo.language : "kr";
+                            const loyaltyToBeProvided = new BOACoin(
+                                BigNumber.from(loyaltyResponse.account.loyaltyToBeProvided)
+                            );
+                            const currentBalance = new BOACoin(BigNumber.from(loyaltyResponse.account.currentBalance));
+                            let contents;
+                            if (language === "kr") {
+                                contents =
+                                    `제공될 일시: ${new Date(new Date().getTime() + waiting * 1000).toUTCString()}\n` +
+                                    `제공될 포인트의 량: ${loyaltyToBeProvided.toDisplayString(true, precision)}\n` +
+                                    `현재 포인트 잔고: ${currentBalance.toDisplayString(true, precision)}`;
+                            } else {
+                                contents =
+                                    `Time to be provided: ${new Date(
+                                        new Date().getTime() + waiting * 1000
+                                    ).toUTCString()}\n` +
+                                    `Amount to be provided: ${loyaltyToBeProvided.toDisplayString(
+                                        true,
+                                        precision
+                                    )} POINT\n` +
+                                    `Current balance: ${currentBalance.toDisplayString(true, precision)} POINT`;
+                            }
                             if (this._config.setting.messageEnable) await client.sendSMSMessage(contents, userPhone);
                             logger.info(`[SMS] ${userPhone} ${contents}`);
                         }
@@ -446,7 +437,6 @@ export class StorePurchaseRouter {
                                 account: {
                                     accountType: loyaltyResponse.account.accountType,
                                     account: loyaltyResponse.account.account,
-                                    loyaltyType: loyaltyResponse.account.loyaltyType,
                                     currentBalance: loyaltyResponse.account.currentBalance.toString(),
                                     loyaltyToBeProvided: loyaltyResponse.account.loyaltyToBeProvided.toString(),
                                 },
