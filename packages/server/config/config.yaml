@@ -63,3 +63,4 @@ setting:
   smsAccessKey: "${SMS_ACCESS_KEY}"
   smsSender: "${SMS_SENDER}"
   messageEnable: "${MESSAGE_ENABLE}"
+  timezone: "Asia/Seoul"

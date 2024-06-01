@@ -635,6 +635,7 @@ export interface ISetting {
     smsEndpoint: string;
     smsSender: string;
     messageEnable: boolean;
+    timezone: string;
 }
 
 export interface IAccessKeyItem {
@@ -651,6 +652,7 @@ export class Setting implements ISetting {
     public smsEndpoint: string;
     public smsSender: string;
     public messageEnable: boolean;
+    public timezone: string;
 
     /**
      * Constructor
@@ -670,6 +672,7 @@ export class Setting implements ISetting {
         this.smsEndpoint = defaults.smsEndpoint;
         this.smsSender = defaults.smsSender;
         this.messageEnable = defaults.messageEnable;
+        this.timezone = defaults.timezone;
     }
 
     public readFromObject(config: ISetting) {
@@ -689,6 +692,7 @@ export class Setting implements ISetting {
         if (config.smsSender !== undefined) this.smsSender = config.smsSender;
         if (config.messageEnable !== undefined)
             this.messageEnable = config.messageEnable.toString().toLowerCase() === "true";
+        if (config.timezone !== undefined) this.timezone = config.timezone;
     }
 
     /**
@@ -703,6 +707,7 @@ export class Setting implements ISetting {
             smsEndpoint: "",
             smsSender: "",
             messageEnable: "false",
+            timezone: "Asia/Seoul",
         } as unknown as ISetting;
     }
 }

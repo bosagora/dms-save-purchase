@@ -88,6 +88,7 @@
         "ipfs-mini": "^1.1.5",
         "mkdirp": "^1.0.4",
         "mocha": "^8.0.1",
+        "moment-timezone": "^0.5.45",
         "mybatis-mapper": "^0.7.1",
         "node-cron": "^3.0.0",
         "pg": "^8.11.3",

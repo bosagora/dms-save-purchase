@@ -29,6 +29,8 @@ import { PhoneNumberFormat, PhoneNumberUtil } from "google-libphonenumber";
 import { Metrics } from "../metrics/Metrics";
 import { ISystemInfo, RelayClient } from "../relay/RelayClient";
 
+import moment from "moment-timezone";
+
 interface ILoyaltyResponse {
     loyaltyValue: BigNumber;
     loyaltyPoint: BigNumber;
@@ -355,6 +357,9 @@ export class StorePurchaseRouter {
 
                 if (loyaltyResponse) {
                     if (loyaltyResponse.loyaltyValue.gte(1)) {
+                        const time = moment(new Date(new Date().getTime() + waiting * 1000))
+                            .tz(this._config.setting.timezone)
+                            .format();
                         if (loyaltyResponse.account.accountType === "address") {
                             const mobileInfo = await client.getMobileInfo(loyaltyResponse.account.account);
                             const precision = this.systemInfo !== undefined ? this.systemInfo.point.precision : 2;
@@ -371,14 +376,12 @@ export class StorePurchaseRouter {
                             let contents;
                             if (language === "kr") {
                                 contents =
-                                    `제공될 일시: ${new Date(new Date().getTime() + waiting * 1000).toUTCString()}\n` +
+                                    `제공될 일시: ${time}\n` +
                                     `제공될 포인트의 량: ${loyaltyToBeProvided.toDisplayString(true, precision)}\n` +
                                     `현재 포인트 잔고: ${currentBalance.toDisplayString(true, precision)}`;
                             } else {
                                 contents =
-                                    `Time to be provided: ${new Date(
-                                        new Date().getTime() + waiting * 1000
-                                    ).toUTCString()}\n` +
+                                    `Time to be provided: ${time}\n` +
                                     `Amount to be provided: ${loyaltyToBeProvided.toDisplayString(
                                         true,
                                         precision
@@ -398,14 +401,12 @@ export class StorePurchaseRouter {
                             let contents;
                             if (language === "kr") {
                                 contents =
-                                    `제공될 일시: ${new Date(new Date().getTime() + waiting * 1000).toUTCString()}\n` +
+                                    `제공될 일시: ${time}\n` +
                                     `제공될 포인트의 량: ${loyaltyToBeProvided.toDisplayString(true, precision)}\n` +
                                     `현재 포인트 잔고: ${currentBalance.toDisplayString(true, precision)}`;
                             } else {
                                 contents =
-                                    `Time to be provided: ${new Date(
-                                        new Date().getTime() + waiting * 1000
-                                    ).toUTCString()}\n` +
+                                    `Time to be provided: ${time}\n` +
                                     `Amount to be provided: ${loyaltyToBeProvided.toDisplayString(
                                         true,
                                         precision
