@@ -10,6 +10,7 @@
         "test": "NODE_ENV=test hardhat test",
         "clean": "NODE_ENV=test hardhat clean",
         "build": "NODE_ENV=test hardhat compile",
+        "docker": "./docker-build.sh",
         "start:hardhat": "NODE_ENV=development hardhat run src/main.ts",
         "start:mainnet": "NODE_ENV=production hardhat run src/main.ts --network bosagora_mainnet",
         "start:testnet": "NODE_ENV=production hardhat run src/main.ts --network bosagora_testnet",
