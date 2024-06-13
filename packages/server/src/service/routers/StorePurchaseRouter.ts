@@ -346,7 +346,7 @@ export class StorePurchaseRouter {
                                 loyaltyPoint,
                                 account: {
                                     accountType: "phone",
-                                    account: userPhoneHash,
+                                    account: AddressZero,
                                     currentBalance: BigNumber.from(result.balance),
                                     loyaltyToBeProvided: loyaltyPoint,
                                 },
