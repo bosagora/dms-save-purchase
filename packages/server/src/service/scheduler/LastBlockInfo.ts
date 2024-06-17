@@ -8,7 +8,7 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { Hash } from "dms-store-purchase-sdk";
+import { Hash } from "acc-save-purchase-sdk";
 import { ethers } from "hardhat";
 import { StorePurchase } from "../../../typechain-types";
 import { Config } from "../common/Config";

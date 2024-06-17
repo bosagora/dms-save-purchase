@@ -16,7 +16,7 @@ import { StorePurchaseStorage } from "../../src/service/storage/StorePurchaseSto
 import { HardhatUtils } from "../../src/service/utils";
 import { delay } from "../helper/Utility";
 
-import { Block, Hash, NewTransaction, PurchaseDetails, Utils } from "dms-store-purchase-sdk";
+import { Block, Hash, NewTransaction, PurchaseDetails, Utils } from "acc-save-purchase-sdk";
 
 import * as assert from "assert";
 import { BigNumber, Wallet } from "ethers";

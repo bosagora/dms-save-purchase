@@ -8,7 +8,7 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { NewTransaction, PurchaseDetails, Utils } from "dms-store-purchase-sdk";
+import { NewTransaction, PurchaseDetails, Utils } from "acc-save-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { TransactionPool } from "../../src/service/scheduler/TransactionPool";
 import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";

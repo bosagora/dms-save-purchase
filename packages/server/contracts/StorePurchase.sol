@@ -2,4 +2,4 @@
 
 pragma solidity ^0.8.2;
 
-import "dms-store-purchase-contracts/contracts/StorePurchase.sol";
+import "acc-save-purchase-contracts/contracts/StorePurchase.sol";

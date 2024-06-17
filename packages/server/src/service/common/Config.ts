@@ -8,7 +8,7 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { Utils } from "dms-store-purchase-sdk";
+import { Utils } from "acc-save-purchase-sdk";
 
 import { ArgumentParser } from "argparse";
 import extend from "extend";

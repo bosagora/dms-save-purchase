@@ -1,6 +1,6 @@
 // @ts-ignore
 import crypto from "crypto";
-import { Utils } from "dms-store-purchase-sdk";
+import { Utils } from "acc-save-purchase-sdk";
 import { Scheduler } from "../modules";
 import { logger } from "../service/common/Logger";
 import { StorePurchaseClient } from "./Client";

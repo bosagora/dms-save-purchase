@@ -11,7 +11,7 @@
 import { BigNumber, Wallet } from "ethers";
 import { waffle } from "hardhat";
 
-import { Block, Hash, hashFull } from "dms-store-purchase-sdk";
+import { Block, Hash, hashFull } from "acc-save-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { SendBlock } from "../../src/service/scheduler/SendBlock";
 import { HardhatUtils } from "../../src/service/utils";

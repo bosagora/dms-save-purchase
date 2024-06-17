@@ -1,5 +1,5 @@
 {
-    "name": "dms-store-purchase-contracts",
+    "name": "acc-save-purchase-contracts",
     "version": "1.0.2",
     "description": "Smart contracts that stores purchase history for decentralized point systems",
     "files": [
@@ -16,14 +16,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/bosagora/dms-store-purchase.git"
+        "url": "git+https://github.com/acc-coin/acc-save-purchase.git"
     },
     "author": "BOSagora Foundation",
     "license": "AGPL-3.0-or-later",
     "bugs": {
-        "url": "https://github.com/bosagora/dms-store-purchase/issues"
+        "url": "https://github.com/acc-coin/acc-save-purchase/issues"
     },
-    "homepage": "https://github.com/bosagora/dms-store-purchase#readme",
+    "homepage": "https://github.com/acc-coin/acc-save-purchase#readme",
     "devDependencies": {
         "@ethersproject/constants": "^5.7.0",
         "@nomiclabs/hardhat-ethers": "^2.2.3",
@@ -39,7 +39,7 @@
         "assert": "^2.0.0",
         "chai": "^4.3.7",
         "chai-http": "^4.3.7",
-        "dms-store-purchase-sdk": "^1.1.0",
+        "acc-save-purchase-sdk": "~2.0.1",
         "dotenv": "^10.0.0",
         "ethereum-waffle": "^4.0.10",
         "ethers": "npm:boa-ethers2@^5.7.9",

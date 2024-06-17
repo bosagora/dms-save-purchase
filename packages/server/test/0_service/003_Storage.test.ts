@@ -1,7 +1,7 @@
 import { Config } from "../../src/service/common/Config";
 import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
 
-import { Block, Hash, NewTransaction, PurchaseDetails } from "dms-store-purchase-sdk";
+import { Block, Hash, NewTransaction, PurchaseDetails } from "acc-save-purchase-sdk";
 
 import * as assert from "assert";
 import { BigNumber } from "ethers";

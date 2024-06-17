@@ -1,7 +1,7 @@
 {
-    "name": "dms-store-purchase-server",
+    "name": "acc-save-purchase-server",
     "version": "2.0.0",
-    "description": "DMS Store Purchase",
+    "description": "DMS Save Purchase",
     "main": "src/main.js",
     "directories": {
         "test": "test"
@@ -29,14 +29,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/bosagora/dms-store-purchase.git"
+        "url": "git+https://github.com/acc-coin/acc-save-purchase.git"
     },
     "author": "BOSAGORA Foundation",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/bosagora/dms-store-purchase/issues"
+        "url": "https://github.com/acc-coin/acc-save-purchase/issues"
     },
-    "homepage": "https://github.com/bosagora/dms-store-purchase#readme",
+    "homepage": "https://github.com/acc-coin/acc-save-purchase#readme",
     "devDependencies": {
         "@ethersproject/abi": "^5.7.0",
         "@ethersproject/bignumber": "^5.7.0",
@@ -61,11 +61,13 @@
         "@types/mocha": "^10.0.0",
         "@types/node": "^12.20.43",
         "@types/node-cron": "^3.0.1",
+        "@types/pg": "^8.10.9",
         "@types/sqlite3": "^3.1.8",
         "@types/urijs": "^1.19.12"
     },
     "dependencies": {
-        "@types/pg": "^8.10.9",
+        "acc-save-purchase-contracts": "~1.0.2",
+        "acc-save-purchase-sdk": "~2.0.1",
         "argparse": "^2.0.1",
         "assert": "^2.0.0",
         "axios": "^0.27.2",
@@ -74,8 +76,6 @@
         "chai": "^4.3.6",
         "chai-http": "^4.3.0",
         "cors": "^2.8.5",
-        "dms-store-purchase-contracts": "^1.0.2",
-        "dms-store-purchase-sdk": "^2.0.1",
         "dotenv": "^10.0.0",
         "ethereum-waffle": "^3.4.0",
         "ethers": "npm:boa-ethers2@^5.7.9",

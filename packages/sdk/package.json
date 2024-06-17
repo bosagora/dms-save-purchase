@@ -1,5 +1,5 @@
 {
-    "name": "dms-store-purchase-sdk",
+    "name": "acc-save-purchase-sdk",
     "version": "2.0.1",
     "description": "The TypeScript DMS Store Purchase SDK library",
     "main": "dist/index.js",
@@ -15,7 +15,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/bosagora/dms-store-purchase.git"
+        "url": "git+https://github.com/acc-coin/acc-save-purchase.git"
     },
     "keywords": [
         "SDK",
@@ -24,9 +24,9 @@
     "author": "BOSAGORA Foundation",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/bosagora/dms-store-purchase/issues"
+        "url": "https://github.com/acc-coin/acc-save-purchase/issues"
     },
-    "homepage": "https://github.com/bosagora/dms-store-purchase/",
+    "homepage": "https://github.com/acc-coin/acc-save-purchase/",
     "dependencies": {
         "@ethersproject/abi": "^5.7.0",
         "@ethersproject/abstract-signer": "^5.7.0",

@@ -10,7 +10,7 @@ import { HardhatUtils } from "../../src/service/utils";
 import { StorePurchase } from "../../typechain-types";
 import { delay, TestClient } from "../helper/Utility";
 
-import { Utils } from "dms-store-purchase-sdk";
+import { Utils } from "acc-save-purchase-sdk";
 
 import * as assert from "assert";
 import { Wallet } from "ethers";
