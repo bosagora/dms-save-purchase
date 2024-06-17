@@ -4,9 +4,9 @@
 
 ## 1. URL
 
--   메인넷: https://store-purchase.kios.bosagora.org
--   테스트넷: https://store-purchase.kios.testnet.bosagora.org
--   개발넷: http://store-purchase.devnet.bosagora.org:3030
+-   메인넷: https://store.acc.bosagora.org
+-   테스트넷: https://store.test.acc.bosagora.org
+-   개발넷: http://store.dev.acc.bosagora.org:23030
 
 ## 2. 거래를 저장하는 엔드포인트
 
@@ -85,7 +85,7 @@
 }
 ```
 
-#### - 결과 
+#### - 결과
 
 | 필드명1    | 필드명2          | 필드명3                 | 유형     | 필수 | 설명                                                   |
 |---------|---------------|----------------------|--------| ---- |------------------------------------------------------|
@@ -109,7 +109,7 @@
 | loyalty | account       | accountType          | string | Yes  | 사용자의 계좌종류("address": 지갑주소, "phone": 전화번호 해시)         |
 | loyalty | account       | account              | string | Yes  | 사용자의 계좌번호, 지갑주소 또는 전화번호 해시                           |
 | loyalty | account       | currentBalance       | string | Yes  | 사용자의 현재 잔고                                           |
-| loyalty | account       | loyaltyToBeProvided  | string | Yes  | 사용자에게 지급될 예상 로얄티  |
+| loyalty | account       | loyaltyToBeProvided  | string | Yes  | 사용자에게 지급될 예상 로얄티(포인트 또는 토큰 으로 loyaltyType에 의해 결정된다)  |
 
 ```json
 {
@@ -242,6 +242,7 @@
 | 2002 | 지갑주소가 유효하지 않습니다<br/>This is not a wallet address                                                 |
 | 2003 | 전화번호가 유효하지 않습니다<br/>This is not a phone number format. International Standard (+82 10-1000-2000) |
 | 2004 | 구매총금액과 상세구매내역의 총합이 일치하지 않습니다<br/>totalAmount and sum of detailed purchase do not match           |
+| 2005 | 등록되지 않은 상점아이디입니다<br/>Unregistered shop ID                                                        |
 | 3051 | 엑세스키가 유효하지 않습니다<br/>The access key entered is not valid                                          |
 
 [상단으로 이동](#로열티를-사용한-결제-프로세스)
