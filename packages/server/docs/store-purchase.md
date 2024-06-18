@@ -4,9 +4,9 @@
 
 ## 1. URL
 
--   메인넷: https://store.acc.bosagora.org
--   테스트넷: https://store.test.acc.bosagora.org
--   개발넷: http://store.dev.acc.bosagora.org:23030
+-   메인넷: https://store.main.acccoin.io
+-   테스트넷: https://store.test.acccoin.io
+-   개발넷: http://store.dev.acccoin.io:23030
 
 ## 2. 거래를 저장하는 엔드포인트
 
