@@ -10,34 +10,46 @@ import { Wallet } from "ethers";
 
 dotenv.config({ path: "env/.env" });
 
+// tslint:disable-next-line:no-var-requires
+const secureEnv = require("secure-env");
+import extend from "extend";
+
 import { HardhatAccount } from "./src/HardhatAccount";
 
 function getAccounts() {
+    if (HardhatAccount.keys.length !== 0) return HardhatAccount.keys;
+
+    console.log(`Wallet file name: ${process.env.WALLET_ENV}`);
+
+    process.env = extend(
+        true,
+        process.env,
+        secureEnv({ path: process.env.WALLET_ENV, secret: process.env.WALLET_SECRET })
+    );
+
     const accounts: string[] = [];
     const reg_bytes64: RegExp = /^(0x)[0-9a-f]{64}$/i;
 
     if (
-        process.env.DEPLOYER_KEY !== undefined &&
-        process.env.DEPLOYER_KEY.trim() !== "" &&
-        reg_bytes64.test(process.env.DEPLOYER_KEY)
+        process.env.DEPLOYER_SAVE_PURCHASE !== undefined &&
+        process.env.DEPLOYER_SAVE_PURCHASE.trim() !== "" &&
+        reg_bytes64.test(process.env.DEPLOYER_SAVE_PURCHASE)
     ) {
-        accounts.push(process.env.DEPLOYER_KEY);
+        accounts.push(process.env.DEPLOYER_SAVE_PURCHASE);
     } else {
-        process.env.DEPLOYER_KEY = Wallet.createRandom().privateKey;
-        accounts.push(process.env.DEPLOYER_KEY);
+        process.env.DEPLOYER_SAVE_PURCHASE = Wallet.createRandom().privateKey;
+        accounts.push(process.env.DEPLOYER_SAVE_PURCHASE);
     }
 
     while (accounts.length < 50) {
         accounts.push(Wallet.createRandom().privateKey);
     }
 
-    if (HardhatAccount.keys.length === 0) {
-        for (const account of accounts) {
-            HardhatAccount.keys.push(account);
-        }
+    for (const account of accounts) {
+        HardhatAccount.keys.push(account);
     }
 
-    return accounts;
+    return HardhatAccount.keys;
 }
 
 function getTestAccounts() {
