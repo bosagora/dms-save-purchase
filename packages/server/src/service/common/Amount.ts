@@ -9,7 +9,7 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { iota } from "dms-store-purchase-sdk";
+import { iota } from "dms-save-purchase-sdk";
 
 import { BigNumber } from "ethers";
 

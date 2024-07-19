@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   postgres:
     image: postgres:14
@@ -117,7 +115,7 @@ services:
 #
 #  store-purchase:
 #    container_name: store-purchase
-#    image: bosagora/dms-store-purchase:test
+#    image: bosagora/dms-save-purchase:test
 #    ports:
 #      - "3030:3030"
 #    volumes:
@@ -148,7 +146,7 @@ services:
 #
 #  store-purchase-client:
 #    container_name: store-purchase-client
-#    image: bosagora/dms-store-purchase:test
+#    image: bosagora/dms-save-purchase:test
 #    restart: always
 #    environment:
 #      SERVER_URL: "http://store-purchase:3030"

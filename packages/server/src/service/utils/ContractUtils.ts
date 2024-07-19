@@ -1,6 +1,15 @@
+// tslint:disable-next-line:no-implicit-dependencies
 import { defaultAbiCoder } from "@ethersproject/abi";
-import { BigNumber } from "@ethersproject/bignumber";
+// tslint:disable-next-line:no-implicit-dependencies
+import { Signer } from "@ethersproject/abstract-signer";
+// tslint:disable-next-line:no-implicit-dependencies
+import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
+// tslint:disable-next-line:no-implicit-dependencies
+import { arrayify, BytesLike } from "@ethersproject/bytes";
+// tslint:disable-next-line:no-implicit-dependencies
 import { keccak256 } from "@ethersproject/keccak256";
+
+import * as hre from "hardhat";
 
 export class ContractUtils {
     /**
@@ -78,6 +87,38 @@ export class ContractUtils {
 
     public static zeroGWEI(value: BigNumber): BigNumber {
         return value.div(1000000000).mul(1000000000);
+    }
+
+    public static getPurchaseDataMessage(
+        purchaseId: string,
+        amount: BigNumberish,
+        loyalty: BigNumberish,
+        currency: string,
+        shopId: BytesLike,
+        account: string,
+        phone: BytesLike,
+        sender: string,
+        chainId?: BigNumberish
+    ): Uint8Array {
+        const encodedResult = defaultAbiCoder.encode(
+            ["string", "uint256", "uint256", "string", "bytes32", "address", "bytes32", "address", "uint256"],
+            [
+                purchaseId,
+                amount,
+                loyalty,
+                currency,
+                shopId,
+                account,
+                phone,
+                sender,
+                chainId ? chainId : hre.ethers.provider.network.chainId,
+            ]
+        );
+        return arrayify(keccak256(encodedResult));
+    }
+
+    public static async signMessage(signer: Signer, message: Uint8Array): Promise<string> {
+        return signer.signMessage(message);
     }
 }
 

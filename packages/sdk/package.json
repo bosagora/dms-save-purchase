@@ -1,6 +1,6 @@
 {
-    "name": "dms-store-purchase-sdk",
-    "version": "2.0.1",
+    "name": "dms-save-purchase-sdk",
+    "version": "2.1.0",
     "description": "The TypeScript DMS Store Purchase SDK library",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -11,11 +11,13 @@
         "lint": "tslint --config tslint.json \"{src,tests}/**/*.ts\"",
         "lint-fix": "tslint --fix --config tslint.json \"{src,tests}/**/*.ts\"",
         "formatting:check": "prettier '**/*.{json,sol,ts,js}' -c",
-        "formatting:write": "prettier '**/*.{json,sol,ts,js}' --write"
+        "formatting:write": "prettier '**/*.{json,sol,ts,js}' --write",
+        "test:Block": "rimraf ./dist && tsc && mocha -r ts-node/register tests/Block.test.ts",
+        "test:Transaction": "rimraf ./dist && tsc && mocha -r ts-node/register tests/Transaction.test.ts"
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/bosagora/dms-store-purchase.git"
+        "url": "git+https://github.com/bosagora/dms-save-purchase.git"
     },
     "keywords": [
         "SDK",
@@ -24,9 +26,9 @@
     "author": "BOSAGORA Foundation",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/bosagora/dms-store-purchase/issues"
+        "url": "https://github.com/bosagora/dms-save-purchase/issues"
     },
-    "homepage": "https://github.com/bosagora/dms-store-purchase/",
+    "homepage": "https://github.com/bosagora/dms-save-purchase/",
     "dependencies": {
         "@ethersproject/abi": "^5.7.0",
         "@ethersproject/abstract-signer": "^5.7.0",

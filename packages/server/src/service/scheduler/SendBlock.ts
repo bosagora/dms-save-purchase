@@ -9,7 +9,7 @@
  */
 
 import { NonceManager } from "@ethersproject/experimental";
-import { Utils } from "dms-store-purchase-sdk";
+import { Utils } from "dms-save-purchase-sdk";
 import { Signer, Wallet } from "ethers";
 import { ethers } from "hardhat";
 import { StorePurchase } from "../../../typechain-types";

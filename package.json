@@ -1,8 +1,8 @@
 {
-  "name": "dms-store-purchase",
+  "name": "dms-save-purchase",
   "version": "1.0.0",
   "description": "Service that stores purchase history for decentralized point systems",
-  "repository": "https://github.com/bosagora/dms-store-purchase",
+  "repository": "https://github.com/bosagora/dms-save-purchase",
   "author": "BOSagora Foundation",
   "license": "AGPL-3.0-or-later",
   "private": true,

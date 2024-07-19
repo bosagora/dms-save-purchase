@@ -16,7 +16,7 @@ import { DBTransaction, StorePurchaseStorage } from "../storage/StorePurchaseSto
 import { LastBlockInfo } from "./LastBlockInfo";
 import { TransactionPool } from "./TransactionPool";
 
-import { Block, Hash, hashFull, Transaction, Utils } from "dms-store-purchase-sdk";
+import { Block, Hash, hashFull, Transaction, Utils } from "dms-save-purchase-sdk";
 import { ethers } from "hardhat";
 import { Metrics } from "../metrics/Metrics";
 

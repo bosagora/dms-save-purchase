@@ -13,6 +13,7 @@ export { Hash, hash, hashMulti, hashFull, hashPart } from "./modules/blockchain/
 export { Block } from "./modules/blockchain/data/Block";
 export { BlockHeader } from "./modules/blockchain/data/BlockHeader";
 export {
+    IContractPurchaseData,
     ICancelTransaction,
     INewTransaction,
     CancelTransaction,

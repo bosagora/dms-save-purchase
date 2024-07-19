@@ -29,18 +29,20 @@ describe("NewTransaction", () => {
             BigInt(0),
             BigNumber.from(123),
             BigNumber.from(123),
+            BigNumber.from(123),
             "krw",
             "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
             "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
             phoneHash,
             [new PurchaseDetails("PID001", BigNumber.from(123), BigNumber.from(300))],
-            "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
+            "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d",
+            ""
         );
         await tx.sign(signer1);
 
         assert.strictEqual(
             hashFull(tx).toString(),
-            "0x0960db890fa88d501406ba80ee1c773fb8de7e1416983e51d7e026fe3f5f6098"
+            "0x933f736bdf9dda0092d05ac91066fd3048260094ace55221761fbd3b923a1ca6"
         );
     });
 
@@ -52,12 +54,14 @@ describe("NewTransaction", () => {
             BigInt(0),
             BigNumber.from(123),
             BigNumber.from(123),
+            BigNumber.from(123),
             "krw",
             "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
             "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
             phoneHash,
             [new PurchaseDetails("PID001", BigNumber.from(123), BigNumber.from(300))],
-            "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
+            "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d",
+            ""
         );
         await tx.sign(signer1);
 
@@ -73,18 +77,20 @@ describe("NewTransaction", () => {
             BigInt(0),
             BigNumber.from(123),
             BigNumber.from(123),
+            BigNumber.from(123),
             "krw",
             "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
             "0xD10ADf251463A260242c216c8c7D3e736eBdB398",
             phoneHash,
             [new PurchaseDetails("PID001", BigNumber.from(123), BigNumber.from(300))],
-            "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
+            "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d",
+            ""
         );
 
         await tx.sign(signer1);
         assert.strictEqual(
             tx.signature,
-            "0x27309c39b1d98f2b0a4cb60a0280aee382729c729313b535595ec317176d26411976238b5f0963ffe6659726b4949ac88a2c6ce9bc70b498fd1d3df2034e2cc91c"
+            "0x4929e7562eb3379bdfb74441cb38c6919a07df903fb3904b100b2c973bb7e61e5b1a84f4d9a044af255bd003093c2f258ed634a52ea7cad0fb29e0a49dc719951b"
         );
         assert.ok(!tx.verify(signer2.address));
         assert.ok(tx.verify(signer1.address));
@@ -93,7 +99,7 @@ describe("NewTransaction", () => {
         await tx.sign(signer2);
         assert.strictEqual(
             tx.signature,
-            "0x40100e021082bdceaa2a3aea67a0ad11012d1c4a2044d70e35c4221d8d3d6f48363831e0abb765429714874d22ce456c4bc3a0a392eed04bb0891f5adc2592151b"
+            "0x0398eb6ba47149acff4bafe9b756fa60b4f97877bc88b02da70fd60916430c3e6e00f532abe412309c914e607402d4177aa526b52f6379bfb0d0425744f3839f1c"
         );
         assert.ok(!tx.verify(signer1.address));
         assert.ok(tx.verify(signer2.address));

@@ -1,5 +1,5 @@
 /**
- *  The router of dms-store-purchase-server
+ *  The router of dms-save-purchase-server
  *
  *  Copyright:
  *      Copyright (c) 2024 BOSAGORA Foundation All rights reserved.
@@ -11,7 +11,7 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 
-import { CancelTransaction, NewTransaction, PurchaseDetails } from "dms-store-purchase-sdk";
+import { CancelTransaction, NewTransaction, PurchaseDetails } from "dms-save-purchase-sdk";
 import { Wallet } from "ethers";
 import { WebService } from "../../modules";
 import { Amount, BOACoin } from "../common/Amount";
@@ -192,14 +192,18 @@ export class StorePurchaseRouter {
         }
     }
 
-    private getLoyaltyInTransaction(tx: NewTransaction): BigNumber {
-        if (tx.totalAmount.eq(0)) return BigNumber.from(0);
-        if (tx.cashAmount.eq(0)) return BigNumber.from(0);
+    private getLoyaltyInTransaction(
+        cashAmount: BigNumber,
+        totalAmount: BigNumber,
+        details: PurchaseDetails[]
+    ): BigNumber {
+        if (totalAmount.eq(0)) return BigNumber.from(0);
+        if (cashAmount.eq(0)) return BigNumber.from(0);
         let sum: BigNumber = BigNumber.from(0);
-        for (const elem of tx.details) {
+        for (const elem of details) {
             sum = sum.add(elem.amount.mul(elem.providePercent));
         }
-        const loyalty = ContractUtils.zeroGWEI(sum.mul(tx.cashAmount).div(tx.totalAmount).div(10000));
+        const loyalty = ContractUtils.zeroGWEI(sum.mul(cashAmount).div(totalAmount).div(10000));
         return loyalty;
     }
 
@@ -275,23 +279,38 @@ export class StorePurchaseRouter {
             if (!totalAmount.eq(sum)) {
                 return res.status(200).json(ResponseMessage.getErrorMessage("2004"));
             }
+            const purchaseId = String(req.body.purchaseId).trim();
             const userPhoneHash = ContractUtils.getPhoneHash(userPhone);
             const nextSequence = await this.storage.getNextSequence();
             const currency = String(req.body.currency).trim();
             const waiting = req.body.waiting !== undefined ? Number(req.body.waiting) : accessKeyItem.waiting;
+            const loyaltyValue = this.getLoyaltyInTransaction(cashAmount, totalAmount, details);
+            const message = ContractUtils.getPurchaseDataMessage(
+                purchaseId,
+                cashAmount,
+                loyaltyValue,
+                currency,
+                shopId,
+                userAccount,
+                userPhoneHash,
+                accessKeyItem.sender
+            );
+            const purchaseSignature = await ContractUtils.signMessage(this.publisherSigner, message);
             const tx: NewTransaction = new NewTransaction(
                 nextSequence,
-                String(req.body.purchaseId).trim(),
+                purchaseId,
                 BigInt(req.body.timestamp),
                 BigInt(waiting),
                 totalAmount,
                 cashAmount,
+                loyaltyValue,
                 currency,
                 shopId,
                 userAccount,
                 userPhoneHash,
                 details,
                 accessKeyItem.sender,
+                purchaseSignature,
                 this.publisherSigner.address
             );
             await tx.sign(this.publisherSigner);
@@ -300,7 +319,6 @@ export class StorePurchaseRouter {
 
             let loyaltyResponse: ILoyaltyResponse | undefined;
 
-            const loyaltyValue = this.getLoyaltyInTransaction(tx);
             let loyaltyPoint: BigNumber | undefined;
             if (currency === "krw") {
                 loyaltyPoint = loyaltyValue;

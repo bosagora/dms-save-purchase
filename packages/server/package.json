@@ -1,7 +1,7 @@
 {
-    "name": "dms-store-purchase-server",
-    "version": "2.0.0",
-    "description": "DMS Store Purchase",
+    "name": "dms-save-purchase-server",
+    "version": "2.1.0",
+    "description": "DMS Save Purchase",
     "main": "src/main.js",
     "directories": {
         "test": "test"
@@ -29,14 +29,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/bosagora/dms-store-purchase.git"
+        "url": "git+https://github.com/bosagora/dms-save-purchase.git"
     },
     "author": "BOSAGORA Foundation",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/bosagora/dms-store-purchase/issues"
+        "url": "https://github.com/bosagora/dms-save-purchase/issues"
     },
-    "homepage": "https://github.com/bosagora/dms-store-purchase#readme",
+    "homepage": "https://github.com/bosagora/dms-save-purchase#readme",
     "devDependencies": {
         "@ethersproject/abi": "^5.7.0",
         "@ethersproject/bignumber": "^5.7.0",
@@ -65,7 +65,6 @@
         "@types/urijs": "^1.19.12"
     },
     "dependencies": {
-        "@types/pg": "^8.10.9",
         "argparse": "^2.0.1",
         "assert": "^2.0.0",
         "axios": "^0.27.2",
@@ -74,8 +73,8 @@
         "chai": "^4.3.6",
         "chai-http": "^4.3.0",
         "cors": "^2.8.5",
-        "dms-store-purchase-contracts": "^1.0.2",
-        "dms-store-purchase-sdk": "^2.0.1",
+        "dms-save-purchase-contracts": "~1.0.2",
+        "dms-save-purchase-sdk": "~2.0.1",
         "dotenv": "^10.0.0",
         "ethereum-waffle": "^3.4.0",
         "ethers": "npm:boa-ethers2@^5.7.9",

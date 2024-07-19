@@ -8,7 +8,7 @@ import {
     Transaction,
     TransactionType,
     Utils,
-} from "dms-store-purchase-sdk";
+} from "dms-save-purchase-sdk";
 import { IDatabaseConfig } from "../common/Config";
 import { Storage } from "./Storage";
 

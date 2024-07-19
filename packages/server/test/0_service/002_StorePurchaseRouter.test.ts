@@ -6,7 +6,7 @@ import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
 import { HardhatUtils } from "../../src/service/utils";
 import { TestClient } from "../helper/Utility";
 
-import { CancelTransaction, NewTransaction, Transaction } from "dms-store-purchase-sdk";
+import { CancelTransaction, NewTransaction, Transaction } from "dms-save-purchase-sdk";
 
 import * as assert from "assert";
 import chai from "chai";

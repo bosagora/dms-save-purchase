@@ -8,7 +8,7 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { NewTransaction, PurchaseDetails, Utils } from "dms-store-purchase-sdk";
+import { NewTransaction, PurchaseDetails, Utils } from "dms-save-purchase-sdk";
 import { Config } from "../../src/service/common/Config";
 import { TransactionPool } from "../../src/service/scheduler/TransactionPool";
 import { DBTransaction, StorePurchaseStorage } from "../../src/service/storage/StorePurchaseStorage";
@@ -74,12 +74,14 @@ describe("TransactionPool", () => {
                     BigInt("86400"),
                     BigNumber.from(10000),
                     BigNumber.from(10000),
+                    BigNumber.from(1000),
                     "krw",
                     "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
                     m,
                     "",
                     [new PurchaseDetails("PID001", BigNumber.from(10000), BigNumber.from(300))],
-                    m
+                    m,
+                    ""
                 )
         );
         dbTxs = txs.map((m) => DBTransaction.make(m));
