@@ -22,6 +22,18 @@ export enum TransactionType {
     CANCEL = 1,
 }
 
+export interface IContractPurchaseData {
+    purchaseId: string;
+    amount: BigNumber;
+    loyalty: BigNumber;
+    currency: string;
+    shopId: string;
+    account: string;
+    phone: string;
+    sender: string;
+    signature: string;
+}
+
 export interface INewTransaction {
     type: TransactionType;
     sequence: bigint;
@@ -64,6 +76,7 @@ export class NewTransaction implements INewTransaction {
     public waiting: bigint;
     public totalAmount: BigNumber;
     public cashAmount: BigNumber;
+    public loyalty: BigNumber;
     public currency: string;
     public shopId: string;
     public userAccount: string;
@@ -72,6 +85,7 @@ export class NewTransaction implements INewTransaction {
     public sender: string;
     public signer: string;
     public signature: string;
+    public purchaseSignature: string;
 
     /**
      * Constructor
@@ -83,12 +97,14 @@ export class NewTransaction implements INewTransaction {
         waiting: bigint,
         totalAmount: BigNumber,
         cashAmount: BigNumber,
+        loyalty: BigNumber,
         currency: string,
         shopId: string,
         userAccount: string,
         userPhoneHash: string,
         details: PurchaseDetails[],
         sender: string,
+        purchaseSignature: string,
         signer?: string,
         signature?: string
     ) {
@@ -99,11 +115,13 @@ export class NewTransaction implements INewTransaction {
         this.waiting = waiting;
         this.totalAmount = BigNumber.from(totalAmount);
         this.cashAmount = BigNumber.from(cashAmount);
+        this.loyalty = BigNumber.from(loyalty);
         this.currency = currency;
         this.shopId = shopId;
         this.userAccount = userAccount;
         this.userPhoneHash = userPhoneHash;
         this.sender = sender;
+        this.purchaseSignature = purchaseSignature;
         if (signer !== undefined) this.signer = signer;
         else this.signer = "";
         if (signature !== undefined) this.signature = signature;
@@ -139,12 +157,14 @@ export class NewTransaction implements INewTransaction {
             BigInt(value.waiting),
             BigNumber.from(value.totalAmount),
             BigNumber.from(value.cashAmount),
+            BigNumber.from(value.loyalty),
             value.currency,
             value.shopId,
             value.userAccount,
             value.userPhoneHash,
             details,
             value.sender,
+            value.purchaseSignature,
             value.signer,
             value.signature
         );
@@ -162,6 +182,7 @@ export class NewTransaction implements INewTransaction {
         hashPart(this.waiting, buffer);
         hashPart(this.totalAmount, buffer);
         hashPart(this.cashAmount, buffer);
+        hashPart(this.loyalty, buffer);
         hashPart(this.currency, buffer);
         hashPart(this.shopId, buffer);
         hashPart(this.userAccount, buffer);
@@ -186,11 +207,13 @@ export class NewTransaction implements INewTransaction {
             waiting: this.waiting.toString(),
             totalAmount: this.totalAmount.toString(),
             cashAmount: this.cashAmount.toString(),
+            loyalty: this.loyalty.toString(),
             currency: this.currency,
             shopId: this.shopId,
             userAccount: this.userAccount,
             userPhoneHash: this.userPhoneHash,
             sender: this.sender,
+            purchaseSignature: this.purchaseSignature,
             signer: this.signer,
             signature: this.signature,
             details: this.details,
@@ -208,12 +231,14 @@ export class NewTransaction implements INewTransaction {
             this.waiting,
             this.totalAmount,
             this.cashAmount,
+            this.loyalty,
             this.currency,
             this.shopId,
             this.userAccount,
             this.userPhoneHash,
             this.details,
             this.sender,
+            this.purchaseSignature,
             this.signer,
             this.signature
         );
@@ -243,6 +268,20 @@ export class NewTransaction implements INewTransaction {
         }
         if (address !== undefined) return res.toLowerCase() === address.toLowerCase();
         return res.toLowerCase() === this.signer.toLowerCase();
+    }
+
+    public getPurchaseData(): IContractPurchaseData {
+        return {
+            purchaseId: this.purchaseId,
+            amount: this.cashAmount,
+            loyalty: this.loyalty,
+            currency: this.currency,
+            shopId: this.shopId,
+            account: this.userAccount,
+            phone: this.userPhoneHash,
+            sender: this.sender,
+            signature: this.purchaseSignature,
+        };
     }
 }
 

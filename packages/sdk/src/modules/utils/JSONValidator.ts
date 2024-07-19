@@ -100,6 +100,9 @@ export class JSONValidator {
                     cashAmount: {
                         type: "string",
                     },
+                    loyalty: {
+                        type: "string",
+                    },
                     currency: {
                         type: "string",
                     },
@@ -119,6 +122,9 @@ export class JSONValidator {
                         type: "array",
                     },
                     sender: {
+                        type: "string",
+                    },
+                    purchaseSignature: {
                         type: "string",
                     },
                     signer: {

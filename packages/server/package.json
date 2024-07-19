@@ -1,6 +1,6 @@
 {
     "name": "acc-save-purchase-server",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "description": "DMS Save Purchase",
     "main": "src/main.js",
     "directories": {
@@ -67,7 +67,7 @@
     },
     "dependencies": {
         "acc-save-purchase-contracts": "~1.0.2",
-        "acc-save-purchase-sdk": "~2.0.1",
+        "acc-save-purchase-sdk": "~2.1.0",
         "argparse": "^2.0.1",
         "assert": "^2.0.0",
         "axios": "^0.27.2",
