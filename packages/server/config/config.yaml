@@ -61,6 +61,5 @@ setting:
   relayAccessKey: "${RELAY_ACCESS_KEY}"
   smsEndpoint: "${SMS_ENDPOINT}"
   smsAccessKey: "${SMS_ACCESS_KEY}"
-  smsSender: "${SMS_SENDER}"
   messageEnable: "${MESSAGE_ENABLE}"
   timezone: "Asia/Seoul"

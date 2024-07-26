@@ -633,7 +633,6 @@ export interface ISetting {
     relayEndpoint: string;
     smsAccessKey: string;
     smsEndpoint: string;
-    smsSender: string;
     messageEnable: boolean;
     timezone: string;
 }
@@ -650,7 +649,6 @@ export class Setting implements ISetting {
     public relayEndpoint: string;
     public smsAccessKey: string;
     public smsEndpoint: string;
-    public smsSender: string;
     public messageEnable: boolean;
     public timezone: string;
 
@@ -670,7 +668,6 @@ export class Setting implements ISetting {
         this.relayEndpoint = defaults.relayEndpoint;
         this.smsAccessKey = defaults.smsAccessKey;
         this.smsEndpoint = defaults.smsEndpoint;
-        this.smsSender = defaults.smsSender;
         this.messageEnable = defaults.messageEnable;
         this.timezone = defaults.timezone;
     }
@@ -689,7 +686,6 @@ export class Setting implements ISetting {
         if (config.relayEndpoint !== undefined) this.relayEndpoint = config.relayEndpoint;
         if (config.smsAccessKey !== undefined) this.smsAccessKey = config.smsAccessKey;
         if (config.smsEndpoint !== undefined) this.smsEndpoint = config.smsEndpoint;
-        if (config.smsSender !== undefined) this.smsSender = config.smsSender;
         if (config.messageEnable !== undefined)
             this.messageEnable = config.messageEnable.toString().toLowerCase() === "true";
         if (config.timezone !== undefined) this.timezone = config.timezone;

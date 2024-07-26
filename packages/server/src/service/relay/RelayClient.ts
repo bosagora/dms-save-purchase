@@ -210,7 +210,6 @@ export class RelayClient {
         const url = URI(this.config.setting.smsEndpoint).filename("send").toString();
         const params = {
             msg,
-            sender: this.config.setting.smsSender,
             receiver,
         };
 

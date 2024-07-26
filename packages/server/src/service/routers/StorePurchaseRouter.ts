@@ -31,6 +31,8 @@ import { ISystemInfo, RelayClient } from "../relay/RelayClient";
 
 import moment from "moment-timezone";
 
+import * as hre from "hardhat";
+
 interface ILoyaltyResponse {
     loyaltyValue: BigNumber;
     loyaltyPoint: BigNumber;
@@ -293,7 +295,8 @@ export class StorePurchaseRouter {
                 shopId,
                 userAccount,
                 userPhoneHash,
-                accessKeyItem.sender
+                accessKeyItem.sender,
+                hre.network.config.chainId
             );
             const purchaseSignature = await ContractUtils.signMessage(this.publisherSigner, message);
             const tx: NewTransaction = new NewTransaction(
