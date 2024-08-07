@@ -98,7 +98,7 @@ describe("Test of StorePurchase Server", function () {
                 totalAmount: 10000,
                 cashAmount: 10000,
                 currency: "krw",
-                shopId: "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+                shopId: "0x0001d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
                 userAccount: "",
                 userPhone: "",
                 details: [

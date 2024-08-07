@@ -63,3 +63,4 @@ setting:
   smsAccessKey: "${SMS_ACCESS_KEY}"
   messageEnable: "${MESSAGE_ENABLE}"
   timezone: "Asia/Seoul"
+  allowedShopIdPrefix: "0x0001"

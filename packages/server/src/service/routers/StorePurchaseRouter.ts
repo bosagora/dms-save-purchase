@@ -221,6 +221,11 @@ export class StorePurchaseRouter {
             return res.status(200).json(ResponseMessage.getErrorMessage("2001", { validation: errors.array() }));
         }
 
+        const shopId = String(req.body.shopId).trim();
+        if (shopId.substring(0, 6) !== this._config.setting.allowedShopIdPrefix) {
+            return res.status(200).json(ResponseMessage.getErrorMessage("3072"));
+        }
+
         let userAccount = String(req.body.userAccount).trim();
         if (userAccount !== "") {
             const eth = /^(0x)[0-9a-f]{40}$/i;
@@ -267,7 +272,6 @@ export class StorePurchaseRouter {
             }
             const client = new RelayClient(this._config);
             if (this.systemInfo === undefined) this.systemInfo = await client.getSystemInfo();
-            const shopId = String(req.body.shopId).trim();
             const shopInfo = await client.getShopInfo(shopId);
             if (shopInfo !== undefined) {
                 if (shopInfo.status !== 1) {
