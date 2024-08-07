@@ -62,7 +62,7 @@ describe("Test of StorePurchase Router", () => {
             totalAmount: 10.25,
             cashAmount: 10.25,
             currency: "usd",
-            shopId: "0x5f59d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
+            shopId: "0x0001d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
             userAccount: "",
             userPhone: "",
             details: [

@@ -17,6 +17,7 @@ export class ResponseMessage {
         ["3006", "Size are allowed from 1 to 32"],
         ["3050", "Sequence is different from the expected value"],
         ["3051", "The access key entered is not valid"],
+        ["3072", "This is not a permitted shop ID"],
     ]);
 
     public static getEVMErrorMessage(error: any): { code: number; error: any } {

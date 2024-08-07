@@ -62,3 +62,4 @@ setting:
   smsEndpoint: "${SMS_ENDPOINT}"
   smsAccessKey: "${SMS_ACCESS_KEY}"
   messageEnable: "${MESSAGE_ENABLE}"
+  allowedShopIdPrefix: "0x0001"
