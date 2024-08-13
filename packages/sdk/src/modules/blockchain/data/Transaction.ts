@@ -42,6 +42,7 @@ export interface INewTransaction {
     waiting: bigint;
     totalAmount: BigNumber;
     cashAmount: BigNumber;
+    loyalty: BigNumber;
     currency: string;
     shopId: string;
     userAccount: string;
@@ -50,6 +51,7 @@ export interface INewTransaction {
     sender: string;
     signer: string;
     signature: string;
+    purchaseSignature: string;
 }
 
 export interface ICancelTransaction {
