@@ -142,12 +142,14 @@ export class JSONValidator {
                     "timestamp",
                     "totalAmount",
                     "cashAmount",
+                    "loyalty",
                     "currency",
                     "shopId",
                     "userAccount",
                     "userPhoneHash",
                     "details",
                     "sender",
+                    "purchaseSignature",
                     "signer",
                     "signature",
                 ],
@@ -177,6 +179,9 @@ export class JSONValidator {
                     sender: {
                         type: "string",
                     },
+                    purchaseSignature: {
+                        type: "string",
+                    },
                     signer: {
                         type: "string",
                     },
@@ -185,7 +190,16 @@ export class JSONValidator {
                     },
                 },
                 additionalProperties: false,
-                required: ["type", "sequence", "purchaseId", "timestamp", "sender", "signer", "signature"],
+                required: [
+                    "type",
+                    "sequence",
+                    "purchaseId",
+                    "timestamp",
+                    "sender",
+                    "purchaseSignature",
+                    "signer",
+                    "signature",
+                ],
             },
         ],
         [

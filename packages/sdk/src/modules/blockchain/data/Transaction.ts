@@ -42,6 +42,7 @@ export interface INewTransaction {
     waiting: bigint;
     totalAmount: BigNumber;
     cashAmount: BigNumber;
+    loyalty: BigNumber;
     currency: string;
     shopId: string;
     userAccount: string;
@@ -50,6 +51,7 @@ export interface INewTransaction {
     sender: string;
     signer: string;
     signature: string;
+    purchaseSignature: string;
 }
 
 export interface ICancelTransaction {
@@ -61,6 +63,7 @@ export interface ICancelTransaction {
     sender: string;
     signer: string;
     signature: string;
+    purchaseSignature: string;
 }
 
 /**
@@ -294,6 +297,7 @@ export class CancelTransaction implements ICancelTransaction {
     public sender: string;
     public signer: string;
     public signature: string;
+    public purchaseSignature: string;
 
     /**
      * Constructor
@@ -304,6 +308,7 @@ export class CancelTransaction implements ICancelTransaction {
         timestamp: bigint,
         waiting: bigint,
         sender: string,
+        purchaseSignature: string,
         signer?: string,
         signature?: string
     ) {
@@ -315,6 +320,7 @@ export class CancelTransaction implements ICancelTransaction {
         this.sender = sender;
         if (signer !== undefined) this.signer = signer;
         else this.signer = "";
+        this.purchaseSignature = purchaseSignature;
         if (signature !== undefined) this.signature = signature;
         else this.signature = "";
     }
@@ -340,6 +346,7 @@ export class CancelTransaction implements ICancelTransaction {
             BigInt(value.timestamp),
             BigInt(value.waiting),
             value.sender,
+            value.purchaseSignature,
             value.signer,
             value.signature
         );
@@ -370,6 +377,7 @@ export class CancelTransaction implements ICancelTransaction {
             timestamp: this.timestamp.toString(),
             waiting: this.waiting.toString(),
             sender: this.sender,
+            purchaseSignature: this.purchaseSignature,
             signer: this.signer,
             signature: this.signature,
         };
@@ -385,6 +393,7 @@ export class CancelTransaction implements ICancelTransaction {
             this.timestamp,
             this.waiting,
             this.sender,
+            this.purchaseSignature,
             this.signer,
             this.signature
         );

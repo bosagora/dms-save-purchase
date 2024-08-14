@@ -291,7 +291,7 @@ export class StorePurchaseRouter {
             const currency = String(req.body.currency).trim();
             const waiting = req.body.waiting !== undefined ? Number(req.body.waiting) : accessKeyItem.waiting;
             const loyaltyValue = this.getLoyaltyInTransaction(cashAmount, totalAmount, details);
-            const message = ContractUtils.getPurchaseDataMessage(
+            const message = ContractUtils.getNewPurchaseDataMessage(
                 purchaseId,
                 cashAmount,
                 loyaltyValue,
@@ -514,15 +514,23 @@ export class StorePurchaseRouter {
         const waiting = req.body.waiting !== undefined ? Number(req.body.waiting) : accessKeyItem.waiting;
 
         try {
+            const purchaseId = String(req.body.purchaseId).trim();
             const nextSequence = await this.storage.getNextSequence();
+            const message = ContractUtils.getCancelPurchaseDataMessage(
+                purchaseId,
+                accessKeyItem.sender,
+                hre.network.config.chainId
+            );
+            const purchaseSignature = await ContractUtils.signMessage(this.publisherSigner, message);
 
             const tx: CancelTransaction = new CancelTransaction(
                 nextSequence,
-                String(req.body.purchaseId).trim(),
+                purchaseId,
                 BigInt(req.body.timestamp),
                 BigInt(waiting),
-                this.publisherSigner.address,
-                accessKeyItem.sender
+                accessKeyItem.sender,
+                purchaseSignature,
+                this.publisherSigner.address
             );
 
             await tx.sign(this.publisherSigner);

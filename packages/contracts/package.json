@@ -33,7 +33,7 @@
         "@types/chai": "^4.3.5",
         "@types/mocha": "^10.0.0",
         "@types/node": "^12.20.43",
-        "acc-save-purchase-sdk": "~2.1.0",
+        "acc-save-purchase-sdk": "~2.2.0",
         "assert": "^2.0.0",
         "chai": "^4.3.7",
         "chai-http": "^4.3.7",

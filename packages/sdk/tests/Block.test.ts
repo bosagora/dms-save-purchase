@@ -133,7 +133,8 @@ describe("Test of Block", () => {
                 "00000004",
                 BigInt(1668044556),
                 BigInt(0),
-                "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d"
+                "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d",
+                ""
             ),
         ];
         const signer = new Wallet("0xf6dda8e03f9dce37c081e5d178c1fda2ebdb90b5b099de1a555a658270d8c47d");

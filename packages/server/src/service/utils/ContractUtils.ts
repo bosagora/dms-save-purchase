@@ -89,7 +89,7 @@ export class ContractUtils {
         return value.div(1000000000).mul(1000000000);
     }
 
-    public static getPurchaseDataMessage(
+    public static getNewPurchaseDataMessage(
         purchaseId: string,
         amount: BigNumberish,
         loyalty: BigNumberish,
@@ -113,6 +113,14 @@ export class ContractUtils {
                 sender,
                 chainId ? chainId : hre.ethers.provider.network.chainId,
             ]
+        );
+        return arrayify(keccak256(encodedResult));
+    }
+
+    public static getCancelPurchaseDataMessage(purchaseId: string, sender: string, chainId?: BigNumberish): Uint8Array {
+        const encodedResult = defaultAbiCoder.encode(
+            ["string", "address", "uint256"],
+            [purchaseId, sender, chainId ? chainId : hre.ethers.provider.network.chainId]
         );
         return arrayify(keccak256(encodedResult));
     }
