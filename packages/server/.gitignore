@@ -148,3 +148,5 @@ ipfs_staging
 /typechain-types/
 
 *.iml
+
+/generate/

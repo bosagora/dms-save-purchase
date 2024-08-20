@@ -95,7 +95,7 @@ export class StorePurchaseServer extends WebService {
             })
         );
 
-        this.router.registerRoutes();
+        await this.router.registerRoutes();
 
         for (const m of this.schedules) await (m as Scheduler).start();
 

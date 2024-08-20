@@ -33,6 +33,8 @@ import moment from "moment-timezone";
 
 import * as hre from "hardhat";
 
+import { Tspec, TspecDocsMiddleware } from "tspec";
+
 interface ILoyaltyResponse {
     loyaltyValue: BigNumber;
     loyaltyPoint: BigNumber;
@@ -145,7 +147,7 @@ export class StorePurchaseRouter {
         return this._publisherSigner;
     }
 
-    public registerRoutes() {
+    public async registerRoutes() {
         this.app.get("/", [], StorePurchaseRouter.getHealthStatus.bind(this));
         this.app.get("/v1/tx/sequence", [], this.getSequence.bind(this));
         this.app.post(
@@ -172,6 +174,7 @@ export class StorePurchaseRouter {
             this.postCancelPurchase.bind(this)
         );
         this.app.get("/metrics", [], this.getMetrics.bind(this));
+        this.app.use("/docs", await TspecDocsMiddleware());
     }
 
     private static async getHealthStatus(req: express.Request, res: express.Response) {

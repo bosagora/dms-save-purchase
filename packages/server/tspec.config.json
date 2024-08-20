@@ -1,0 +1,13 @@
+{
+    "specPathGlobs": ["tspec/**/*.ts"],
+    "tsconfigPath": "./tsconfig.json",
+    "outputPath": "./generate/openapi.json",
+    "specVersion": 3,
+    "openapi": {
+        "title": "Decentralized Loyalty System API",
+        "version": "1.0.0",
+        "description": "<strong>API used to save purchase data in IPFS.</strong></br></br><strong>The amount of tokens and points</strong></br>The amount of tokens and points is a string. The decimal place is 18. One point is expressed as \"100000000000000000000\".</br></br><strong>Responses</strong></br>Response data consists of three parts: `code`, `data`, `error`.</br>The value of code is 0 if normal. In this case, the value of data exists.</br>If an error occurs during the processing, the value of code is not zero. At this time, you can check the contents of error to find the cause."
+    },
+    "debug": false,
+    "ignoreErrors": true
+}
