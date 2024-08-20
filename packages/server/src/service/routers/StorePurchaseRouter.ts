@@ -329,13 +329,7 @@ export class StorePurchaseRouter {
 
             let loyaltyResponse: ILoyaltyResponse | undefined;
 
-            let loyaltyPoint: BigNumber | undefined;
-            if (currency === "krw") {
-                loyaltyPoint = loyaltyValue;
-            } else {
-                loyaltyPoint = await client.convertCurrency(loyaltyValue, currency, "point");
-            }
-
+            const loyaltyPoint = await client.convertCurrency(loyaltyValue, currency, "point");
             if (loyaltyPoint !== undefined) {
                 if (userAccount !== AddressZero) {
                     const result = await client.getBalanceOfAccount(userAccount);
@@ -396,13 +390,13 @@ export class StorePurchaseRouter {
                                     ? mobileInfo.language
                                     : this.systemInfo !== undefined
                                     ? this.systemInfo.language
-                                    : "kr";
+                                    : "ko";
                             const loyaltyToBeProvided = new BOACoin(
                                 BigNumber.from(loyaltyResponse.account.loyaltyToBeProvided)
                             );
                             const currentBalance = new BOACoin(BigNumber.from(loyaltyResponse.account.currentBalance));
                             let contents;
-                            if (language === "kr") {
+                            if (language === "ko") {
                                 contents =
                                     `제공될 일시: ${time}\n` +
                                     `제공될 포인트의 량: ${loyaltyToBeProvided.toDisplayString(true, precision)}\n` +
@@ -421,16 +415,19 @@ export class StorePurchaseRouter {
                             logger.info(`[NOTIFICATION] ${userAccount} ${contents}`);
                         } else {
                             const precision = this.systemInfo !== undefined ? this.systemInfo.point.precision : 2;
-                            const language = this.systemInfo !== undefined ? this.systemInfo.language : "kr";
+                            const language = this.systemInfo !== undefined ? this.systemInfo.language : "ko";
                             const loyaltyToBeProvided = new BOACoin(
                                 BigNumber.from(loyaltyResponse.account.loyaltyToBeProvided)
                             );
                             const currentBalance = new BOACoin(BigNumber.from(loyaltyResponse.account.currentBalance));
                             let contents;
-                            if (language === "kr") {
+                            if (language === "ko") {
                                 contents =
                                     `제공될 일시: ${time}\n` +
-                                    `제공될 포인트의 량: ${loyaltyToBeProvided.toDisplayString(true, precision)}\n` +
+                                    `제공될 포인트의 량: ${loyaltyToBeProvided.toDisplayString(
+                                        true,
+                                        precision
+                                    )}  (1 POINT = 1 PHP)\n` +
                                     `현재 포인트 잔고: ${currentBalance.toDisplayString(true, precision)}`;
                             } else {
                                 contents =
@@ -438,7 +435,7 @@ export class StorePurchaseRouter {
                                     `Amount to be provided: ${loyaltyToBeProvided.toDisplayString(
                                         true,
                                         precision
-                                    )} POINT\n` +
+                                    )} POINT (1 POINT = 1 PHP)\n` +
                                     `Current balance: ${currentBalance.toDisplayString(true, precision)} POINT`;
                             }
                             if (this._config.setting.messageEnable) await client.sendSMSMessage(contents, userPhone);
