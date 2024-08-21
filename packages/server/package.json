@@ -25,7 +25,8 @@
         "test:Config": "NODE_ENV=test hardhat test test/0_service/000_Config.test.ts",
         "test:service:StorePurchaseServer": "NODE_ENV=test hardhat test test/0_service/001_StorePurchaseServer.test.ts",
         "test:service:StorePurchaseRouter": "NODE_ENV=test hardhat test test/0_service/002_StorePurchaseRouter.test.ts",
-        "test:service:Storage": "NODE_ENV=test hardhat test test/0_service/003_Storage.test.ts"
+        "test:service:Storage": "NODE_ENV=test hardhat test test/0_service/003_Storage.test.ts",
+        "test:service:StorePurchaseRouter2": "NODE_ENV=test hardhat test test/0_service/002_StorePurchaseRouter2.test.ts"
     },
     "repository": {
         "type": "git",

@@ -8,6 +8,8 @@ export class ResponseMessage {
         ["2003", "This is not a phone number format. International Standard"],
         ["2004", "totalAmount and sum of detailed purchase do not match"],
         ["2005", "Unregistered shop ID"],
+        ["2011", "Failed to validate signature"],
+        ["2012", "The loyalty amount is different from the amount received and calculated"],
         ["3001", "Height is incorrect"],
         ["3002", "The previous block hash is not valid"],
         ["3003", "Must be not more than last height"],

@@ -49,6 +49,17 @@ function getAccounts() {
         accounts.push(process.env.PUBLISHER_KEY);
     }
 
+    if (
+        process.env.ACC_SYSTEM !== undefined &&
+        process.env.ACC_SYSTEM.trim() !== "" &&
+        reg_bytes64.test(process.env.ACC_SYSTEM)
+    ) {
+        accounts.push(process.env.ACC_SYSTEM);
+    } else {
+        process.env.ACC_SYSTEM = Wallet.createRandom().privateKey;
+        accounts.push(process.env.ACC_SYSTEM);
+    }
+
     while (accounts.length < 50) {
         accounts.push(Wallet.createRandom().privateKey);
     }

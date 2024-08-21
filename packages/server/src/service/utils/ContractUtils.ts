@@ -8,6 +8,8 @@ import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { arrayify, BytesLike } from "@ethersproject/bytes";
 // tslint:disable-next-line:no-implicit-dependencies
 import { keccak256 } from "@ethersproject/keccak256";
+// tslint:disable-next-line:no-implicit-dependencies
+import { verifyMessage } from "@ethersproject/wallet";
 
 import * as hre from "hardhat";
 
@@ -127,6 +129,16 @@ export class ContractUtils {
 
     public static async signMessage(signer: Signer, message: Uint8Array): Promise<string> {
         return signer.signMessage(message);
+    }
+
+    public static verifyMessage(account: string, message: Uint8Array, signature: string): boolean {
+        let res: string;
+        try {
+            res = verifyMessage(message, signature);
+        } catch (error) {
+            return false;
+        }
+        return res.toLowerCase() === account.toLowerCase();
     }
 }
 
