@@ -6,6 +6,7 @@ import URI from "urijs";
 
 import { BigNumber } from "@ethersproject/bignumber";
 
+import { AddressZero } from "@ethersproject/constants";
 import { logger } from "../common/Logger";
 
 export interface IRelayBalance {
@@ -151,7 +152,7 @@ export class RelayClient {
             }
             return response.data.data;
         } catch (error) {
-            logger.error(`릴레이서버에서 상점정보요청에 실패했습니다.-[${error}]`);
+            logger.error(`릴레이서버에서 시스템정보요청에 실패했습니다.-[${error}]`);
         }
     }
 
@@ -171,8 +172,25 @@ export class RelayClient {
             }
             return response.data.data;
         } catch (error) {
-            logger.error(`릴레이서버에서 상점정보요청에 실패했습니다.-[${error}]`);
+            logger.error(`릴레이서버에서 모바일정보요청에 실패했습니다.-[${error}]`);
         }
+    }
+
+    public async getAssistant(account: string): Promise<string> {
+        const url = URI(this.config.setting.relayEndpoint)
+            .directory("/v1/provider/assistant")
+            .filename(account)
+            .toString();
+        try {
+            const response = await this.client.get(url);
+            if (response.data.code !== 0) {
+                return AddressZero;
+            }
+            return response.data.data.assistant;
+        } catch (error) {
+            //
+        }
+        return AddressZero;
     }
 
     public async sendPushMessage(

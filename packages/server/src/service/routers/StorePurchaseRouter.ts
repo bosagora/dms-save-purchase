@@ -655,8 +655,10 @@ export class StorePurchaseRouter {
             const waiting = BigInt(String(req.body.others.waiting).trim());
             const loyaltyValue = BigNumber.from(req.body.purchase.loyalty);
             const loyaltyCalculated = this.getLoyaltyInTransaction(cashAmount, totalAmount, details);
+
             const sender = String(req.body.purchase.sender).trim();
             const purchaseSignature = String(req.body.purchase.purchaseSignature).trim();
+            const assistant = await client.getAssistant(sender);
             const message = ContractUtils.getNewPurchaseDataMessage(
                 purchaseId,
                 cashAmount,
@@ -668,9 +670,13 @@ export class StorePurchaseRouter {
                 sender,
                 hre.network.config.chainId
             );
-            if (!ContractUtils.verifyMessage(sender, message, purchaseSignature)) {
+            if (
+                !ContractUtils.verifyMessage(sender, message, purchaseSignature) &&
+                !ContractUtils.verifyMessage(assistant, message, purchaseSignature)
+            ) {
                 return res.status(200).json(ResponseMessage.getErrorMessage("2011"));
             }
+
             if (!loyaltyCalculated.eq(loyaltyValue)) {
                 return res.status(200).json(ResponseMessage.getErrorMessage("2012"));
             }
@@ -875,6 +881,7 @@ export class StorePurchaseRouter {
         }
 
         try {
+            const client = new RelayClient(this._config);
             const purchaseId = String(req.body.purchase.purchaseId).trim();
             const sender = String(req.body.purchase.sender).trim();
             const purchaseSignature = String(req.body.purchase.purchaseSignature).trim();
@@ -882,7 +889,12 @@ export class StorePurchaseRouter {
             const waiting = BigInt(String(req.body.others.waiting).trim());
             const nextSequence = await this.storage.getNextSequence();
             const message = ContractUtils.getCancelPurchaseDataMessage(purchaseId, sender, hre.network.config.chainId);
-            if (!ContractUtils.verifyMessage(sender, message, purchaseSignature)) {
+            const assistant = await client.getAssistant(sender);
+
+            if (
+                !ContractUtils.verifyMessage(sender, message, purchaseSignature) &&
+                !ContractUtils.verifyMessage(assistant, message, purchaseSignature)
+            ) {
                 return res.status(200).json(ResponseMessage.getErrorMessage("2011"));
             }
 
@@ -900,7 +912,6 @@ export class StorePurchaseRouter {
 
             await this.pool.add(DBTransaction.make(tx));
 
-            const client = new RelayClient(this._config);
             await client.sendCancelStorePurchase(String(req.body.purchaseId).trim());
 
             this._metrics.add("success", 1);
