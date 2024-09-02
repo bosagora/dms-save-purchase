@@ -33,6 +33,7 @@ describe("Test of StorePurchase Router", () => {
     const deployer = new Wallet(HardhatAccount.keys[0], waffle.provider);
     const publisher = new Wallet(HardhatAccount.keys[1], waffle.provider);
     const system = new Wallet(HardhatAccount.keys[2], waffle.provider);
+    const collector = new Wallet("0x2c93e943c0d7f6f1a42f53e116c52c40fe5c1b428506dc04b290f2a77580a342", waffle.provider);
 
     before("Create Test Server", async () => {
         config.readFromFile(path.resolve("config", "config_test.yaml"));
@@ -92,7 +93,7 @@ describe("Test of StorePurchase Router", () => {
             newTxParam.purchase.userPhoneHash,
             newTxParam.purchase.sender
         );
-        newTxParam.purchase.purchaseSignature = await ContractUtils.signMessage(system, message);
+        newTxParam.purchase.purchaseSignature = await ContractUtils.signMessage(collector, message);
         url = URI(serverURL).directory("/v2/tx/purchase").filename("new").toString();
     });
 
@@ -207,7 +208,7 @@ describe("Test of StorePurchase Router", () => {
             cancelTxParam.purchase.purchaseId,
             cancelTxParam.purchase.sender
         );
-        cancelTxParam.purchase.purchaseSignature = await ContractUtils.signMessage(system, message);
+        cancelTxParam.purchase.purchaseSignature = await ContractUtils.signMessage(collector, message);
         url = URI(serverURL).directory("/v2/tx/purchase").filename("cancel").toString();
     });
 

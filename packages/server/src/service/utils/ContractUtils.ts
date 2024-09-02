@@ -7,6 +7,8 @@ import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 // tslint:disable-next-line:no-implicit-dependencies
 import { arrayify, BytesLike } from "@ethersproject/bytes";
 // tslint:disable-next-line:no-implicit-dependencies
+import { AddressZero } from "@ethersproject/constants";
+// tslint:disable-next-line:no-implicit-dependencies
 import { keccak256 } from "@ethersproject/keccak256";
 // tslint:disable-next-line:no-implicit-dependencies
 import { verifyMessage } from "@ethersproject/wallet";
@@ -139,6 +141,16 @@ export class ContractUtils {
             return false;
         }
         return res.toLowerCase() === account.toLowerCase();
+    }
+
+    public static getAddressOfSigner(message: Uint8Array, signature: string): string {
+        let res: string;
+        try {
+            res = verifyMessage(message, signature);
+        } catch (error) {
+            return AddressZero;
+        }
+        return res;
     }
 }
 

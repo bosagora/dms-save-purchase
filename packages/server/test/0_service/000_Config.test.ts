@@ -35,7 +35,29 @@ describe("Test of Config", () => {
             "0x9812176e565a007a84c5d2fc4cf842b12eb26dbc7568b4e40fc4f2418f2c8f54"
         );
         assert.strictEqual(config.setting.accessKey[0].sender, "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d");
+
+        assert.strictEqual(config.setting.purchaseSigners.length, 2);
+
+        const signer = config.setting.getPurchaseSigner("0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d");
+        assert.ok(signer !== undefined);
+        assert.deepStrictEqual(signer.delegate.address, "0x60A46cb28cFE31345bcC62cE6Fe4016a7ff2c4cf");
+
+        assert.deepStrictEqual(
+            config.setting.isCollector(
+                "0x4501F7aF010Cef3DcEaAfbc7Bfb2B39dE57df54d",
+                "0x60A46cb28cFE31345bcC62cE6Fe4016a7ff2c4cf"
+            ),
+            true
+        );
+        assert.deepStrictEqual(
+            config.setting.isCollector(
+                "0x9f9B1570ccA3A958e1215e0D226d9160b35370B9",
+                "0x60A46cb28cFE31345bcC62cE6Fe4016a7ff2c4cf"
+            ),
+            false
+        );
     });
+
     it("Test Phone Number", async () => {
         const phoneUtil = PhoneNumberUtil.getInstance();
         const number = phoneUtil.parseAndKeepRawInput("+82 10-1000-2000", "ZZ");
