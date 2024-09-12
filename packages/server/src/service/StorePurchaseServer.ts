@@ -13,7 +13,8 @@ import cors from "cors";
 import { Scheduler } from "../modules/scheduler/Scheduler";
 import { WebService } from "../modules/service/WebService";
 import { Config } from "./common/Config";
-import { StorePurchaseRouter } from "./routers/StorePurchaseRouter";
+import { StorePurchaseRouterV1 } from "./routers/StorePurchaseRouterV1";
+import { StorePurchaseRouterV2 } from "./routers/StorePurchaseRouterV2";
 import { TransactionPool } from "./scheduler/TransactionPool";
 import { StorePurchaseStorage } from "./storage/StorePurchaseStorage";
 
@@ -34,7 +35,8 @@ export class StorePurchaseServer extends WebService {
     private readonly config: Config;
     private readonly metrics: Metrics;
 
-    public readonly router: StorePurchaseRouter;
+    public readonly routerV1: StorePurchaseRouterV1;
+    public readonly routerV2: StorePurchaseRouterV2;
 
     private readonly storage: StorePurchaseStorage;
 
@@ -61,7 +63,8 @@ export class StorePurchaseServer extends WebService {
         this.pool = new TransactionPool();
         this.pool.storage = storage;
 
-        this.router = new StorePurchaseRouter(this, config, this.pool, this.storage, this.metrics);
+        this.routerV1 = new StorePurchaseRouterV1(this, config, this.pool, this.storage, this.metrics);
+        this.routerV2 = new StorePurchaseRouterV2(this, config, this.pool, this.storage, this.metrics);
 
         if (schedules) {
             schedules.forEach((m) => this.schedules.push(m));
@@ -69,7 +72,6 @@ export class StorePurchaseServer extends WebService {
                 m.setOption({
                     config: this.config,
                     metrics: this.metrics,
-                    router: this.router,
                     storage: this.storage,
                     pool: this.pool,
                 })
@@ -95,7 +97,8 @@ export class StorePurchaseServer extends WebService {
             })
         );
 
-        await this.router.registerRoutes();
+        await this.routerV1.registerRoutes();
+        await this.routerV2.registerRoutes();
 
         for (const m of this.schedules) await (m as Scheduler).start();
 

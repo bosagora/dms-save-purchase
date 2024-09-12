@@ -11,6 +11,7 @@
 import { Utils } from "acc-save-purchase-sdk";
 
 import { ArgumentParser } from "argparse";
+import { Wallet } from "ethers";
 import extend from "extend";
 import fs from "fs";
 import ip from "ip";
@@ -627,8 +628,15 @@ export class ContractConfig implements IContractsConfig {
     }
 }
 
+export interface IPurchaseSigner {
+    sender: string;
+    collectors: string[];
+    delegate: Wallet;
+}
+
 export interface ISetting {
     accessKey: IAccessKeyItem[];
+    purchaseSigners: IPurchaseSigner[];
     relayAccessKey: string;
     relayEndpoint: string;
     smsAccessKey: string;
@@ -646,6 +654,7 @@ export interface IAccessKeyItem {
 
 export class Setting implements ISetting {
     public accessKey: IAccessKeyItem[];
+    public purchaseSigners: IPurchaseSigner[];
     public relayAccessKey: string;
     public relayEndpoint: string;
     public smsAccessKey: string;
@@ -666,6 +675,7 @@ export class Setting implements ISetting {
                 waiting: Number(m.waiting),
             };
         });
+        this.purchaseSigners = defaults.purchaseSigners;
         this.relayAccessKey = defaults.relayAccessKey;
         this.relayEndpoint = defaults.relayEndpoint;
         this.smsAccessKey = defaults.smsAccessKey;
@@ -685,6 +695,15 @@ export class Setting implements ISetting {
                 };
             });
         }
+        if (config.purchaseSigners !== undefined) {
+            this.purchaseSigners = config.purchaseSigners.map((m) => {
+                return {
+                    sender: m.sender.toLowerCase(),
+                    collectors: m.collectors.map((n: string) => n.toLowerCase()),
+                    delegate: new Wallet(m.delegate),
+                };
+            });
+        }
         if (config.relayAccessKey !== undefined) this.relayAccessKey = config.relayAccessKey;
         if (config.relayEndpoint !== undefined) this.relayEndpoint = config.relayEndpoint;
         if (config.smsAccessKey !== undefined) this.smsAccessKey = config.smsAccessKey;
@@ -701,6 +720,7 @@ export class Setting implements ISetting {
     public static defaultValue(): ISetting {
         return {
             accessKey: [],
+            purchaseSigners: [],
             relayAccessKey: "",
             relayEndpoint: "",
             smsAccessKey: "",
@@ -710,5 +730,24 @@ export class Setting implements ISetting {
             timezone: "Asia/Seoul",
             allowedShopIdPrefix: "0x0001",
         } as unknown as ISetting;
+    }
+
+    public getPurchaseSigner(sender: string): IPurchaseSigner | undefined {
+        const findAccount = sender.toLowerCase();
+        return this.purchaseSigners.find((m) => m.sender === findAccount);
+    }
+
+    public isCollector(sender: string, account: string): boolean {
+        const purchaseSigner = this.getPurchaseSigner(sender);
+        if (purchaseSigner !== undefined) {
+            const findAccount = account.toLowerCase();
+            return purchaseSigner.collectors.find((m) => m === findAccount) !== undefined;
+        } else return false;
+    }
+
+    public getDelegate(sender: string): Wallet | undefined {
+        const purchaseSigner = this.getPurchaseSigner(sender);
+        if (purchaseSigner === undefined) return undefined;
+        return purchaseSigner.delegate;
     }
 }

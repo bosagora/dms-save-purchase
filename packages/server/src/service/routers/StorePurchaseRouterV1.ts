@@ -21,7 +21,7 @@ import { TransactionPool } from "../scheduler/TransactionPool";
 import { DBTransaction, StorePurchaseStorage } from "../storage/StorePurchaseStorage";
 import { ContractUtils } from "../utils/ContractUtils";
 import { ResponseMessage } from "../utils/Errors";
-import { Validation } from "../validation";
+import { getLoyaltyInTransaction, ILoyaltyResponse } from "./Common";
 
 import { BigNumber } from "@ethersproject/bignumber";
 import { AddressZero } from "@ethersproject/constants";
@@ -34,20 +34,9 @@ import moment from "moment-timezone";
 
 import * as hre from "hardhat";
 
-import { Tspec, TspecDocsMiddleware } from "tspec";
+import { TspecDocsMiddleware } from "tspec";
 
-interface ILoyaltyResponse {
-    loyaltyValue: BigNumber;
-    loyaltyPoint: BigNumber;
-    account: {
-        accountType: string;
-        account: string;
-        currentBalance: BigNumber;
-        loyaltyToBeProvided: BigNumber;
-    };
-}
-
-export class StorePurchaseRouter {
+export class StorePurchaseRouterV1 {
     /**
      *
      * @private
@@ -149,7 +138,7 @@ export class StorePurchaseRouter {
     }
 
     public async registerRoutes() {
-        this.app.get("/", [], StorePurchaseRouter.getHealthStatus.bind(this));
+        this.app.get("/", [], StorePurchaseRouterV1.getHealthStatus.bind(this));
         this.app.get("/v1/tx/sequence", [], this.getSequence.bind(this));
         this.app.post(
             "/v1/tx/purchase/new",
@@ -174,47 +163,6 @@ export class StorePurchaseRouter {
             [body("purchaseId").exists().not().isEmpty(), body("timestamp").exists().isNumeric()],
             this.postCancelPurchase.bind(this)
         );
-        this.app.post(
-            "/v2/tx/purchase/new",
-            [
-                body("purchase.purchaseId").exists().notEmpty(),
-                body("purchase.cashAmount").exists().trim().custom(Validation.isAmount),
-                body("purchase.loyalty").exists().trim().custom(Validation.isAmount),
-                body("purchase.currency").exists().notEmpty(),
-                body("purchase.shopId")
-                    .exists()
-                    .trim()
-                    .matches(/^(0x)[0-9a-f]{64}$/i),
-                body("purchase.userAccount").exists(),
-                body("purchase.userPhoneHash").exists(),
-                body("purchase.sender").exists().trim().isEthereumAddress(),
-                body("purchase.purchaseSignature")
-                    .exists()
-                    .trim()
-                    .matches(/^(0x)[0-9a-f]{130}$/i),
-                body("others.totalAmount").exists().trim().custom(Validation.isAmount),
-                body("others.timestamp").exists().trim().isNumeric(),
-                body("others.waiting").exists().trim().isNumeric(),
-                body("details").exists().isArray({ min: 1 }),
-                body("details.*.amount").custom(Validation.isAmount),
-                body("details.*.providePercent").custom(Validation.isAmount),
-            ],
-            this.postNewPurchaseV2.bind(this)
-        );
-        this.app.post(
-            "/v2/tx/purchase/cancel",
-            [
-                body("purchase.purchaseId").exists().notEmpty(),
-                body("purchase.sender").exists().trim().isEthereumAddress(),
-                body("purchase.purchaseSignature")
-                    .exists()
-                    .trim()
-                    .matches(/^(0x)[0-9a-f]{130}$/i),
-                body("others.timestamp").exists().trim().isNumeric(),
-                body("others.waiting").exists().trim().isNumeric(),
-            ],
-            this.postCancelPurchaseV2.bind(this)
-        );
         this.app.get("/metrics", [], this.getMetrics.bind(this));
         this.app.use("/docs", await TspecDocsMiddleware());
     }
@@ -232,25 +180,11 @@ export class StorePurchaseRouter {
 
         try {
             const sequence = await this.storage.getLastSequence();
-            return res.status(200).json(StorePurchaseRouter.makeResponseData(0, { sequence }));
+            return res.status(200).json(StorePurchaseRouterV1.makeResponseData(0, { sequence }));
         } catch (error) {
             logger.error("GET /v1/tx/sequence , " + error);
             return res.status(200).json(ResponseMessage.getErrorMessage("6000"));
         }
-    }
-
-    private getLoyaltyInTransaction(
-        cashAmount: BigNumber,
-        totalAmount: BigNumber,
-        details: PurchaseDetails[]
-    ): BigNumber {
-        if (totalAmount.eq(0)) return BigNumber.from(0);
-        if (cashAmount.eq(0)) return BigNumber.from(0);
-        let sum: BigNumber = BigNumber.from(0);
-        for (const elem of details) {
-            sum = sum.add(elem.amount.mul(elem.providePercent));
-        }
-        return ContractUtils.zeroGWEI(sum.mul(cashAmount).div(totalAmount).div(10000));
     }
 
     /**
@@ -334,7 +268,7 @@ export class StorePurchaseRouter {
             const nextSequence = await this.storage.getNextSequence();
             const currency = String(req.body.currency).trim();
             const waiting = req.body.waiting !== undefined ? Number(req.body.waiting) : accessKeyItem.waiting;
-            const loyaltyValue = this.getLoyaltyInTransaction(cashAmount, totalAmount, details);
+            const loyaltyValue = getLoyaltyInTransaction(cashAmount, totalAmount, details);
             const message = ContractUtils.getNewPurchaseDataMessage(
                 purchaseId,
                 cashAmount,
@@ -496,7 +430,7 @@ export class StorePurchaseRouter {
                     );
 
                     return res.json(
-                        StorePurchaseRouter.makeResponseData(0, {
+                        StorePurchaseRouterV1.makeResponseData(0, {
                             tx: tx.toJSON(),
                             loyalty: {
                                 loyaltyValue: loyaltyResponse.loyaltyValue.toString(),
@@ -513,7 +447,7 @@ export class StorePurchaseRouter {
                 } else {
                     this._metrics.add("success", 1);
                     return res.json(
-                        StorePurchaseRouter.makeResponseData(0, {
+                        StorePurchaseRouterV1.makeResponseData(0, {
                             tx: tx.toJSON(),
                             res: { loyalty: loyaltyPoint.toString() },
                         })
@@ -522,7 +456,7 @@ export class StorePurchaseRouter {
             } else {
                 this._metrics.add("success", 1);
                 return res.json(
-                    StorePurchaseRouter.makeResponseData(0, {
+                    StorePurchaseRouterV1.makeResponseData(0, {
                         tx: tx.toJSON(),
                     })
                 );
@@ -582,7 +516,7 @@ export class StorePurchaseRouter {
             await client.sendCancelStorePurchase(String(req.body.purchaseId).trim());
 
             this._metrics.add("success", 1);
-            return res.json(StorePurchaseRouter.makeResponseData(0, { tx: tx.toJSON() }));
+            return res.json(StorePurchaseRouterV1.makeResponseData(0, { tx: tx.toJSON() }));
         } catch (error) {
             logger.error("POST /v1/tx/purchase/cancel , " + error);
             this._metrics.add("failure", 1);
@@ -654,7 +588,7 @@ export class StorePurchaseRouter {
             const timestamp = BigInt(String(req.body.others.timestamp).trim());
             const waiting = BigInt(String(req.body.others.waiting).trim());
             const loyaltyValue = BigNumber.from(req.body.purchase.loyalty);
-            const loyaltyCalculated = this.getLoyaltyInTransaction(cashAmount, totalAmount, details);
+            const loyaltyCalculated = getLoyaltyInTransaction(cashAmount, totalAmount, details);
 
             const sender = String(req.body.purchase.sender).trim();
             const purchaseSignature = String(req.body.purchase.purchaseSignature).trim();
@@ -830,7 +764,7 @@ export class StorePurchaseRouter {
                     );
 
                     return res.json(
-                        StorePurchaseRouter.makeResponseData(0, {
+                        StorePurchaseRouterV1.makeResponseData(0, {
                             tx: tx.toJSON(),
                             loyalty: {
                                 loyaltyValue: loyaltyResponse.loyaltyValue.toString(),
@@ -847,7 +781,7 @@ export class StorePurchaseRouter {
                 } else {
                     this._metrics.add("success", 1);
                     return res.json(
-                        StorePurchaseRouter.makeResponseData(0, {
+                        StorePurchaseRouterV1.makeResponseData(0, {
                             tx: tx.toJSON(),
                             res: { loyalty: loyaltyPoint.toString() },
                         })
@@ -856,7 +790,7 @@ export class StorePurchaseRouter {
             } else {
                 this._metrics.add("success", 1);
                 return res.json(
-                    StorePurchaseRouter.makeResponseData(0, {
+                    StorePurchaseRouterV1.makeResponseData(0, {
                         tx: tx.toJSON(),
                     })
                 );
@@ -915,7 +849,7 @@ export class StorePurchaseRouter {
             await client.sendCancelStorePurchase(String(req.body.purchaseId).trim());
 
             this._metrics.add("success", 1);
-            return res.json(StorePurchaseRouter.makeResponseData(0, { tx: tx.toJSON() }));
+            return res.json(StorePurchaseRouterV1.makeResponseData(0, { tx: tx.toJSON() }));
         } catch (error) {
             logger.error("POST /v2/tx/purchase/cancel , " + error);
             this._metrics.add("failure", 1);
