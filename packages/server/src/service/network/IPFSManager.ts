@@ -1,12 +1,5 @@
-/**
- *  Includes classes that store data in IPFS
- *
- *  Copyright:
- *      Copyright (c) 2024 BOSAGORA Foundation All rights reserved.
- *
- *  License:
- *       MIT License. See LICENSE for details.
- */
+import { Config } from "../common/Config";
+import { IStorageManager } from "./IStorageManager";
 
 // tslint:disable-next-line:no-var-requires
 const IPFS = require("ipfs-mini");
@@ -20,16 +13,17 @@ const bs58 = require("bs58");
 /**
  * Store data in IPFS.
  */
-export class IPFSManager {
+export class IPFSManager implements IStorageManager {
     private ipfs: any;
     private test: boolean;
+    private config: Config;
 
     /**
      * Constructor
-     * @param api_url URL of the API for IPFS
      */
-    constructor(api_url: string) {
-        const uri = URI(api_url);
+    constructor(config: Config) {
+        this.config = config;
+        const uri = URI(config.node.ipfs_api_url);
         this.ipfs = new IPFS({ host: uri.hostname(), port: uri.port(), protocol: uri.protocol() });
         this.test = false;
     }
@@ -45,8 +39,9 @@ export class IPFSManager {
     /**
      * Store data in IPFS.
      * @param data Data to be stored.
+     * @param cid
      */
-    public add(data: string | Buffer): Promise<string> {
+    public add(data: string | Buffer, cid: string): Promise<string> {
         if (this.test) {
             return new Promise<string>((resolve, reject) => {
                 crypto.randomBytes(32, (err, buf) => {

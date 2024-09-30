@@ -274,10 +274,15 @@ export class NodeConfig implements INodeConfig {
     public interval: number;
     public max_txs: number;
     public send_interval: number;
+    public storage_type: string;
     public ipfs_api_url: string;
     public ipfs_gateway_url: string;
     public ipfs_test: boolean;
 
+    public s3_region: string;
+    public s3_access_key: string;
+    public s3_secret_key: string;
+    public s3_bucket: string;
     /**
      * Constructor
      */
@@ -287,9 +292,15 @@ export class NodeConfig implements INodeConfig {
         this.interval = defaults.interval;
         this.max_txs = defaults.max_txs;
         this.send_interval = defaults.send_interval;
+        this.storage_type = defaults.storage_type.toLowerCase();
         this.ipfs_api_url = defaults.ipfs_api_url;
         this.ipfs_gateway_url = defaults.ipfs_gateway_url;
         this.ipfs_test = defaults.ipfs_test;
+
+        this.s3_region = defaults.s3_region;
+        this.s3_access_key = defaults.s3_access_key;
+        this.s3_secret_key = defaults.s3_secret_key;
+        this.s3_bucket = defaults.s3_bucket;
     }
 
     /**
@@ -300,9 +311,14 @@ export class NodeConfig implements INodeConfig {
             interval: 600,
             max_txs: 128,
             send_interval: 14,
+            storage_type: "s3",
             ipfs_api_url: "https://api-ipfs.bosagora.info",
             ipfs_gateway_url: "https://ipfs.bosagora.info",
             ipfs_test: true,
+            s3_region: "",
+            s3_access_key: "",
+            s3_secret_key: "",
+            s3_bucket: "",
         };
     }
 
@@ -314,9 +330,17 @@ export class NodeConfig implements INodeConfig {
         if (config.interval !== undefined) this.interval = Number(config.interval);
         if (config.max_txs !== undefined) this.max_txs = Number(config.max_txs);
         if (config.send_interval !== undefined) this.send_interval = Number(config.send_interval);
+
+        if (config.storage_type !== undefined) this.storage_type = config.storage_type.toLowerCase();
+
         if (config.ipfs_api_url !== undefined) this.ipfs_api_url = config.ipfs_api_url;
         if (config.ipfs_gateway_url !== undefined) this.ipfs_gateway_url = config.ipfs_gateway_url;
         if (config.ipfs_test !== undefined) this.ipfs_test = config.ipfs_test.toString().toLowerCase() === "true";
+
+        if (config.s3_region !== undefined) this.s3_region = config.s3_region;
+        if (config.s3_access_key !== undefined) this.s3_access_key = config.s3_access_key;
+        if (config.s3_secret_key !== undefined) this.s3_secret_key = config.s3_secret_key;
+        if (config.s3_bucket !== undefined) this.s3_bucket = config.s3_bucket;
     }
 }
 
@@ -349,9 +373,14 @@ export interface INodeConfig {
     interval: number;
     max_txs: number;
     send_interval: number;
+    storage_type: string;
     ipfs_api_url: string;
     ipfs_gateway_url: string;
     ipfs_test: boolean;
+    s3_region: string;
+    s3_access_key: string;
+    s3_secret_key: string;
+    s3_bucket: string;
 }
 
 /**
