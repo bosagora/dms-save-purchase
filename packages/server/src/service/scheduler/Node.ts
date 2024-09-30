@@ -19,6 +19,8 @@ import { TransactionPool } from "./TransactionPool";
 import { Block, Hash, hashFull, Transaction, Utils } from "acc-save-purchase-sdk";
 import { ethers } from "hardhat";
 import { Metrics } from "../metrics/Metrics";
+import { IStorageManager } from "../network/IStorageManager";
+import { S3Manager } from "../network/S3Manager";
 
 /**
  * Definition of event type
@@ -41,7 +43,7 @@ export class Node extends Scheduler {
     /**
      * The object needed to store data in IPFS
      */
-    private _ipfs: IPFSManager | undefined;
+    private _blockStorage: IStorageManager | undefined;
 
     /**
      * The object needed to access the database
@@ -107,13 +109,13 @@ export class Node extends Scheduler {
     }
 
     /**
-     * Returns the value if this._ipfs is defined.
+     * Returns the value if this._blockStorage is defined.
      * Otherwise, exit the process.
      */
-    private get ipfs(): IPFSManager {
-        if (this._ipfs !== undefined) return this._ipfs;
+    private get blockStorage(): IStorageManager {
+        if (this._blockStorage !== undefined) return this._blockStorage;
         else {
-            logger.error("IPFSManager is not ready yet.");
+            logger.error("blockStorageManager is not ready yet.");
             process.exit(1);
         }
     }
@@ -158,8 +160,12 @@ export class Node extends Scheduler {
             }
         }
         if (this._config !== undefined) {
-            this._ipfs = new IPFSManager(this._config.node.ipfs_api_url);
-            this._ipfs.setTest(this._config.node.ipfs_test);
+            if (this._config.node.storage_type === "ipfs") {
+                this._blockStorage = new IPFSManager(this._config);
+            } else {
+                this._blockStorage = new S3Manager(this._config);
+            }
+            this._blockStorage.setTest(this._config.node.ipfs_test);
         }
     }
 
@@ -236,8 +242,8 @@ export class Node extends Scheduler {
                     let success: boolean = true;
 
                     try {
-                        // Save block to IPFS
-                        cid = await this.ipfs.add(JSON.stringify(block));
+                        // Save block
+                        cid = await this.blockStorage.add(JSON.stringify(block), hashFull(block).toString());
                         logger.info(`Saved block to IPFS - height: ${block.header.height.toString()}, CID: ${cid}`);
                     } catch {
                         success = false;

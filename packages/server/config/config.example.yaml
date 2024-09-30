@@ -31,9 +31,14 @@ node:
   interval: 600
   max_txs: 256
   send_interval: 30
+  storage_type: "${NODE_STORAGE_TYPE}"
   ipfs_api_url: https://api-ipfs.bosagora.info
   ipfs_gateway_url: https://ipfs.bosagora.info
   ipfs_test: false
+  s3_region: "${NODE_S3_REGION}"
+  s3_access_key: "${NODE_S3_ACCESS_KEY}"
+  s3_secret_key: "${NODE_S3_SECRET_KEY}"
+  s3_bucket: "${NODE_S3_BUCKET}"
 
 scheduler:
   enable: true
