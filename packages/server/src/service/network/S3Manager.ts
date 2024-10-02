@@ -58,8 +58,8 @@ export class S3Manager implements IStorageManager {
                 .then(() => {
                     return resolve(cid);
                 })
-                .catch((reason) => {
-                    return reject(new Error(reason));
+                .catch((reason: any) => {
+                    return reject(reason);
                 });
         });
     }

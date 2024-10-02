@@ -235,28 +235,34 @@ export class Node extends Scheduler {
                 // 트랜잭션이 존재하면
                 if (txs.length > 0) {
                     const txList = DBTransaction.converterTxArray(txs);
+                    let success: boolean = true;
+                    let cid: string = "";
 
                     const block = Block.createBlock(this.prev_hash, this.prev_height, txList);
-                    let blockHash: string;
-                    while (true) {
-                        blockHash = hashFull(block).toString();
-                        if (!(await this.blockStorage.exists(blockHash))) break;
-                        else block.header.increaseNonce();
-                    }
-
-                    let cid: string = "";
-                    let success: boolean = true;
-
+                    let blockHash = hashFull(block).toString();
                     try {
-                        // Save block
-                        cid = await this.blockStorage.add(JSON.stringify(block), blockHash);
-                        logger.info(`Saved block to IPFS - height: ${block.header.height.toString()}, CID: ${cid}`);
+                        while (true) {
+                            if (!(await this.blockStorage.exists(blockHash))) break;
+                            else block.header.increaseNonce();
+                            blockHash = hashFull(block).toString();
+                        }
                     } catch {
                         success = false;
                         this.metrics.add("failure", 1);
-                        logger.error(
-                            `Failed to save block to IPFS - height: ${block.header.height.toString()}, CID: ${cid}`
-                        );
+                        logger.error(`Failed to check exists block - height: ${block.header.height.toString()}`);
+                    }
+
+                    if (success) {
+                        try {
+                            cid = await this.blockStorage.add(JSON.stringify(block), blockHash);
+                            logger.info(`Saved block to IPFS - height: ${block.header.height.toString()}, CID: ${cid}`);
+                        } catch {
+                            success = false;
+                            this.metrics.add("failure", 1);
+                            logger.error(
+                                `Failed to save block to IPFS - height: ${block.header.height.toString()}, CID: ${cid}`
+                            );
+                        }
                     }
 
                     if (success) {
