@@ -38,18 +38,22 @@ export class BlockHeader {
      */
     public timestamp: bigint;
 
+    public nonce: bigint;
+
     /**
      * Constructor
      * @param prevBlock  The Hash of the previous block in the chain of blocks
      * @param merkleRoot The hash of the merkle root of the transactions
      * @param height      The block height
      * @param timestamp
+     * @param nonce
      */
-    constructor(prevBlock: Hash, merkleRoot: Hash, height: bigint, timestamp: bigint) {
+    constructor(prevBlock: Hash, merkleRoot: Hash, height: bigint, timestamp: bigint, nonce: bigint = 0n) {
         this.prevBlock = prevBlock;
         this.merkleRoot = merkleRoot;
         this.height = height;
         this.timestamp = timestamp;
+        this.nonce = nonce;
     }
 
     /**
@@ -71,7 +75,8 @@ export class BlockHeader {
             new Hash(value.prevBlock),
             new Hash(value.merkleRoot),
             BigInt(value.height),
-            BigInt(value.timestamp)
+            BigInt(value.timestamp),
+            BigInt(value.nonce)
         );
     }
 
@@ -84,6 +89,7 @@ export class BlockHeader {
             merkleRoot: this.merkleRoot,
             height: this.height.toString(),
             timestamp: this.timestamp.toString(),
+            nonce: this.nonce.toString(),
         };
     }
 
@@ -96,5 +102,10 @@ export class BlockHeader {
         this.merkleRoot.computeHash(buffer);
         buffer.writeBigUInt64LE(this.height);
         buffer.writeBigUInt64LE(this.timestamp);
+        buffer.writeBigUInt64LE(this.nonce);
+    }
+
+    public increaseNonce(): void {
+        this.nonce++;
     }
 }

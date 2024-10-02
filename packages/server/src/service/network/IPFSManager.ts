@@ -63,4 +63,8 @@ export class IPFSManager implements IStorageManager {
             });
         });
     }
+
+    public exists(cid: string): Promise<boolean> {
+        return Promise.resolve(false);
+    }
 }

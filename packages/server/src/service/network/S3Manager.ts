@@ -3,6 +3,8 @@ import { IStorageManager } from "./IStorageManager";
 
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
+import axios, { AxiosInstance } from "axios";
+
 /**
  * Store data in IPFS.
  */
@@ -10,6 +12,7 @@ export class S3Manager implements IStorageManager {
     private test: boolean;
     private config: Config;
     private s3_client: S3Client;
+    private axios_client: AxiosInstance;
 
     /**
      * Constructor
@@ -22,6 +25,9 @@ export class S3Manager implements IStorageManager {
                 accessKeyId: this.config.node.s3_access_key,
                 secretAccessKey: this.config.node.s3_secret_key,
             },
+        });
+        this.axios_client = axios.create({
+            baseURL: `https://${this.config.node.s3_bucket}.s3.${this.config.node.s3_region}.amazonaws.com`,
         });
         this.test = false;
     }
@@ -53,8 +59,23 @@ export class S3Manager implements IStorageManager {
                     return resolve(cid);
                 })
                 .catch((reason) => {
-                    console.error(reason);
                     return reject(new Error(reason));
+                });
+        });
+    }
+
+    public exists(cid: string): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            this.axios_client
+                .get(cid)
+                .then((response) => {
+                    return resolve(true);
+                })
+                .catch((reason) => {
+                    if (reason.response !== undefined && reason.response.status !== undefined) {
+                        if (reason.response.status === 404) return resolve(false);
+                        else return reject(reason);
+                    } else return reject(reason);
                 });
         });
     }

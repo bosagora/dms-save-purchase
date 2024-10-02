@@ -68,9 +68,12 @@ export class JSONValidator {
                     timestamp: {
                         type: "string",
                     },
+                    nonce: {
+                        type: "string",
+                    },
                 },
                 additionalProperties: false,
-                required: ["prevBlock", "merkleRoot", "height", "timestamp"],
+                required: ["prevBlock", "merkleRoot", "height", "timestamp", "nonce"],
             },
         ],
         [
