@@ -237,13 +237,19 @@ export class Node extends Scheduler {
                     const txList = DBTransaction.converterTxArray(txs);
 
                     const block = Block.createBlock(this.prev_hash, this.prev_height, txList);
+                    let blockHash: string;
+                    while (true) {
+                        blockHash = hashFull(block).toString();
+                        if (!(await this.blockStorage.exists(blockHash))) break;
+                        else block.header.increaseNonce();
+                    }
 
                     let cid: string = "";
                     let success: boolean = true;
 
                     try {
                         // Save block
-                        cid = await this.blockStorage.add(JSON.stringify(block), hashFull(block).toString());
+                        cid = await this.blockStorage.add(JSON.stringify(block), blockHash);
                         logger.info(`Saved block to IPFS - height: ${block.header.height.toString()}, CID: ${cid}`);
                     } catch {
                         success = false;
