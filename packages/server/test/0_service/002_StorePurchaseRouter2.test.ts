@@ -6,7 +6,7 @@ import { StorePurchaseServer } from "../../src/service/StorePurchaseServer";
 import { HardhatUtils } from "../../src/service/utils";
 import { TestClient } from "../helper/Utility";
 
-import { CancelTransaction, NewTransaction, Transaction } from "acc-save-purchase-sdk";
+import { CancelTransaction, NewTransaction, Transaction } from "kios-save-purchase-sdk";
 
 import { AddressZero } from "@ethersproject/constants";
 import * as assert from "assert";

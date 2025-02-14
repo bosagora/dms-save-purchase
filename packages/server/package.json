@@ -1,5 +1,5 @@
 {
-    "name": "acc-save-purchase-server",
+    "name": "kios-save-purchase-server",
     "version": "2.1.0",
     "description": "DMS Save Purchase",
     "main": "src/main.js",
@@ -30,14 +30,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/acc-coin/acc-save-purchase.git"
+        "url": "git+https://github.com/kios-coin/kios-save-purchase.git"
     },
     "author": "BOSAGORA Foundation",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/acc-coin/acc-save-purchase/issues"
+        "url": "https://github.com/kios-coin/kios-save-purchase/issues"
     },
-    "homepage": "https://github.com/acc-coin/acc-save-purchase#readme",
+    "homepage": "https://github.com/kios-coin/kios-save-purchase#readme",
     "devDependencies": {
         "@ethersproject/abi": "^5.7.0",
         "@ethersproject/bignumber": "^5.7.0",
@@ -67,8 +67,6 @@
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.658.1",
-        "acc-save-purchase-contracts": "~1.0.2",
-        "acc-save-purchase-sdk": "~3.1.0",
         "argparse": "^2.0.1",
         "assert": "^2.0.0",
         "axios": "^1.6.7",
@@ -88,6 +86,8 @@
         "hardhat-gas-reporter": "^1.0.7",
         "ip": "^2.0.1",
         "ipfs-mini": "^1.1.5",
+        "kios-save-purchase-contracts": "~1.0.2",
+        "kios-save-purchase-sdk": "~3.1.0",
         "mkdirp": "^1.0.4",
         "mocha": "^8.0.1",
         "moment-timezone": "^0.5.45",

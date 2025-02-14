@@ -8,7 +8,7 @@ import {
     Transaction,
     TransactionType,
     Utils,
-} from "acc-save-purchase-sdk";
+} from "kios-save-purchase-sdk";
 import { IDatabaseConfig } from "../common/Config";
 import { Storage } from "./Storage";
 

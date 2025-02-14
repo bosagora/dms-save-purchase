@@ -1,6 +1,6 @@
 // @ts-ignore
 import crypto from "crypto";
-import { Utils } from "acc-save-purchase-sdk";
+import { Utils } from "kios-save-purchase-sdk";
 import { Scheduler } from "../modules";
 import { logger } from "../service/common/Logger";
 import { StorePurchaseClient } from "./Client";

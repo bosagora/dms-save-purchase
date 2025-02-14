@@ -9,9 +9,9 @@
  */
 
 import { NonceManager } from "@ethersproject/experimental";
-import { Utils } from "acc-save-purchase-sdk";
 import { Signer, Wallet } from "ethers";
 import { ethers } from "hardhat";
+import { Utils } from "kios-save-purchase-sdk";
 import { StorePurchase } from "../../../typechain-types";
 import { Scheduler } from "../../modules";
 import { Config } from "../common/Config";

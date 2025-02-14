@@ -16,8 +16,8 @@ import { DBTransaction, StorePurchaseStorage } from "../storage/StorePurchaseSto
 import { LastBlockInfo } from "./LastBlockInfo";
 import { TransactionPool } from "./TransactionPool";
 
-import { Block, Hash, hashFull, Transaction, Utils } from "acc-save-purchase-sdk";
 import { ethers } from "hardhat";
+import { Block, Hash, hashFull, Transaction, Utils } from "kios-save-purchase-sdk";
 import { Metrics } from "../metrics/Metrics";
 import { IStorageManager } from "../network/IStorageManager";
 import { S3Manager } from "../network/S3Manager";

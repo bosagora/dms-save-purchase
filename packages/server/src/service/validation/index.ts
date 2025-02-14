@@ -9,7 +9,7 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { Utils } from "acc-save-purchase-sdk";
+import { Utils } from "kios-save-purchase-sdk";
 
 import { BigNumber } from "ethers";
 

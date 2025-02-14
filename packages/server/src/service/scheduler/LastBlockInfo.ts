@@ -8,8 +8,8 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { Hash } from "acc-save-purchase-sdk";
 import { ethers } from "hardhat";
+import { Hash } from "kios-save-purchase-sdk";
 import { StorePurchase } from "../../../typechain-types";
 import { Config } from "../common/Config";
 import { StorePurchaseStorage } from "../storage/StorePurchaseStorage";

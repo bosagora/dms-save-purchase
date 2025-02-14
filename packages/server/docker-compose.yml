@@ -146,7 +146,7 @@ services:
 #
 #  store-purchase-client:
 #    container_name: store-purchase-client
-#    image: acc-coin/acc-save-purchase:test
+#    image: kios-coin/kios-save-purchase:test
 #    restart: always
 #    environment:
 #      SERVER_URL: "http://store-purchase:3030"

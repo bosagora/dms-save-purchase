@@ -1,5 +1,5 @@
 {
-    "name": "acc-save-purchase-contracts",
+    "name": "kios-save-purchase-contracts",
     "version": "1.0.2",
     "description": "Smart contracts that stores purchase history for decentralized point systems",
     "files": [
@@ -16,14 +16,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/acc-coin/acc-save-purchase.git"
+        "url": "git+https://github.com/kios-coin/kios-save-purchase.git"
     },
     "author": "BOSagora Foundation",
     "license": "AGPL-3.0-or-later",
     "bugs": {
-        "url": "https://github.com/acc-coin/acc-save-purchase/issues"
+        "url": "https://github.com/kios-coin/kios-save-purchase/issues"
     },
-    "homepage": "https://github.com/acc-coin/acc-save-purchase#readme",
+    "homepage": "https://github.com/kios-coin/kios-save-purchase#readme",
     "devDependencies": {
         "@ethersproject/constants": "^5.7.0",
         "@nomiclabs/hardhat-ethers": "^2.2.3",
@@ -33,7 +33,7 @@
         "@types/chai": "^4.3.5",
         "@types/mocha": "^10.0.0",
         "@types/node": "^12.20.43",
-        "acc-save-purchase-sdk": "~2.3.0",
+        "kios-save-purchase-sdk": "~3.1.0",
         "assert": "^2.0.0",
         "chai": "^4.3.7",
         "chai-http": "^4.3.7",

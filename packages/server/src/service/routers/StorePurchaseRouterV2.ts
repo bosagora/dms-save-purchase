@@ -1,7 +1,7 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 
-import { CancelTransaction, NewTransaction, PurchaseDetails } from "acc-save-purchase-sdk";
+import { CancelTransaction, NewTransaction, PurchaseDetails } from "kios-save-purchase-sdk";
 import { Wallet } from "ethers";
 import { WebService } from "../../modules";
 import { BOACoin } from "../common/Amount";

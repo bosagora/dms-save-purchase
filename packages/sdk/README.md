@@ -1,3 +1,3 @@
-# acc-save-purchase-sdk
+# kios-save-purchase-sdk
 
 The Typescript SDK for DMS Store Purchase

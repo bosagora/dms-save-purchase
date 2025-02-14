@@ -1,4 +1,4 @@
-import { Block, BlockHeader, Hash, hashFull, Utils } from "acc-save-purchase-sdk";
+import { Block, BlockHeader, Hash, hashFull, Utils } from "kios-save-purchase-sdk";
 import * as assert from "assert";
 import chai, { expect } from "chai";
 import { solidity } from "ethereum-waffle";

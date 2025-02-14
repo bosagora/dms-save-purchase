@@ -1,5 +1,5 @@
 import { BigNumber } from "@ethersproject/bignumber";
-import { PurchaseDetails } from "acc-save-purchase-sdk";
+import { PurchaseDetails } from "kios-save-purchase-sdk";
 import { ContractUtils } from "../utils/ContractUtils";
 
 export interface ILoyaltyResponse {

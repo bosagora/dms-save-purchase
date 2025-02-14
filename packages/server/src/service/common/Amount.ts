@@ -9,7 +9,7 @@
  *       MIT License. See LICENSE for details.
  */
 
-import { iota } from "acc-save-purchase-sdk";
+import { iota } from "kios-save-purchase-sdk";
 
 import { BigNumber } from "ethers";
 
