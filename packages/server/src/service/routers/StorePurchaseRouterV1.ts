@@ -11,8 +11,8 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 
-import { CancelTransaction, NewTransaction, PurchaseDetails } from "kios-save-purchase-sdk";
 import { Wallet } from "ethers";
+import { CancelTransaction, NewTransaction, PurchaseDetails } from "kios-save-purchase-sdk";
 import { WebService } from "../../modules";
 import { Amount, BOACoin } from "../common/Amount";
 import { Config, IAccessKeyItem } from "../common/Config";
@@ -415,7 +415,7 @@ export class StorePurchaseRouterV1 {
                                     `제공될 포인트의 량: ${loyaltyToBeProvided.toDisplayString(
                                         true,
                                         precision
-                                    )}  (1 POINT = 1 PHP)\n` +
+                                    )}  (1 POINT = 1 KRW)\n` +
                                     `현재 포인트 잔고: ${currentBalance.toDisplayString(true, precision)}`;
                             } else {
                                 contents =
@@ -423,7 +423,7 @@ export class StorePurchaseRouterV1 {
                                     `Amount to be provided: ${loyaltyToBeProvided.toDisplayString(
                                         true,
                                         precision
-                                    )} POINT (1 POINT = 1 PHP)\n` +
+                                    )} POINT (1 POINT = 1 KRW)\n` +
                                     `Current balance: ${currentBalance.toDisplayString(true, precision)} POINT`;
                             }
                             if (this._config.setting.messageEnable) await client.sendSMSMessage(contents, userPhone);

@@ -40,10 +40,10 @@ export type SavePurchaseApiSpec = Tspec.DefineApiSpec<{
                          */
                         userAccount: string;
                         /**
-                         * Phone number hash
-                         * @example "0xF48F4BF6C8B5B285F0D9EB5D52623EE14B6F2B5980E87FAC89E4B968995FAE2B"
+                         * Phone number
+                         * @example "+82 01-100-1234"
                          */
-                        userPhoneHash: string;
+                        userPhone: string;
                         /**
                          * The wallet address of the loyalty point provider
                          * @example "0x5A3Fc8990417b3e6ddCdAE0E8039E798A609Ef84"

@@ -1,8 +1,8 @@
 import express from "express";
 import { body, validationResult } from "express-validator";
 
-import { CancelTransaction, NewTransaction, PurchaseDetails } from "kios-save-purchase-sdk";
 import { Wallet } from "ethers";
+import { CancelTransaction, NewTransaction, PurchaseDetails } from "kios-save-purchase-sdk";
 import { WebService } from "../../modules";
 import { BOACoin } from "../common/Amount";
 import { Config, IAccessKeyItem } from "../common/Config";
@@ -139,7 +139,7 @@ export class StorePurchaseRouterV2 {
                     .trim()
                     .matches(/^(0x)[0-9a-f]{64}$/i),
                 body("purchase.userAccount").exists(),
-                body("purchase.userPhoneHash").exists(),
+                body("purchase.userPhone").exists(),
                 body("purchase.sender").exists().trim().isEthereumAddress(),
                 body("purchase.purchaseSignature")
                     .exists()
@@ -190,7 +190,8 @@ export class StorePurchaseRouterV2 {
         try {
             const client = new RelayClient(this._config);
             let userAccount = String(req.body.purchase.userAccount).trim();
-            const userPhoneHash = String(req.body.purchase.userPhoneHash).trim();
+            const userPhone = String(req.body.purchase.userPhone).trim();
+            const userPhoneHash = ContractUtils.getPhoneHash(userPhone);
             const purchaseId = String(req.body.purchase.purchaseId).trim();
             const cashAmount = BigNumber.from(req.body.purchase.cashAmount);
             const currency = String(req.body.purchase.currency).trim();
@@ -381,7 +382,7 @@ export class StorePurchaseRouterV2 {
                                     `제공될 포인트의 량: ${loyaltyToBeProvided.toDisplayString(
                                         true,
                                         precision
-                                    )}  (1 POINT = 1 PHP)\n` +
+                                    )}  (1 POINT = 1 KRW)\n` +
                                     `현재 포인트 잔고: ${currentBalance.toDisplayString(true, precision)}`;
                             } else {
                                 contents =
@@ -389,12 +390,12 @@ export class StorePurchaseRouterV2 {
                                     `Amount to be provided: ${loyaltyToBeProvided.toDisplayString(
                                         true,
                                         precision
-                                    )} POINT (1 POINT = 1 PHP)\n` +
+                                    )} POINT (1 POINT = 1 KRW)\n` +
                                     `Current balance: ${currentBalance.toDisplayString(true, precision)} POINT`;
                             }
                             if (this._config.setting.messageEnable)
-                                await client.sendSMSMessage(contents, userPhoneHash);
-                            logger.info(`[SMS] ${userPhoneHash} ${contents}`);
+                                await client.sendSMSMessage(contents, userPhone);
+                            logger.info(`[SMS] ${userPhone} ${contents}`);
                         }
                     }
 
