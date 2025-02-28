@@ -139,7 +139,7 @@ export class StorePurchaseRouterV2 {
                     .trim()
                     .matches(/^(0x)[0-9a-f]{64}$/i),
                 body("purchase.userAccount").exists(),
-                body("purchase.userPhoneHash").exists(),
+                body("purchase.userPhone").exists(),
                 body("purchase.sender").exists().trim().isEthereumAddress(),
                 body("purchase.purchaseSignature")
                     .exists()
@@ -190,7 +190,8 @@ export class StorePurchaseRouterV2 {
         try {
             const client = new RelayClient(this._config);
             let userAccount = String(req.body.purchase.userAccount).trim();
-            const userPhoneHash = String(req.body.purchase.userPhoneHash).trim();
+            const userPhone = String(req.body.purchase.userPhone).trim();
+            const userPhoneHash = ContractUtils.getPhoneHash(userPhone);
             const purchaseId = String(req.body.purchase.purchaseId).trim();
             const cashAmount = BigNumber.from(req.body.purchase.cashAmount);
             const currency = String(req.body.purchase.currency).trim();
@@ -393,8 +394,8 @@ export class StorePurchaseRouterV2 {
                                     `Current balance: ${currentBalance.toDisplayString(true, precision)} POINT`;
                             }
                             if (this._config.setting.messageEnable)
-                                await client.sendSMSMessage(contents, userPhoneHash);
-                            logger.info(`[SMS] ${userPhoneHash} ${contents}`);
+                                await client.sendSMSMessage(contents, userPhone);
+                            logger.info(`[SMS] ${userPhone} ${contents}`);
                         }
                     }
 
