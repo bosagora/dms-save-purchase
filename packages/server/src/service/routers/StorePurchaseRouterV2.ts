@@ -378,20 +378,20 @@ export class StorePurchaseRouterV2 {
                             let contents;
                             if (language === "ko") {
                                 contents =
-                                    `제공될 일시: ${time}\n` +
-                                    `제공될 포인트의 량: ${loyaltyToBeProvided.toDisplayString(
+                                    `제공일시: ${time}\n` +
+                                    `포인트제공량: ${loyaltyToBeProvided.toDisplayString(
                                         true,
                                         precision
-                                    )}  (1 POINT = 1 KRW)\n` +
-                                    `현재 포인트 잔고: ${currentBalance.toDisplayString(true, precision)}`;
+                                    )}\n` +
+                                    `포인트잔고: ${currentBalance.toDisplayString(true, precision)}`;
                             } else {
                                 contents =
-                                    `Time to be provided: ${time}\n` +
-                                    `Amount to be provided: ${loyaltyToBeProvided.toDisplayString(
+                                    `Provided time: ${time}\n` +
+                                    `Amount: ${loyaltyToBeProvided.toDisplayString(
                                         true,
                                         precision
-                                    )} POINT (1 POINT = 1 KRW)\n` +
-                                    `Current balance: ${currentBalance.toDisplayString(true, precision)} POINT`;
+                                    )}\n` +
+                                    `Balance: ${currentBalance.toDisplayString(true, precision)}`;
                             }
                             if (this._config.setting.messageEnable)
                                 await client.sendSMSMessage(contents, userPhone);
