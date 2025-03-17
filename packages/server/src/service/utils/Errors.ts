@@ -20,6 +20,7 @@ export class ResponseMessage {
         ["3050", "Sequence is different from the expected value"],
         ["3051", "The access key entered is not valid"],
         ["3072", "The shopId is invalid"],
+        ["3073", "The purchase amount is too large"],
     ]);
 
     public static getEVMErrorMessage(error: any): { code: number; error: any } {

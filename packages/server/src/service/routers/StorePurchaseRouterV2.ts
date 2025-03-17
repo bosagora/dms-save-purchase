@@ -199,6 +199,11 @@ export class StorePurchaseRouterV2 {
             const sender = String(req.body.purchase.sender).trim();
             const collectorSignature = String(req.body.purchase.purchaseSignature).trim();
 
+            const MaxCashAmount = BOACoin.make(10_000_000).value;
+            if (cashAmount.gt(MaxCashAmount)) {
+                return res.status(200).json(ResponseMessage.getErrorMessage("3073"));
+            }
+
             const message = ContractUtils.getNewPurchaseDataMessage(
                 purchaseId,
                 cashAmount,

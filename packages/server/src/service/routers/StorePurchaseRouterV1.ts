@@ -272,6 +272,10 @@ export class StorePurchaseRouterV1 {
             if (!totalAmount.eq(sum)) {
                 return res.status(200).json(ResponseMessage.getErrorMessage("2004"));
             }
+            const MaxCashAmount = BOACoin.make(10_000_000).value;
+            if (cashAmount.gt(MaxCashAmount)) {
+                return res.status(200).json(ResponseMessage.getErrorMessage("3073"));
+            }
             const purchaseId = String(req.body.purchaseId).trim();
             const userPhoneHash = ContractUtils.getPhoneHash(userPhone);
             const nextSequence = await this.storage.getNextSequence();
