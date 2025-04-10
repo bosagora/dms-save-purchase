@@ -95,14 +95,19 @@ const config = {
             chainId: 2019,
             accounts: getAccounts(),
         },
-        main_chain_devnet: {
-            url: "http://localhost:8540",
-            chainId: 24600,
+        side_chain_devnet: {
+            url: "http://localhost:8500",
+            chainId: 24000,
             accounts: getAccounts(),
         },
-        side_chain_devnet: {
-            url: "http://localhost:8545",
-            chainId: 24680,
+        main_chain_devnet: {
+            url: "http://localhost:8502",
+            chainId: 24002,
+            accounts: getAccounts(),
+        },
+        outer_chain_devnet: {
+            url: "http://localhost:8504",
+            chainId: 24004,
             accounts: getAccounts(),
         },
     },
