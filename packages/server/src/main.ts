@@ -32,7 +32,15 @@ async function main() {
     });
 
     logger.info(`address: ${config.server.address}`);
-    logger.info(`port: ${config.server.port}`);
+    if (config.server.http.enable) {
+        logger.info(`HTTP server: enabled on port ${config.server.http.port}`);
+        if (config.server.https.enable) {
+            logger.info(`  (for internal use)`);
+        }
+    }
+    if (config.server.https.enable) {
+        logger.info(`HTTPS server: enabled on port ${config.server.https.port}`);
+    }
 
     const schedulers: Scheduler[] = [];
     if (config.scheduler.enable) {
@@ -60,10 +68,10 @@ async function main() {
         // handle specific listen errors with friendly messages
         switch (error.code) {
             case "EACCES":
-                logger.error(`${config.server.port} requires elevated privileges`);
+                logger.error(`Port requires elevated privileges`);
                 break;
             case "EADDRINUSE":
-                logger.error(`Port ${config.server.port} is already in use`);
+                logger.error(`Port is already in use`);
                 break;
             default:
                 logger.error(`An error occurred while starting the server: ${error.stack}`);

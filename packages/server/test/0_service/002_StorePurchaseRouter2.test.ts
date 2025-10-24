@@ -40,7 +40,7 @@ describe("Test of StorePurchase Router", () => {
 
         await HardhatUtils.deployStorePurchaseContract(config, deployer, publisher);
 
-        serverURL = new URL(`http://127.0.0.1:${config.server.port}`).toString();
+        serverURL = new URL(`http://127.0.0.1:${config.server.http.port}`).toString();
         storage = await StorePurchaseStorage.make(config.database);
         server = new StorePurchaseServer(config, storage);
     });
@@ -58,6 +58,8 @@ describe("Test of StorePurchase Router", () => {
     let newTxParam: any;
     let url: string;
     it("New Transaction", async () => {
+        const phoneNumber = "";
+        const phoneHash = ContractUtils.getPhoneHash(phoneNumber);
         newTxParam = {
             purchase: {
                 purchaseId: "441381704768166151",
@@ -66,7 +68,7 @@ describe("Test of StorePurchase Router", () => {
                 currency: "usd",
                 shopId: "0x0001d6b480ff5a30044dcd7fe3b28c69b6d0d725ca469d1b685b57dfc1055d7f",
                 userAccount: AddressZero,
-                userPhoneHash: ContractUtils.getPhoneHash(""),
+                userPhone: phoneNumber,
                 sender: system.address,
                 purchaseSignature: "",
             },
@@ -90,7 +92,7 @@ describe("Test of StorePurchase Router", () => {
             newTxParam.purchase.currency,
             newTxParam.purchase.shopId,
             newTxParam.purchase.userAccount,
-            newTxParam.purchase.userPhoneHash,
+            phoneHash,
             newTxParam.purchase.sender
         );
         newTxParam.purchase.purchaseSignature = await ContractUtils.signMessage(collector, message);

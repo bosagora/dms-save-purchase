@@ -42,8 +42,8 @@ describe("Test of StorePurchase Server", function () {
 
     before("Load Config", () => {
         config.readFromFile(path.resolve("config", "config_test.yaml"));
-        config.server.port = 9595;
-        serverURL = new URL(`http://127.0.0.1:${config.server.port}`).toString();
+        config.server.http.port = 9595;
+        serverURL = new URL(`http://127.0.0.1:${config.server.http.port}`).toString();
     });
 
     before("Deploy Contract", async () => {

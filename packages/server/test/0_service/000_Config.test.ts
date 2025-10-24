@@ -10,7 +10,8 @@ describe("Test of Config", () => {
         const config: Config = new Config();
         config.readFromFile(path.resolve("test", "0_service", "config.test.yaml"));
         assert.strictEqual(config.server.address, "127.0.0.1");
-        assert.strictEqual(config.server.port.toString(), "3000");
+        assert.strictEqual(config.server.http.enable, true);
+        assert.strictEqual(config.server.http.port.toString(), "3000");
         assert.strictEqual(config.logging.level, "debug");
 
         assert.strictEqual(config.scheduler.enable, true);

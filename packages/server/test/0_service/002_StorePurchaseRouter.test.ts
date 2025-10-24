@@ -38,7 +38,7 @@ describe("Test of StorePurchase Router", () => {
 
         await HardhatUtils.deployStorePurchaseContract(config, deployer, publisher);
 
-        serverURL = new URL(`http://127.0.0.1:${config.server.port}`).toString();
+        serverURL = new URL(`http://127.0.0.1:${config.server.http.port}`).toString();
         storage = await StorePurchaseStorage.make(config.database);
         server = new StorePurchaseServer(config, storage);
     });
